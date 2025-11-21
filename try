@@ -13,98 +13,81 @@ import {
 } from "@mui/material";
 
 import { Translate } from "@mui/icons-material";
-
 import { useTranslation } from "react-i18next";
-
 import i18next from "i18next";
-
 import cookies from "js-cookie";
 
 import BasicTabs from "./Components/BasicTabs";
+import MainMenu from "./Components/MainMenu";   // <-- NEW IMPORT Added
 
 import { useParams } from "react-router-dom";
-
 import styled from "@emotion/styled";
 
 // Custom Styled AppBar
-
 const CustomAppBar = styled(AppBar)({
   backgroundColor: "#808080",
 });
 
 interface Language {
   code: string;
-
   name: string;
-
   country_code: string;
-
   dir: string;
 }
 
 const languages: Language[] = [
   { code: "en", name: "English", country_code: "gb", dir: "ltr" },
-
   { code: "th", name: "แบบไทย", country_code: "th", dir: "ltr" },
 ];
 
 export default function App() {
   const currentLanguageCode = cookies.get("i18next") || "en";
-
   const currentLanguage = languages.find((l) => l.code === currentLanguageCode);
-
   const { t } = useTranslation();
 
   const params = useParams();
 
-  const theme = useTheme(); // Get MUI Theme
-
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Check if screen is small
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     document.body.dir = currentLanguage?.dir || "ltr";
-
     document.title = t("app_title");
   }, [currentLanguage, t]);
 
-  // Mobile Menu State
-
+  // Language Menu State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
   return (
     <Box sx={{ flexGrow: 1, backgroundColor: "#C9E9EA" }}>
-      {/* Responsive AppBar */}
+      {/* Top Header */}
       <CustomAppBar position="static">
         <Toolbar
           sx={{ display: "flex", justifyContent: "space-between" }}
           variant="dense"
         >
           <Typography
-            variant={isMobile ? "h6" : "h5"} // Change size dynamically
+            variant={isMobile ? "h6" : "h5"}
             sx={{
               fontWeight: "bold",
-
               flex: 1,
-
               textAlign: "left",
-
-              whiteSpace: "nowrap", // Prevent overflow
-
+              whiteSpace: "nowrap",
               overflow: "hidden",
-
               textOverflow: "ellipsis",
             }}
           >
             Cognizant Solution eApp (MVP)
           </Typography>
+
+          {/* Language button */}
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <Translate />
           </IconButton>
@@ -114,7 +97,6 @@ export default function App() {
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
             <MenuItem disabled>
               <Typography variant="subtitle1">{t("language")}</Typography>
@@ -125,7 +107,6 @@ export default function App() {
                 key={code}
                 onClick={() => {
                   i18next.changeLanguage(code);
-
                   handleMenuClose();
                 }}
                 selected={currentLanguageCode === code}
@@ -137,19 +118,22 @@ export default function App() {
         </Toolbar>
       </CustomAppBar>
 
-      {/* Responsive Layout */}
+      {/* Main Menu Added Here */}
       <Grid
         container
         justifyContent="center"
         sx={{
           maxWidth: 1280,
-
           margin: "auto",
-
-          padding: { xs: "1rem", sm: "2rem" }, // Dynamic padding
+          padding: { xs: "1rem", sm: "2rem" },
         }}
       >
         <Grid item xs={12}>
+          <MainMenu />  {/* <-- YOUR 10 MENU OPTIONS DISPLAY HERE */}
+        </Grid>
+
+        {/* YOUR EXISTING TABS ALSO BELOW MENU */}
+        <Grid item xs={12} mt={3}>
           <BasicTabs />
         </Grid>
       </Grid>
