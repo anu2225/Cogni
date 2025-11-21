@@ -1,13 +1,41 @@
-PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> cd eApp-Life
-PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp\eApp-Life> npm i
+import React from "react";
 
-up to date, audited 14 packages in 1s
+const screens = [
+  "Beneficiary",
+  "Camera",
+  "Consent",
+  "FatcaCrs",
+  "Health",
+  "LifeAssuredDetails",
+  "PaymentCollection",
+  "Paymentinformation",
+  "PlanAndCoverage",
+  "Signatures",
+  "SupportingDocuments",
+];
 
-found 0 vulnerabilities
-PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp\eApp-Life> npm run dev
-npm error Missing script: "dev"
-npm error
-npm error To see a list of scripts, run:
-npm error   npm run
-npm error A complete log of this run can be found in: C:\Users\2440835\AppData\Local\npm-cache\_logs\2025-11-21T06_14_39_620Z-debug-0.log
-PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp\eApp-Life> 
+export default function MainMenu() {
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Main Menu</h1>
+
+      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+        {screens.map((scr) => (
+          <li
+            key={scr}
+            style={{
+              padding: "12px",
+              marginTop: "10px",
+              backgroundColor: "#e3e3e3",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+            onClick={() => alert(scr + " Screen Open")}
+          >
+            {scr}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
