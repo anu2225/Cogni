@@ -1,41 +1,158 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  Grid,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
-const screens = [
-  "Beneficiary",
-  "Camera",
-  "Consent",
-  "FatcaCrs",
-  "Health",
-  "LifeAssuredDetails",
-  "PaymentCollection",
-  "Paymentinformation",
-  "PlanAndCoverage",
-  "Signatures",
-  "SupportingDocuments",
+import { Translate } from "@mui/icons-material";
+
+import { useTranslation } from "react-i18next";
+
+import i18next from "i18next";
+
+import cookies from "js-cookie";
+
+import BasicTabs from "./Components/BasicTabs";
+
+import { useParams } from "react-router-dom";
+
+import styled from "@emotion/styled";
+
+// Custom Styled AppBar
+
+const CustomAppBar = styled(AppBar)({
+  backgroundColor: "#808080",
+});
+
+interface Language {
+  code: string;
+
+  name: string;
+
+  country_code: string;
+
+  dir: string;
+}
+
+const languages: Language[] = [
+  { code: "en", name: "English", country_code: "gb", dir: "ltr" },
+
+  { code: "th", name: "แบบไทย", country_code: "th", dir: "ltr" },
 ];
 
-export default function MainMenu() {
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Main Menu</h1>
+export default function App() {
+  const currentLanguageCode = cookies.get("i18next") || "en";
 
-      <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-        {screens.map((scr) => (
-          <li
-            key={scr}
-            style={{
-              padding: "12px",
-              marginTop: "10px",
-              backgroundColor: "#e3e3e3",
-              borderRadius: "8px",
-              cursor: "pointer",
+  const currentLanguage = languages.find((l) => l.code === currentLanguageCode);
+
+  const { t } = useTranslation();
+
+  const params = useParams();
+
+  const theme = useTheme(); // Get MUI Theme
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Check if screen is small
+
+  useEffect(() => {
+    document.body.dir = currentLanguage?.dir || "ltr";
+
+    document.title = t("app_title");
+  }, [currentLanguage, t]);
+
+  // Mobile Menu State
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <Box sx={{ flexGrow: 1, backgroundColor: "#C9E9EA" }}>
+      {/* Responsive AppBar */}
+      <CustomAppBar position="static">
+        <Toolbar
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          variant="dense"
+        >
+          <Typography
+            variant={isMobile ? "h6" : "h5"} // Change size dynamically
+            sx={{
+              fontWeight: "bold",
+
+              flex: 1,
+
+              textAlign: "left",
+
+              whiteSpace: "nowrap", // Prevent overflow
+
+              overflow: "hidden",
+
+              textOverflow: "ellipsis",
             }}
-            onClick={() => alert(scr + " Screen Open")}
           >
-            {scr}
-          </li>
-        ))}
-      </ul>
-    </div>
+            Cognizant Solution eApp (MVP)
+          </Typography>
+          <IconButton color="inherit" onClick={handleMenuOpen}>
+            <Translate />
+          </IconButton>
+
+          {/* Language Menu */}
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem disabled>
+              <Typography variant="subtitle1">{t("language")}</Typography>
+            </MenuItem>
+
+            {languages.map(({ code, name }) => (
+              <MenuItem
+                key={code}
+                onClick={() => {
+                  i18next.changeLanguage(code);
+
+                  handleMenuClose();
+                }}
+                selected={currentLanguageCode === code}
+              >
+                {name}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Toolbar>
+      </CustomAppBar>
+
+      {/* Responsive Layout */}
+      <Grid
+        container
+        justifyContent="center"
+        sx={{
+          maxWidth: 1280,
+
+          margin: "auto",
+
+          padding: { xs: "1rem", sm: "2rem" }, // Dynamic padding
+        }}
+      >
+        <Grid item xs={12}>
+          <BasicTabs />
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
