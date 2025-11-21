@@ -1,102 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.eapp</groupId>
-	<artifactId>eapp-backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>eapp-backend</name>
-	<description>Demo project for Spring Boot</description>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web-services</artifactId>
-		</dependency>
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> nmp i 
+nmp : The term 'nmp' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ nmp i
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (nmp:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> npm i
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.0.2</version>
-		</dependency>
-		<dependency>
-<groupId>net.sf.jasperreports</groupId>
-<artifactId>jasperreports</artifactId>
-<version>6.12.1</version>
-<exclusions>
-<exclusion>
-<groupId>com.lowagie</groupId>
-<artifactId>itext</artifactId>
-</exclusion>
-</exclusions>
-</dependency>
-<dependency>
-<groupId>com.lowagie</groupId>
-<artifactId>itext</artifactId>
-<version>2.1.7</version>
-</dependency>
-		<dependency>
-    <groupId>com.razorpay</groupId>
-    <artifactId>razorpay-java</artifactId>
-    <version>1.4.6</version>
-</dependency>
-<dependency>
-    <groupId>net.sf.barcode4j</groupId>
-    <artifactId>barcode4j</artifactId>
-    <version>2.1</version>
-</dependency>
-<dependency>
-    <groupId>net.sf.barcode4j</groupId>
-    <artifactId>barcode4j</artifactId>
-    <version>2.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.xmlgraphics</groupId>
-    <artifactId>batik-bridge</artifactId>
-    <version>1.14</version>
-</dependency>
+up to date, audited 7 packages in 1s
 
-	</dependencies>
+found 0 vulnerabilities
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> npm i react-router-dom
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+added 7 packages, and audited 14 packages in 3s
 
-</project>
+found 0 vulnerabilities
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> npm run dev
+npm error Missing script: "dev"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: C:\Users\2440835\AppData\Local\npm-cache\_logs\2025-11-21T05_59_35_099Z-debug-0.log
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp>
