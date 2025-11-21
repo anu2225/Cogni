@@ -14,4 +14,35 @@ npm error
 npm error To see a list of scripts, run:
 npm error   npm run
 npm error A complete log of this run can be found in: C:\Users\2440835\AppData\Local\npm-cache\_logs\2025-11-21T06_09_42_912Z-debug-0.log
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> type package.json
+type : Cannot find path 'C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp\package.json' because 
+it does not exist.
+At line:1 char:1
++ type package.json
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\244083...pp\package.json:String) [Get-Content], ItemNotFou 
+   ndException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> ls
+
+
+    Directory: C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        20-11-2025     13:01                eApp-Life
+
+
+PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> type package.json
+type : Cannot find path 'C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp\package.json' because 
+it does not exist.
+At line:1 char:1
++ type package.json
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\244083...pp\package.json:String) [Get-Content], ItemNotFou  
+   ndException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+
 PS C:\Users\2440835\Downloads\OneDrive_1_20-11-2025\Life\Frontend\eApp> 
