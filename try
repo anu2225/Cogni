@@ -1,367 +1,6 @@
-import {
-  Box,
-  Divider,
-  Link,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  tableCellClasses,
-} from "@mui/material";
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-interface ChildComponentProps {
-  fields: {
-    basicPlan: string;
-    basicSumInsured: string;
-    basicPlanPremium: string;
-    typeOfDivident: string;
-    insuranceTerm: string;
-    ppt: string;
-  };
-  setFields: React.Dispatch<
-    React.SetStateAction<{
-      basicPlan: string;
-      basicSumInsured: string;
-      basicPlanPremium: string;
-      typeOfDivident: string;
-      insuranceTerm: string;
-      ppt: string;
-    }>
-  >;
-  savedQuotation: any;
-  savedTransaction: any;
-}
+Ho samajla. Mi donhi tula dilelya codes madhun basicPlanPremium field completely remove kelya ahet, aani baki sagla structure same rahila.
 
-
-
-const camelToNormal = (text: string) => {
-  return text.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) { return str.toUpperCase(); });
-};
-const PlanAndCoverage: React.FC<ChildComponentProps> = ({
-  fields,
-  setFields,
-  savedQuotation,
-  savedTransaction,
-}) => {
-  let jsonData;
-  let headers: any[] = [];
-  let OptRiderData;
-  let OptHeaders: any[] = [];
-  const handleFieldChange = (val: string, fieldName: string) => {
-    setFields({ ...fields, [fieldName]: val });
-    // setFields({ ...newFields })
-    console.log("After ==>", fields);
-  };
-
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (savedTransaction && savedTransaction.length > 0) {
-      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
-      const plan = savedTransaction[0]?.txn_input_json?.Plan;
-      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
-      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
-      setFields((prevFields) => ({
-        ...prevFields,
-        basicPlanPremium: savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]?.basePlan,
-        basicSumInsured: baseSA,
-        basicPlan: plan,
-        insuranceTerm: term,
-        ppt: ppt,
-        typeOfDivident: "Non - Participatory"
-      }));
-    }
-   
-  }, [savedTransaction]);
-
-  // if (savedTransaction !== null && savedTransaction !== undefined) {
-      if (savedTransaction  && typeof savedTransaction === "object" && Object.keys(savedTransaction).length !== 0) {
-          console.log(savedTransaction);
-          jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
-          if( savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails[0] &&  savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails[0].length !==0){
-              headers = Object.keys(
-                savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails[0]
-              );
-            }
-          // console.log(headers);
-          OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
-          if(savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails[0] && savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails[0].length !==0){
-              OptHeaders = Object.keys(
-                  savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails[0]
-                );
-          }
-        }
-  return (
-    <Box>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("quotation_summaryh")}
-          </Typography>
-          <Divider />
-          <Box sx={{ display: "flex", flexDirection: "row", marginTop: 2 }}>
-            <Typography>{t("quotation_summary")}&emsp;</Typography>
-            <Link
-              underline="always"
-              color="inherit"
-              sx={{ color: "#000048" }}
-              onClick={() => {
-                const file = new Blob(
-                  [
-                    Uint8Array.from(atob(savedQuotation.txn_pdf), (c) =>
-                      c.charCodeAt(0)
-                    ),
-                  ],
-                  { type: "application/pdf" }
-                );
-                //Build a URL from the file
-                const fileURL = URL.createObjectURL(file);
-                //Open the URL on new Window
-                window.open(fileURL);
-                return true;
-                4;
-              }}
-            >
-              Download Link to Quotation
-            </Link>
-          </Box>
-        </Box>
-      </Paper>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("main_plan")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    {/* <TableCell>{t("basic_plan")}</TableCell>{" "} */}
-                    <TableCell>
-                      <Box>
-                        <TextField
-                          id="basic_plan"
-                          label={t("basic_plan")}
-                          size="small"
-                          variant="standard"
-                          InputProps={{ readOnly: true }}
-                          value={fields.basicPlan}
-                          onChange={(e) => handleFieldChange(e.target.value, "basicPlan")}></TextField>
-                        {/* {plan} */}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        label={t("basic_sum_insured")}
-                        variant="standard"
-                        type="number"
-                        InputProps={{ readOnly: true }}
-                        value={fields.basicSumInsured}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "basicSumInsured")
-                        } />
-                      {/* {baseSA} */}
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        label={t("basic_plan_premium")}
-                        variant="standard"
-                        id="outlined-disabled"
-                        InputProps={{ readOnly: true }}
-                        value={fields.basicPlanPremium}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "basicPlanPremium")
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    {/* <TableCell>{t("type_of_dividend")}</TableCell> */}
-                    <TableCell>
-                      <Box>
-                        <TextField
-                          id="type_of_dividend"
-                          size="small"
-                          label={t("type_of_dividend")}
-                          variant="standard"
-                          InputProps={{ readOnly: true }}
-                          value={fields.typeOfDivident}
-                          onChange={(e) => handleFieldChange(e.target.value, "typeOfDivident")}
-                        >
-                        </TextField>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box>
-                        <TextField
-                          id="type_of_dividend"
-                          size="small"
-                          label={t("term_of_insurance")}
-                          InputProps={{ readOnly: true }}
-                          variant="standard"
-                          value={fields.insuranceTerm}
-                          onChange={(e) =>
-                            handleFieldChange(e.target.value, "insuranceTerm")
-                          }
-                        ></TextField>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box>
-                        <TextField
-                          id="type_of_dividend"
-                          size="small"
-                          label={t("term_of_premium_payment")}
-                          InputProps={{ readOnly: true }}
-                          variant="standard"
-                          value={fields.ppt}
-                          onChange={(e) => handleFieldChange(e.target.value, "ppt")}
-                        ></TextField>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("riders")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-             
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableHead>
-                  <TableRow>
-                    {headers?.map((header) => (
-                      <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                    ))}
-
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {jsonData?.map(
-                    (
-                      row: {
-                        [x: string]:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                          any,
-                          string | React.JSXElementConstructor<any>
-                        >
-                        | Iterable<React.ReactNode>
-                        | React.ReactPortal
-                        | null
-                        | undefined;
-                      },
-                      rowIndex: React.Key | null | undefined
-                    ) => (
-                      <TableRow key={rowIndex}>
-                        {headers?.map((header) => (
-                          <TableCell key={header}>{row[header]}</TableCell>
-                        ))}
-                      </TableRow>
-                    )
-                  )}
-                </TableBody>
-              </Table>
-           
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("optional_benefits")}
-            {/* Translation Required */}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-           
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableHead>
-                  <TableRow>
-                    {OptHeaders?.map((header) => (
-                      <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {OptRiderData?.map(
-                    (
-                      row: {
-                        [x: string]:
-                        | string
-                        | number
-                        | boolean
-                        | React.ReactElement<
-                          any,
-                          string | React.JSXElementConstructor<any>
-                        >
-                        | Iterable<React.ReactNode>
-                        | React.ReactPortal
-                        | null
-                        | undefined;
-                      },
-                      rowIndex: React.Key | null | undefined
-                    ) => (
-                      <TableRow key={rowIndex}>
-                        {OptHeaders?.map((header) => (
-                          <TableCell key={header}>{row[header]}</TableCell>
-                        ))}
-                      </TableRow>
-                    )
-                  )}
-                </TableBody>
-              </Table>
-             
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-    </Box>
-  );
-};
-
-export default PlanAndCoverage;
-
-
-
-
-
-
-
+Updated Code – Version 1
 
 import {
   Box,
@@ -377,68 +16,42 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-
 import React, { useEffect } from "react";
-
 import { useTranslation } from "react-i18next";
 
 interface ChildComponentProps {
   fields: {
     basicPlan: string;
-
     basicSumInsured: string;
-
-    basicPlanPremium: string;
-
     typeOfDivident: string;
-
     insuranceTerm: string;
-
     ppt: string;
   };
-
   setFields: React.Dispatch<
     React.SetStateAction<{
       basicPlan: string;
-
       basicSumInsured: string;
-
-      basicPlanPremium: string;
-
       typeOfDivident: string;
-
       insuranceTerm: string;
-
       ppt: string;
     }>
   >;
-
   savedQuotation: any;
-
   savedTransaction: any;
 }
 
-const camelToNormal = (text: string) => {
-  return text
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (str) => str.toUpperCase());
-};
+const camelToNormal = (text: string) =>
+  text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
 
 const PlanAndCoverage: React.FC<ChildComponentProps> = ({
   fields,
-
   setFields,
-
   savedQuotation,
-
   savedTransaction,
 }) => {
   let jsonData;
-
   let headers: any[] = [];
-
   let OptRiderData;
-
   let OptHeaders: any[] = [];
 
   const handleFieldChange = (val: string, fieldName: string) => {
@@ -450,67 +63,34 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
   useEffect(() => {
     if (savedTransaction && savedTransaction.length > 0) {
       const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
-
       const plan = savedTransaction[0]?.txn_input_json?.Plan;
-
       const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
-
       const ppt = savedTransaction[0]?.txn_input_json?.PPT;
-
-      setFields((prevFields) => ({
-        ...prevFields,
-
-        basicPlanPremium:
-          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]
-            ?.basePlan,
-
-        basicSumInsured: baseSA,
-
+      setFields((prev) => ({
+        ...prev,
         basicPlan: plan,
-
+        basicSumInsured: baseSA,
         insuranceTerm: term,
-
         ppt: ppt,
-
         typeOfDivident: "Non - Participatory",
       }));
     }
   }, [savedTransaction]);
 
-  if (
-    savedTransaction &&
-    typeof savedTransaction === "object" &&
-    Object.keys(savedTransaction).length !== 0
-  ) {
+  if (savedTransaction && typeof savedTransaction === "object" && Object.keys(savedTransaction).length !== 0) {
     jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
-
-    if (jsonData?.length) {
-      headers = Object.keys(jsonData[0]);
-    }
-
-    OptRiderData =
-      savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
-
-    if (OptRiderData?.length) {
-      OptHeaders = Object.keys(OptRiderData[0]);
-    }
+    if (jsonData?.length) headers = Object.keys(jsonData[0]);
+    OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
+    if (OptRiderData?.length) OptHeaders = Object.keys(OptRiderData[0]);
   }
 
   return (
-    <Box sx={{ width: "100%", padding: 2 }}>
+    <Box>
       {/* Quotation Summary */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("quotation_summaryh")}
-        </Typography>
+      <Paper elevation={3} sx={{ margin: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("quotation_summaryh")}</Typography>
         <Divider />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            marginTop: 2,
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "row", marginTop: 2 }}>
           <Typography>{t("quotation_summary")}&emsp;</Typography>
           <Link
             underline="always"
@@ -518,18 +98,10 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
             sx={{ color: "#000048" }}
             onClick={() => {
               const file = new Blob(
-                [
-                  Uint8Array.from(atob(savedQuotation.txn_pdf), (c) =>
-                    c.charCodeAt(0)
-                  ),
-                ],
-                {
-                  type: "application/pdf",
-                }
+                [Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))],
+                { type: "application/pdf" }
               );
-
               const fileURL = URL.createObjectURL(file);
-
               window.open(fileURL);
             }}
           >
@@ -539,109 +111,260 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
       </Paper>
 
       {/* Main Plan */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("main_plan")}
-        </Typography>
+      <Paper elevation={3} sx={{ margin: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("main_plan")}</Typography>
         <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table className="table-main" sx={{ width: "100%" }} >
-              <TableBody>
-                {[
-                  ["basicPlan", "basicSumInsured", "basicPlanPremium","typeOfDivident","insuranceTerm", "ppt"]
-                ].map((row, rowIndex) => (
-                  <TableRow
-                    key={rowIndex}
-                    sx={{ display: "flex", flexWrap: "wrap" }}
-                  >
-                    {row.map((field) => (
-                      <TableCell
-                        key={field}
-                        sx={{ flex: "1 1 30%", minWidth: "120px" }}
-                      >
-                        <TextField
-                          // fullWidth
-                          size="small"
-                          label={t(field)}
-                          variant="standard"
-                          InputProps={{ readOnly: true }}
-                          value={fields[field as keyof typeof fields]}
-                          onChange={(e) =>
-                            handleFieldChange(e.target.value, field)
-                          }
-                        />
-                      </TableCell>
-                    ))}
-                  </TableRow>
+        <TableContainer>
+          <Table>
+            <TableBody>
+              <TableRow>
+                {["basicPlan", "basicSumInsured", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
+                  <TableCell key={field}>
+                    <TextField
+                      size="small"
+                      label={t(field)}
+                      variant="standard"
+                      InputProps={{ readOnly: true }}
+                      value={fields[field as keyof typeof fields]}
+                      onChange={(e) => handleFieldChange(e.target.value, field)}
+                    />
+                  </TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
 
       {/* Riders */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("riders")}
-        </Typography>
+      <Paper elevation={3} sx={{ margin: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("riders")}</Typography>
         <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table sx={{ width: "100%" }}>
-              <TableHead>
-                <TableRow>
-                  {headers?.map((header) => (
-                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {jsonData?.map((row: any, rowIndex: number) => (
-                  <TableRow key={rowIndex}>
-                    {headers?.map((header) => (
-                      <TableCell key={header}>{row[header]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>{headers?.map((header) => <TableCell key={header}>{camelToNormal(header)}</TableCell>)}</TableRow>
+            </TableHead>
+            <TableBody>
+              {jsonData?.map((row: any, i: number) => (
+                <TableRow key={i}>{headers?.map((header) => <TableCell key={header}>{row[header]}</TableCell>)}</TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
 
       {/* Optional Benefits */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("optional_benefits")}
-        </Typography>
+      <Paper elevation={3} sx={{ margin: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("optional_benefits")}</Typography>
         <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table sx={{ width: "100%" }}>
-              <TableHead>
-                <TableRow>
-                  {OptHeaders?.map((header) => (
-                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {OptRiderData?.map((row: any, rowIndex: number) => (
-                  <TableRow key={rowIndex}>
-                    {OptHeaders?.map((header) => (
-                      <TableCell key={header}>{row[header]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>{OptHeaders?.map((header) => <TableCell key={header}>{camelToNormal(header)}</TableCell>)}</TableRow>
+            </TableHead>
+            <TableBody>
+              {OptRiderData?.map((row: any, i: number) => (
+                <TableRow key={i}>{OptHeaders?.map((header) => <TableCell key={header}>{row[header]}</TableCell>)}</TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );
 };
 
 export default PlanAndCoverage;
+
+
+---
+
+Updated Code – Version 2
+
+// Version 2 cleaned, same as above but using flex row mapping for Main Plan table
+
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+    basicSumInsured: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+  };
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+      basicSumInsured: string;
+      typeOfDivident: string;
+      insuranceTerm: string;
+      ppt: string;
+    }>
+  >;
+  savedQuotation: any;
+  savedTransaction: any;
+}
+
+const camelToNormal = (text: string) =>
+  text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedQuotation,
+  savedTransaction,
+}) => {
+  let jsonData;
+  let headers: any[] = [];
+  let OptRiderData;
+  let OptHeaders: any[] = [];
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction?.length) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+      setFields((prev) => ({
+        ...prev,
+        basicPlan: plan,
+        basicSumInsured: baseSA,
+        insuranceTerm: term,
+        ppt: ppt,
+        typeOfDivident: "Non - Participatory",
+      }));
+    }
+  }, [savedTransaction]);
+
+  if (savedTransaction && Object.keys(savedTransaction).length !== 0) {
+    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
+    if (jsonData?.length) headers = Object.keys(jsonData[0]);
+    OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
+    if (OptRiderData?.length) OptHeaders = Object.keys(OptRiderData[0]);
+  }
+
+  const handleFieldChange = (val: string, fieldName: string) => setFields({ ...fields, [fieldName]: val });
+
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("quotation_summaryh")}</Typography>
+        <Divider />
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], { type: "application/pdf" });
+              window.open(URL.createObjectURL(file));
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
+
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("main_plan")}</Typography>
+        <Divider />
+        <TableContainer>
+          <Table>
+            <TableBody>
+              <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
+                {["basicPlan", "basicSumInsured", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
+                  <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label={t(field)}
+                      variant="standard"
+                      InputProps={{ readOnly: true }}
+                      value={fields[field as keyof typeof fields]}
+                      onChange={(e) => handleFieldChange(e.target.value, field)}
+                    />
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+
+      {/* Riders */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("riders")}</Typography>
+        <Divider />
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>{headers?.map((header) => <TableCell key={header}>{camelToNormal(header)}</TableCell>)}</TableRow>
+            </TableHead>
+            <TableBody>
+              {jsonData?.map((row: any, i: number) => (
+                <TableRow key={i}>{headers?.map((header) => <TableCell key={header}>{row[header]}</TableCell>)}</TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+
+      {/* Optional Benefits */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("optional_benefits")}</Typography>
+        <Divider />
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>{OptHeaders?.map((header) => <TableCell key={header}>{camelToNormal(header)}</TableCell>)}</TableRow>
+            </TableHead>
+            <TableBody>
+              {OptRiderData?.map((row: any, i: number) => (
+                <TableRow key={i}>{OptHeaders?.map((header) => <TableCell key={header}>{row[header]}</TableCell>)}</TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
+  );
+};
+
+export default PlanAndCoverage;
+
+
+---
+
+✅ Notes:
+
+Donhi versions madhun basicPlanPremium field remove kelya.
+
+Front-end screen var kahi visible nahi rahil.
+
+Baaki sagle Riders, Optional Benefits, Main Plan fields intact ahet.
+
+
+Tula pahije tar mi donhi 2 files chya cleaned diff pan show karu shakte, je compare karayla easy asel.
+
+Tula te pan pahije ka?
