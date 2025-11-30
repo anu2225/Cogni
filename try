@@ -3,23 +3,20 @@ package com.eapp.service;
 import com.eapp.dto.requestDTO.CalculationRequest;
 import com.eapp.dto.reponseDTO.CalculationResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CoherentService {
 
-    WebClient client = WebClient.builder()
-            .baseUrl("https://api.coherent.global/calculation") // Example URL
-            .build();
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    private final String BASE_URL = "https://api.coherent.global/calculation";
 
     public CalculationResponse calculatePremium(CalculationRequest request) {
 
-        return client.post()
-                .uri("/premium")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(CalculationResponse.class)
-                .block();
+        String url = BASE_URL + "/premium";
+
+        // POST request & convert response to CalculationResponse
+        return restTemplate.postForObject(url, request, CalculationResponse.class);
     }
 }
-
