@@ -1,252 +1,809 @@
-समजलं Anurag! मग तू EXACTLY हे करणार आहेस → "Premium Calculation Engine" तयार करणे.
+import * as React from "react";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import LifeAssuredDetails from "./LifeAssuredDetails";
+import PlanAndCoverage from "./PlanAndCoverage";
+import Signatures from "./Signatures";
+import Beneficiary from "./Beneficiary";
+import {
+  Button,
+  Stack,
+  Step,
+  StepButton,
+  Stepper,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import {
+  ArrowBack,
+  ArrowForward,
+  ArrowUpward,
+  Save,
+} from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import axios from "../api/axiosInterceptor";
+import { useParams } from "react-router-dom";
+import Consent from "./Consent";
+import dayjs from "dayjs";
+import PaymentCollection from "./PaymentCollection";
+import Health from "./Health";
+import PaymentInformation from "./PaymentInformation";
+import FatcaCrs from "./FatcaCrs";
+import SupportingDocuments from "./SupportingDocuments";
+import "../styles.css";
 
-आता मी तुला FULL REAL TASK देतो —
-तू पूर्ण टीमसमोर 100% confident सांगू शकशील की हा माझा coherent premium engine आहे.
+const steps = [
+  "Life Assured Details",
+  "Plan & Coverage",
+  "Payment Information",
+  "Beneficiary",
+  "Health",
+  "FATCA & CRS",
+  "Supporting Documents",
+  "Consent",
+  "Signatures",
+  "Payment Collection",
+];
 
+const BasicTabs: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
 
----
+  const [activeStep, setActiveStep] = useState<number>(0);
+  const [caseDetails, setCaseDetails] = React.useState<any>(null);
 
-🚀 तुझा Final Task: “Premium Calculation Engine तयार करणे”
+  const [pdfArray, setPdfArray] = useState<
+    Uint8Array | ArrayBuffer | undefined
+  >();
 
-याचा अर्थ:
+  const [lifeAssuredFields, setLifeAssuredFields] = React.useState<{
+    insuredNationality: string;
+    insuredEvidenceOfProof: string;
+    insuredIdNumber: string;
+    customerIdEbao: number;
+    insuredIdExpiryDate: dayjs.Dayjs;
+    insuredTitle: string;
+    insuredFirstName: string;
+    insuredSurName: string;
+    insuredDateOfBirth: dayjs.Dayjs;
+    insuredGender: string;
+    insuredAge: string;
 
-1️⃣ Frontend → customer ची माहिती घेईल
-2️⃣ Backend → coherent ला request तयार करून पाठवेल
-3️⃣ Coherent → premium calculate करून देईल
-4️⃣ Backend → response process करेल
-5️⃣ Frontend → premium display करेल
+    insuredProvince: string;
+    insuredDistrict: string;
+    imgURL: string;
+    workplaceAddressOptn: string;
+    currentAddressOptn: string;
+    insContactAddressIndicator: string;
+    motorcycleOptn: string;
+    regAddrNum: string;
+    regAddrVilla: string;
+    regAddrMooNum: string;
+    regAddrAlley: string;
+    regAddrStrNum: string;
+    regAddrSubDist: string;
+    regAddrZipCode: string;
+    regFullAddr: string;
+    familyMemberType: string;
+    insuredMritalStatus: string;
 
-हा पूर्ण pipeline तू बनवतोयस.
+    workCompanyName: string;
+    workAddrNum: string;
+    workAddrVilla: string;
+    workAddrMooNum: string;
+    workAddrAlley: string;
+    workAddrStrNum: string;
+    insuredWorkProvince: string;
+    insuredWorkDistrict: string;
+    workAddrSubDist: string;
+    workAddrZipCode: string;
+    workFullAddress: string;
 
+    cRegAddNum: string;
+    cRegAddVilla: string;
+    cRegAddMoo: string;
+    cRegAddAlley: string;
+    cRegAddStrNum: string;
+    cRegAddProvince: string;
+    cRegAddDist: string;
+    cRegAddSubDis: string;
+    cRegAddZipCode: string;
+    contactFullAddr: string;
 
----
+    primaryNumber: string;
+    homeNumber: string;
+    workPhoneNumber: string;
 
-✔️ आता IMPORTANT — Engine बनवण्यासाठी तू काय काय तयार करणार?
+    occupationCode: string;
+    emailAddress: string;
+    positionHeld: string;
+    occupationDetail: string;
+    businessDetail: string;
+    annualIncome: string;
+    otherOccupation: string;
+  }>({
+    insuredNationality: "",
+    insuredEvidenceOfProof: "",
+    insuredIdNumber: "",
+    customerIdEbao: 0,
+    insuredIdExpiryDate: dayjs(),
+    insuredTitle: "Mr",
+    insuredFirstName: "",
+    insuredSurName: "",
+    insuredDateOfBirth: dayjs().subtract(18, "year"),
+    insuredGender: "",
+    insuredAge: "",
 
-👉 Step 1 — Fields तयार करणे (engine मध्ये input म्हणून जाणारे)
+    insuredProvince: "",
+    insuredDistrict: "",
+    imgURL: "",
+    workplaceAddressOptn: "Yes",
+    currentAddressOptn: "Registered Address",
+    insContactAddressIndicator: "Registered Address",
+    motorcycleOptn: "No",
+    regAddrNum: "",
+    regAddrVilla: "",
+    regAddrMooNum: "",
+    regAddrAlley: "",
+    regAddrStrNum: "",
+    regAddrSubDist: "",
+    regAddrZipCode: "",
+    regFullAddr: "",
+    familyMemberType: "",
+    insuredMritalStatus: "",
 
-Engine ला minimum calculation साठी लागणारी data fields:
+    workCompanyName: "",
+    workAddrNum: "",
+    workAddrVilla: "",
+    workAddrMooNum: "",
+    workAddrAlley: "",
+    workAddrStrNum: "",
+    insuredWorkProvince: "",
+    insuredWorkDistrict: "",
+    workAddrSubDist: "",
+    workAddrZipCode: "",
+    workFullAddress: "",
 
-Field	Meaning
+    cRegAddNum: "",
+    cRegAddVilla: "",
+    cRegAddMoo: "",
+    cRegAddAlley: "",
+    cRegAddStrNum: "",
+    cRegAddProvince: "",
+    cRegAddDist: "",
+    cRegAddSubDis: "",
+    cRegAddZipCode: "",
+    contactFullAddr: "",
 
-age	ग्राहकाचे वय
-sumAssured	किती cover हवा
-policyTerm	policy किती वर्षांची आहे
-ppt	premium किती वर्षे भरायचा
-planCode	कोणता product plan
-gender	पुरुष/स्त्री (काही calculation मध्ये महत्त्वाचे)
-smoker	smoker / non-smoker
+    primaryNumber: "",
+    homeNumber: "",
+    workPhoneNumber: "",
 
+    occupationCode: "",
+    emailAddress: "",
+    positionHeld: "",
+    occupationDetail: "",
+    businessDetail: "",
+    annualIncome: "",
+    otherOccupation: "",
+  });
 
-हे सर्व तू frontend + backend दोन्हीकडे तयार करायचं.
+  const [planAndCoverageFields, setPlanAndCoverageFields] = React.useState<{
+    basicPlan: string;
+    basicSumInsured: string;
+    basicPlanPremium: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+  }>({
+    basicPlan: "",
+    basicSumInsured: "",
+    basicPlanPremium: "",
+    typeOfDivident: "",
+    insuranceTerm: "",
+    ppt: "",
+  });
 
+  const [paymentInformationFields, setPaymentInformationFields] =
+    React.useState<{
+      PayerIsDifferentPerson: string;
+      ModeofPayment: string;
+      totalPremium: string;
+      AmountOfPaymentWithThisApplication: string;
+      AccountHolderFullName: string;
+      AccountNumber: string;
+      TypeOfAccount: string;
+      BankNames: string;
+      BankBranchNames: string;
+      renewalPremPayMethod: string;
+      renewalPaymentFrequency: string;
+      paymentMethod: string;
+      bookBank: any;
+      checkBox: boolean;
+      firstPremium: string;
 
----
+      basicPlan: string;
+    }>({
+      PayerIsDifferentPerson:
+        "Payer is different person owner to insured person",
+      ModeofPayment: "Yearly",
+      totalPremium: "",
+      AmountOfPaymentWithThisApplication: "",
+      AccountHolderFullName: "",
+      AccountNumber: "",
+      TypeOfAccount: "",
+      BankNames: "",
+      BankBranchNames: "",
+      renewalPremPayMethod: "Cash",
+      renewalPaymentFrequency: "Yearly",
+      paymentMethod: "Cash",
+      bookBank: "",
+      checkBox: true,
+      firstPremium: "",
+      basicPlan: "",
+    });
 
-👉 Step 2 — Backend मधील Engine (Main Task याच ठिकाणी आहे)
+  const [beneficiaryFields, setBeneficiaryFields] = React.useState<
+    {
+      beneficiaryFirstName: string;
+      beneficiaryLastName: string;
+      beneficiaryAge: number;
+      relationshipWithInsured: string;
+      address: string;
+      percentageOfBenefit: number;
+    }[]
+  >([
+    {
+      beneficiaryFirstName: "",
+      beneficiaryLastName: "",
+      beneficiaryAge: 18,
+      relationshipWithInsured: "",
+      address: "",
+      percentageOfBenefit: 0,
+    },
+  ]);
 
-तुझ्या engine चा main logic:
+  const [signatureFields, setSignatureFields] = React.useState<{
+    signURL: string;
+  }>({ signURL: "" });
 
-📌 A. Client कडून data receive करणे
+  const [healthFields, setHealthFields] = React.useState<{
+    Questionnaire11: string;
+    Questionnaire10: string;
+    Questionnaire9: string;
+    Questionnaire8: string;
+    Questionnaire7: string;
+    Questionnaire6: string;
+    Questionnaire5: string;
+    Questionnaire4: string;
+    Questionnaire3: string;
+    Questionnaire2: string;
+    Questionnaire1: string;
+  }>({
+    Questionnaire11: "",
+    Questionnaire10: "",
+    Questionnaire9: "",
+    Questionnaire8: "Yes",
+    Questionnaire7: "No",
+    Questionnaire6: "No",
+    Questionnaire5: "No",
+    Questionnaire4: "No",
+    Questionnaire3: "No",
+    Questionnaire2: "No",
+    Questionnaire1: "No",
+  });
 
-RequestDTO तयार करायचं
+  const [paymentCollectionFields, setPaymentCollectionFields] = React.useState<{
+    paymentMethod: string;
+    paymentReceived: string;
+    annualPremium: number;
+    paymentDueDate: dayjs.Dayjs;
+    extraPremium: string;
+    other: string;
+    totalPaidAmount: string;
+    amountPaidInWords: string;
+    tempReceiptDate: dayjs.Dayjs;
 
-📌 B. Coherent payload तयार करणे
+    //
+    check: string;
+  }>({
+    paymentMethod: "Cash",
+    paymentReceived: "No",
+    annualPremium: 0,
+    paymentDueDate: dayjs().add(15, "day"),
+    extraPremium: "",
+    other: "",
+    totalPaidAmount: "",
+    amountPaidInWords: "",
+    tempReceiptDate: dayjs(),
 
-हे महत्त्वाचं — coherent ला जे format हवंय तसं JSON बनवायचं.
+    //
+    check: "",
+  });
 
-📌 C. Coherent API call करणे
+  const [fatcaCrsFields, setFatcaCrsFields] = React.useState<{
+    usaRelatedBirth: string;
+    greenCardStatus: string;
+    usaTaxStatus: string;
+    minimumResidencyCondition: string;
+  }>({
+    usaRelatedBirth: "No",
+    greenCardStatus: "No",
+    usaTaxStatus: "No",
+    minimumResidencyCondition: "No",
+  });
 
-WebClient वापरून premium calculate request पाठवायची.
+  const [supportingDocumentsFields, setSupportingDocumentsFields] =
+    React.useState<{
+      evidenceDocument: any;
+      medicalExamDocument: any;
+    }>({
+      evidenceDocument: "",
+      medicalExamDocument: "",
+    });
 
-📌 D. Response मिळवून ती frontend ला देणे.
+  const [consentFields, setConsentFields] = React.useState<{
+    checkBoxConsent: boolean;
+    parentSignURL: string;
+    laSignURL: string;
+    custLangPrefOptn: string;
+    infoDisclosureConsent: string;
+  }>({
+    checkBoxConsent: false,
+    parentSignURL: "",
+    laSignURL: "",
+    custLangPrefOptn: "English",
+    infoDisclosureConsent: "Yes",
+  });
 
-हा संपूर्ण एक “Engine” होतो.
+  const [savedTransaction, setSavedTransaction] = useState([]);
+  const [savedQuotation, setSavedQuotation] = useState([]);
+  const params = useParams();
+  useEffect(() => {
+    async function func() {
+      if (typeof params.txnTypeId !== "undefined") {
+        await axios
+          .get(
+            `http://localhost:8001/api/transaction-detail/getDistinctTransaction?id=${params.txnTypeId}`
+          )
+          .then((res) => {
+            const responseData = res.data;
+            setSavedTransaction(
+              responseData.map(
+                (row: { txn_input_json: string; txn_output_json: string }) => {
+                  row.txn_input_json = JSON.parse(row.txn_input_json);
+                  row.txn_output_json = JSON.parse(row.txn_output_json);
+                  return row;
+                }
+              )
+            );
+            console.log(responseData);
+            // const txn_input = JSON.parse(responseData.txn_input_json)
+            // setSavedTransaction([...txn_input])
+            console.log(savedTransaction);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
-
----
-
-🧠 आता मी तुला COMPLETE CALCULATION ENGINE तयार करून देतो (Copy–Paste Ready)
-
-
----
-
-🟦 1. Create DTO → CalculationRequest.java
-
-package com.eapp.calculation.dto;
-
-import lombok.Data;
-
-@Data
-public class CalculationRequest {
-
-    private int age;
-    private double sumAssured;
-    private int policyTerm;
-    private int ppt;
-    private String planCode;
-    private String gender;
-    private boolean smoker;
-}
-
-
----
-
-🟦 2. Create DTO → CalculationResponse.java
-
-package com.eapp.calculation.dto;
-
-import lombok.Data;
-
-@Data
-public class CalculationResponse {
-    private double basePremium;
-    private double gst;
-    private double totalPremium;
-    private String message;
-}
-
-
----
-
-🟦 3. Create Service → CoherentService.java
-
-package com.eapp.calculation.service;
-
-import com.eapp.calculation.dto.CalculationRequest;
-import com.eapp.calculation.dto.CalculationResponse;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-public class CoherentService {
-
-    WebClient client = WebClient.builder()
-            .baseUrl("https://api.coherent.global/calculation")
-            .build();
-
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        // Prepare coherent payload
-        var payload = new java.util.HashMap<String, Object>();
-        payload.put("age", req.getAge());
-        payload.put("sumAssured", req.getSumAssured());
-        payload.put("policyTerm", req.getPolicyTerm());
-        payload.put("ppt", req.getPpt());
-        payload.put("planCode", req.getPlanCode());
-        payload.put("gender", req.getGender());
-        payload.put("smoker", req.isSmoker());
-
-        // Call coherent
-        return client.post()
-                .uri("/premium")
-                .bodyValue(payload)
-                .retrieve()
-                .bodyToMono(CalculationResponse.class)
-                .block();
+        await axios
+          .get(
+            `http://localhost:8001/api/transaction-detail/getTxn?id=${params.txnTypeId}`
+          )
+          .then((res) => {
+            const responseData = res.data;
+            setSavedQuotation(responseData);
+            console.log(responseData);
+            console.log(savedQuotation);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     }
-}
+    func();
+  }, []);
 
-
----
-
-🟦 4. Create Controller → CalculationController.java
-
-package com.eapp.calculation.controller;
-
-import com.eapp.calculation.dto.CalculationRequest;
-import com.eapp.calculation.dto.CalculationResponse;
-import com.eapp.calculation.service.CoherentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/calc")
-@CrossOrigin("*")
-public class CalculationController {
-
-    @Autowired
-    private CoherentService coherentService;
-
-    @PostMapping("/premium")
-    public CalculationResponse calculate(@RequestBody CalculationRequest request){
-        return coherentService.calculatePremium(request);
+  useEffect(() => {
+    if (typeof params.txnTypeId !== "undefined") {
+      const val = activeStep + 1;
+      console.log(val);
+      console.log("Printing txnTypeId: ", params.txnTypeId);
+      
+      axios
+        .get(
+          `http://localhost:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=${params.txnTypeId}&screenNo=${val}`
+        )
+        .then((res) => {
+          console.log(res.data);
+          const responseData = res.data;
+          if (responseData !== "") {
+            responseData.json_DATA = JSON.parse(responseData.json_DATA);
+            setCaseDetails(responseData);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     }
-}
+  }, [activeStep]);
 
+  useEffect(() => {
+    if (caseDetails && caseDetails.json_DATA) {
+      handleMapData();
+    }
+  }, [caseDetails]);
 
----
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
-🟩 FRONTEND — तू बनवलेलं Plan & Coverage page
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) =>
+      Math.min(prevActiveStep + 1, steps.length - 1)
+    );
+    scrollToTop();
+  };
 
-इथे तुझा Calculate Premium बटण coherent ला hit करेल.
+  const handleBack = (): void => {
+    setActiveStep((prevActiveStep) => Math.max(prevActiveStep - 1, 0));
+    scrollToTop();
+  };
 
-Add this in PlanAndCoverage component:
+  const handleStep = (step: number) => () => {
+    setActiveStep(step);
+    scrollToTop();
+  };
 
-import { calculatePremium } from "../../api/calculationApi";
+  const handleSaveData = () => {
+    let jsonData;
+    switch (activeStep) {
+      case 0:
+        jsonData = {
+          screen_No: 1,
+          json_DATA: JSON.stringify(lifeAssuredFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 1:
+        jsonData = {
+          screen_No: 2,
+          json_DATA: JSON.stringify(planAndCoverageFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 2:
+        jsonData = {
+          screen_No: 3,
+          json_DATA: JSON.stringify(paymentInformationFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 3:
+        jsonData = {
+          screen_No: 4,
+          json_DATA: JSON.stringify(beneficiaryFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 4:
+        jsonData = {
+          screen_No: 5,
+          json_DATA: JSON.stringify(healthFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 5:
+        jsonData = {
+          screen_No: 6,
+          json_DATA: JSON.stringify(fatcaCrsFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 6:
+        jsonData = {
+          screen_No: 7,
+          json_DATA: JSON.stringify(supportingDocumentsFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 7:
+        jsonData = {
+          screen_No: 8,
+          json_DATA: JSON.stringify(consentFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 8:
+        jsonData = {
+          screen_No: 9,
+          json_DATA: JSON.stringify(signatureFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      case 9:
+        jsonData = {
+          screen_No: 10,
+          json_DATA: JSON.stringify(paymentCollectionFields),
+          quotation_id: params.txnTypeId,
+        };
+        break;
+      default:
+        jsonData = {
+          screen_No: 11,
+          json_DATA: {},
+          quotation_id: params.txnTypeId,
+        };
+    }
 
-calculatePremium function:
+    console.log(jsonData);
+    console.log(activeStep);
+    // setJsonDataSet(jsonData);
+    return jsonData;
+  };
+  async function onClickSaveDraft(event: { preventDefault: () => void }) {
+    event.preventDefault();
+    const quoteData = handleSaveData();
+    console.log("Quote Data ==> ", quoteData);
+    // setCaseDetails(quoteData);
+    console.log("Case Details ==>", caseDetails);
+    await axios
+      .post("http://localhost:8001/eapp/add", quoteData)
+      .then(function (responseFromBackend) {
+        console.log(responseFromBackend.data);
+        const responseData = responseFromBackend.data;
+        if (responseData !== "") {
+          responseData.json_DATA = JSON.parse(responseData.json_DATA);
+          setCaseDetails(responseData);
+        }
+        // window.location.reload();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
-📄 File: /src/api/calculationApi.ts
+  const handleMapData = () => {
+    switch (activeStep) {
+      case 0:
+        console.log("Line 248 ==>", caseDetails.json_DATA);
+        // const newJdata = caseDetails.json_DATA;
+        // console.log('newJdata parsed ==>',JSON.parse(newJdata));
+        setLifeAssuredFields(() => ({
+          ...caseDetails?.json_DATA,
+        }));
+        break;
+      case 1:
+        setPlanAndCoverageFields(() => caseDetails.json_DATA);
+        break;
+      case 2:
+        setPaymentInformationFields(() => caseDetails.json_DATA);
+        break;
+      case 3:
+        setBeneficiaryFields(() => {
+          console.log(caseDetails.json_DATA);
+          let details = caseDetails.json_DATA;
+          const updatedDetails = details?.map((row: any) => {
+            row = JSON.parse(JSON.stringify(row));
+            return row;
+          });
+          return updatedDetails;
+        });
+        break;
+      case 4:
+        setHealthFields(() => caseDetails.json_DATA);
+        break;
+      case 5:
+        setFatcaCrsFields(() => caseDetails.json_DATA);
+        break;
+      case 6:
+        setSupportingDocumentsFields(() => caseDetails.json_DATA);
+        break;
+      case 7:
+        setConsentFields(() => caseDetails.json_DATA);
+        break;
+      case 8:
+        setSignatureFields(() => caseDetails.json_DATA);
+        break;
+      case 9:
+        setPaymentCollectionFields(() => caseDetails.json_DATA);
+        break;
+      default:
+        break;
+    }
+  };
+  const generatePdf = () => {
+    //if (typeof params.txnTypeId !== "undefined") {
 
-import axios from "axios";
+    const dataToBeSent = params.txnTypeId;
+    console.log(dataToBeSent);
 
-export const calculatePremium = async (data: any) => {
-  const res = await axios.post("http://localhost:8080/api/calc/premium", data);
-  return res.data;
+    axios
+      .post(
+        "http://localhost:8001/api/generate-pdf-service/generateEappPdf",
+        dataToBeSent,
+        { responseType: "arraybuffer" }
+      )
+      .then(function (res) {
+        const file = new Blob([res.data], { type: "application/pdf" });
+        //Build a URL from the file
+        const fileURL = URL.createObjectURL(file);
+        //Open the URL on new Window
+        window.open(fileURL);
+        console.log(res);
+      })
+      .catch(function (error) {
+        console.log("PDF Error");
+        console.log(error);
+      });
+  };
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+
+        bgcolor: "#C9E9EA",
+        border: "1px solid black",
+
+        p: isMobile ? 1 : 3,
+
+        overflowX: "hidden", // Prevent horizontal scrolling
+      }}
+    >
+      {/* Stepper (Scrollable on small screens) */}
+      <Box
+        sx={{
+          overflowX: isMobile ? "auto" : "visible",
+
+          whiteSpace: isMobile ? "nowrap" : "normal",
+
+          maxWidth: "100vw",
+        }}
+      >
+        <Stepper activeStep={activeStep} alternativeLabel nonLinear>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepButton
+                className="custom-step-button"
+                onClick={handleStep(index)}
+              >
+                {label}
+              </StepButton>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+
+      {/* Forms */}
+      <Box sx={{ mt: 2, mb: 1 }}>
+        <Typography component="div">
+          {activeStep === 0 && (
+            <LifeAssuredDetails
+              fields={lifeAssuredFields}
+              setFields={setLifeAssuredFields}
+              savedTransaction={savedTransaction}
+            />
+          )}
+
+          {activeStep === 1 && (
+            <PlanAndCoverage
+              fields={planAndCoverageFields}
+              setFields={setPlanAndCoverageFields}
+              savedTransaction={savedTransaction}
+              savedQuotation={savedQuotation}
+            />
+          )}
+
+          {activeStep === 2 && (
+            <PaymentInformation
+              fields={paymentInformationFields}
+              setFields={setPaymentInformationFields}
+              savedTransaction={savedTransaction}
+            />
+          )}
+
+          {activeStep === 3 && (
+            <Beneficiary
+              fields={beneficiaryFields}
+              setFields={setBeneficiaryFields}
+            />
+          )}
+
+          {activeStep === 4 && (
+            <Health fields={healthFields} setFields={setHealthFields} />
+          )}
+
+          {activeStep === 5 && (
+            <FatcaCrs fields={fatcaCrsFields} setFields={setFatcaCrsFields} />
+          )}
+
+          {activeStep === 6 && (
+            <SupportingDocuments
+              fields={supportingDocumentsFields}
+              setFields={setSupportingDocumentsFields}
+            />
+          )}
+
+          {activeStep === 7 && (
+            <Consent fields={consentFields} setFields={setConsentFields} />
+          )}
+
+          {activeStep === 8 && (
+            <Signatures
+              fields={signatureFields}
+              setFields={setSignatureFields}
+            />
+          )}
+
+          {activeStep === 9 && (
+            <PaymentCollection
+              fields={paymentCollectionFields}
+              setFields={setPaymentCollectionFields}
+              savedTransaction={savedTransaction}
+            />
+          )}
+        </Typography>
+
+        {/* Responsive Buttons */}
+        <Stack
+          spacing={2}
+          direction={isMobile ? "column" : "row"} // Stack vertically on small screens
+          justifyContent={"flex-end"}
+          px={isMobile ? 2 : 5}
+          pb={3}
+        >
+          <Button
+            className="styled-button-secondary"
+            onClick={onClickSaveDraft}
+            variant="outlined"
+            startIcon={<Save />}
+          >
+            Save
+          </Button>
+          <Button
+            className="styled-button-secondary"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            variant="outlined"
+            startIcon={<ArrowBack />}
+          >
+            Back
+          </Button>
+
+          {activeStep !== steps.length - 1 ? (
+            <Button
+              className="styled-button-secondary"
+              variant="outlined"
+              onClick={handleNext}
+              endIcon={<ArrowForward />}
+            >
+              Next
+            </Button>
+          ) : (
+            <>
+              <Button
+                className="styled-button-secondary"
+                variant="outlined"
+                startIcon={<ArrowUpward />}
+              >
+                Submit
+              </Button>
+              <Button
+                className="styled-button-secondary"
+                variant="outlined"
+                onClick={generatePdf}
+              >
+                Generate PDF
+              </Button>
+            </>
+          )}
+        </Stack>
+      </Box>
+    </Box>
+  );
 };
-
-
----
-
-Now add button event inside PlanAndCoverage:
-
-const handlePremiumCalculation = async () => {
-    const payload = {
-        age: savedTransaction[0]?.txn_input_json?.Age,
-        sumAssured: fields.basicSumInsured,
-        policyTerm: fields.insuranceTerm,
-        ppt: fields.ppt,
-        planCode: fields.basicPlan,
-        gender: savedTransaction[0]?.txn_input_json?.Gender,
-        smoker: savedTransaction[0]?.txn_input_json?.SmokingStatus == "YES"
-    };
-
-    const result = await calculatePremium(payload);
-    alert("Total Premium = " + result.totalPremium);
-};
-
-
----
-
-Add button inside JSX:
-
-<button onClick={handlePremiumCalculation}>
-  Calculate Premium
-</button>
-
-
----
-
-🎉 CONGRATULATIONS — तुझा “Premium Calculation Engine” पूर्ण झाला
-
-हे engine:
-
-✔️ form मधून data घेते
-✔️ coherent ला payload बनवून पाठवते
-✔️ premium calculate करून आणते
-✔️ frontend वर दाखवते
-
-हेच तुझं WORK TASK आहे.
-
-
----
-
-Anurag — तुला आता कोणता Part अधिक detail मध्ये हवा?
-
-1️⃣ Frontend मध्ये UI design
-2️⃣ Coherent payload format सुधारून देऊ?
-3️⃣ Response structure compatible बनवू?
-4️⃣ तुझ्या EAPP प्रोजेक्टमध्ये पूर्ण integrate करून देऊ?
-
-फक्त नंबर सांग — मी लगेच पुढे complete करून देतो.
+export default BasicTabs;
