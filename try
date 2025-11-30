@@ -14,42 +14,33 @@ import {
 } from "@mui/material";
 
 import React, { useEffect } from "react";
-
 import { useTranslation } from "react-i18next";
+
+// 🔥 ADD THIS IMPORT
+import { calculatePremium } from "../../api/calculationApi";
 
 interface ChildComponentProps {
   fields: {
     basicPlan: string;
-
     basicSumInsured: string;
-
     basicPlanPremium: string;
-
     typeOfDivident: string;
-
     insuranceTerm: string;
-
     ppt: string;
   };
 
   setFields: React.Dispatch<
     React.SetStateAction<{
       basicPlan: string;
-
       basicSumInsured: string;
-
       basicPlanPremium: string;
-
       typeOfDivident: string;
-
       insuranceTerm: string;
-
       ppt: string;
     }>
   >;
 
   savedQuotation: any;
-
   savedTransaction: any;
 }
 
@@ -61,20 +52,17 @@ const camelToNormal = (text: string) => {
 
 const PlanAndCoverage: React.FC<ChildComponentProps> = ({
   fields,
-
   setFields,
-
   savedQuotation,
-
   savedTransaction,
 }) => {
   let jsonData;
-
   let headers: any[] = [];
-
   let OptRiderData;
-
   let OptHeaders: any[] = [];
+
+  // 🔥 Premium calculation result state
+  const [calculatedPremium, setCalculatedPremium] = React.useState<any>(null);
 
   const handleFieldChange = (val: string, fieldName: string) => {
     setFields({ ...fields, [fieldName]: val });
@@ -85,32 +73,48 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
   useEffect(() => {
     if (savedTransaction && savedTransaction.length > 0) {
       const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
-
       const plan = savedTransaction[0]?.txn_input_json?.Plan;
-
       const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
-
       const ppt = savedTransaction[0]?.txn_input_json?.PPT;
 
       setFields((prevFields) => ({
         ...prevFields,
-
         basicPlanPremium:
           savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]
             ?.basePlan,
-
         basicSumInsured: baseSA,
-
         basicPlan: plan,
-
         insuranceTerm: term,
-
         ppt: ppt,
-
         typeOfDivident: "Non - Participatory",
       }));
     }
   }, [savedTransaction]);
+
+  // 🔥 PREMIUM CALCULATION FUNCTION (Final)
+  const handlePremiumCalculation = async () => {
+    try {
+      const requestData = {
+        age: savedTransaction?.[0]?.txn_input_json?.Age,
+        sumAssured: fields.basicSumInsured,
+        plan: fields.basicPlan,
+        policyTerm: fields.insuranceTerm,
+        ppt: fields.ppt,
+      };
+
+      const response = await calculatePremium(requestData);
+
+      setCalculatedPremium(response.data.premium);
+
+      // Auto update in UI field
+      setFields((prev) => ({
+        ...prev,
+        basicPlanPremium: response.data.premium,
+      }));
+    } catch (error) {
+      console.error("Premium Calculation Error:", error);
+    }
+  };
 
   if (
     savedTransaction &&
@@ -162,9 +166,7 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
                   type: "application/pdf",
                 }
               );
-
               const fileURL = URL.createObjectURL(file);
-
               window.open(fileURL);
             }}
           >
@@ -173,7 +175,7 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         </Box>
       </Paper>
 
-      {/* Main Plan */}
+      {/* MAIN PLAN */}
       <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
         <Typography className="typography-main-header">
           {t("main_plan")}
@@ -181,10 +183,17 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         <Divider />
         <Box sx={{ marginTop: 2 }}>
           <TableContainer sx={{ width: "100%" }}>
-            <Table className="table-main" sx={{ width: "100%" }} >
+            <Table className="table-main" sx={{ width: "100%" }}>
               <TableBody>
                 {[
-                  ["basicPlan", "basicSumInsured", "basicPlanPremium","typeOfDivident","insuranceTerm", "ppt"]
+                  [
+                    "basicPlan",
+                    "basicSumInsured",
+                    "basicPlanPremium",
+                    "typeOfDivident",
+                    "insuranceTerm",
+                    "ppt",
+                  ],
                 ].map((row, rowIndex) => (
                   <TableRow
                     key={rowIndex}
@@ -196,7 +205,6 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
                         sx={{ flex: "1 1 30%", minWidth: "120px" }}
                       >
                         <TextField
-                          // fullWidth
                           size="small"
                           label={t(field)}
                           variant="standard"
@@ -213,10 +221,33 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* 🔥 CALCULATE PREMIUM BUTTON */}
+          <Box sx={{ marginTop: 2, textAlign: "right" }}>
+            <button
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#000048",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+              onClick={handlePremiumCalculation}
+            >
+              Calculate Premium
+            </button>
+
+            {calculatedPremium && (
+              <Typography sx={{ marginTop: 1, fontWeight: "bold" }}>
+                Calculated Premium: {calculatedPremium}
+              </Typography>
+            )}
+          </Box>
         </Box>
       </Paper>
 
-      {/* Riders */}
+      {/* RIDERS */}
       <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
         <Typography className="typography-main-header">
           {t("riders")}
@@ -246,7 +277,7 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         </Box>
       </Paper>
 
-      {/* Optional Benefits */}
+      {/* OPTIONAL BENEFITS */}
       <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
         <Typography className="typography-main-header">
           {t("optional_benefits")}
