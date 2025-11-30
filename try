@@ -1,3 +1,37 @@
+
+
+
+
+package com.eapp.service;
+
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.responseDTO.CalculationResponse;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PremiumService {
+
+    public CalculationResponse calculatePremium(CalculationRequest req) {
+
+        CalculationResponse res = new CalculationResponse();
+
+        double baseRate = 12.5;
+
+        double premium =
+                (req.getSumAssured() / 1000 * baseRate)
+                + (req.getAge() * 10)
+                + (req.getPolicyTerm() * 5);
+
+        res.setPremium(premium);
+        res.setMessage("Premium calculation successful");
+
+        return res;
+    }
+}
+
+
+
+
 Perfect! ✔️
 You selected Option B → Local Premium Engine Integration
 This is the BEST choice for you — no external API, no WebClient issues, no token issues, fully working end-to-end.
