@@ -1,629 +1,133 @@
-
-11 new activities
-2 new notifications
-New activities
-Has context menu
-Chat
-
-
-
-
-Unread
-Channels
-Chats
-Meeting chats
-Unread messageLast messageGroup chatMeeting chatChatPersonal at mentionEveryone at mentionImportantUrgentDraftDraftMutedMeeting in progressMeet now in progressYou can't send messages because you are not a member of the chat.PrivateSharedHas context menuChannel at mentionTeam at mentionPersonal at mentionUnreadUnreadMeeting in progressUnreadChannelTeamHas pinned messagesSee moreCommunityTemporarily shownHas context menu
-Underwriting & Workflow POC - Daily Updates
-
-Chat
-+4
-
-Has context menu
-Join
-
-12
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from '../../api/axiosInterceptor';
+import { useNavigate } from 'react-router-dom';
 
 
 
+const defaultTheme = createTheme();
 
-De, Sayan (Cognizant) and 8 others were invited to the meeting.
-Ghosh, Amlan (Cognizant) was invited to the meeting.
-Hi Team, for today we will have the call fr... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-20-11 13:25
-
-Hi Team, for today we will have the call from 5pm
-
-
-👍
-4 Like reactions.
-4
-
-Ok, sure by Salve, Sankalp Bhagwan (Cognizant)
-Salve, Sankalp Bhagwan (Cognizant)
-20-11 13:26
-
-Ok, sure
-
-okay  by Gautam, Deepak (Cognizant)
-Gautam, Deepak (Cognizant)
-20-11 13:30
-
-okay 
-
-Meeting started at 20-11 16:59
-eApp - name change  10 screens into one men... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-20-11 17:21
-
-eApp - name change 
-10 screens into one menu  - Application Data Entry
-Create dummy menus
-Open Source_Jaspersoft_Jaspersoft Studio_wi... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-20-11 17:24
-
-Open Source_Jaspersoft_Jaspersoft Studio_windows_6.11.0_TIB_js-studiocomm_6.11.0_windows_x86_64
-
-let me know if you people have the code bas... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-20-11 17:33
-
-let me know if you people have the code bases 
-
-Meeting ended: at 20-11 17:44 after 44 minutes 54 seconds
-Begin Reference, let me know if you people ... by Ansari, Taufique (Cognizant)
-Ansari, Taufique (Cognizant)
-20-11 17:52
-
-Mukherjee, Sanjana (Cognizant)
-20-11-2025 17:33
-let me know if you people have the code bases
-Yes got the zip file we'll try to configure and set it up.
-
-concentrate on the eApp folders. frontend a... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-20-11 18:12
-
-concentrate on the eApp folders. frontend and backend
+export default function SignUp() {
+  const navigate= useNavigate();
+   const  handleSubmit = async (event:any) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const dataToBeSent={
+      email: data.get('email'),
+      password: data.get('password'),
+      firstName : data.get('firstName'),
+      lastName : data.get('lastName')
+    };
+    console.log(dataToBeSent);
+    await axios.post('http://localhost:8001/api/auth/signup', dataToBeSent)
+            .then(function (res) {
+              navigate("/signin");
+            }).catch(function (error) {
+              console.log(error.response.data);
+          });
 
 
-👍
-4 Like reactions.
-4
+  };
 
-De, Sayan (Cognizant) please start the cal by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-21-11 15:00
-
-De, Sayan (Cognizant) please start the call
-
-I’m in another call by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-21-11 15:00
-
-I’m in another call
-Meeting started at 21-11 15:01
-sure by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-21-11 15:01
-
-sure
-
-Meeting ended: at 21-11 15:38 after 36 minutes 58 seconds
-Everyone  i have conflict today .. will not... by Ghosh, Amlan (Cognizant)
-Ghosh, Amlan (Cognizant)
-Monday 14:55
-
-Everyone i have conflict today .. will not be able to join the call 
-
-
-👍
-1 Like reaction.
-
-will take update later  by Ghosh, Amlan (Cognizant)
-Ghosh, Amlan (Cognizant)
-Monday 14:55
-
-will take update later 
-
-Meeting ended: at Monday 15:59 after 59 minutes 16 seconds
-De,   Sayan   (Cognizant)  can we connect f... by Ghosh, Amlan (Cognizant)
-Ghosh, Amlan (Cognizant)
-Monday 16:13
-
-De, Sayan (Cognizant) can we connect for update
-
-sure by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 16:18
-
-sure
-
-Meeting started at Tuesday 15:07
-{     "request_data": {         "inputs... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Tuesday 15:37
-
-{
-    "request_data": {
-        "inputs": {
-            "_1a_DOB": "1976-10-08",
-            "_1b_Product": "Option A",
-            "_1c_Gender": "Male",
-            "_1d_Face_Amount": 200000,
-            "_1e_Occupation": 4,
-            "_1h_Policy_Inception_Date": "2018-05-11",
-            "_1i_Smoker": "N",
-            "_1j_Pre_Existing_Disease": "Y",
-            "_1k_Extra_mortality": 0.75,
-            "_1p_Policy_Term": 45,
-            "_1r_Mandatory_Premium_Period": "ErrName",
-            "_1zb_PAV": 0,
-            "_1zc_per_mille_rating_death": 1,
-            "_1zd_per_mille_rating_TPD": 1,
-            "_1ze_per_mille_rating_SCI": 1,
-            "_2a_Death_Benefit": "Y",
-            "_2b_Total_and_Permanent_Disability_TPD": "Y",
-            "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
-            "_2d_Staged_Critical_Illness_SCI": "Y",
-            "_2e_Hospital_Cash_Benefit_HCB": "Y",
-            "_3a_Partial_Withdrawl": "Y",
-            "_3b_Partial_Withdrawl_Amount": 5000
-        }
-    },
-    "request_meta": {
-        "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-        "call_purpose": "Spark - API Tester",
-        "source_system": "SPARK",
-        "correlation_id": null,
-        "requested_output": null,
-        "service_category": ""
-    }
+  return (
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign up
+          </Typography>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="given-name"
+                  name="firstName"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="family-name"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+              {/* <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox value="allowExtraEmails" color="primary" />}
+                  label="I want to receive inspiration, marketing promotions and updates via email."
+                />
+              </Grid> */}
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign Up
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="/signin" variant="body2">
+                  Already have an account? Sign in
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+      </Container>
+    </ThemeProvider>
+  );
 }
-
-"inputs": {       "_1a_DOB": "1976-10-08"... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Tuesday 15:43
-
-"inputs": {
-      "_1a_DOB": "1976-10-08", -- present
-      "_1b_Product": "Option A", --plan -- present
-      "_1c_Gender": "Male", -- present
-      "_1d_Face_Amount": 200000, -- present - basicSumAssured
-      "_1e_Occupation": 4, --present ?
-      "_1h_Policy_Inception_Date": "2018-05-11", --need to create a field - SYSDATE
-      "_1i_Smoker": "N", --need to create a field - dropdown Y/N
-      "_1j_Pre_Existing_Disease": "Y", --need to create a field - dropdown Y/N
-      "_1k_Extra_mortality": 0.75, --need to create a field - dropdown - % 5%, 10% - 100 %
-      "_1p_Policy_Term": 45, --need to create a field - text field
-      "_1r_Mandatory_Premium_Period": "ErrName", --need to create a field - textfield
-      "_1zb_PAV": 0, -- hard code
-      "_1zc_per_mille_rating_death": 1,  -- hard code
-      "_1zd_per_mille_rating_TPD": 1,  -- hard code
-      "_1ze_per_mille_rating_SCI": 1,  -- hard code
-      "_2a_Death_Benefit": "Y",
-      "_2b_Total_and_Permanent_Disability_TPD": "Y",
-      "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
-      "_2d_Staged_Critical_Illness_SCI": "Y",
-      "_2e_Hospital_Cash_Benefit_HCB": "Y",
-      "_3a_Partial_Withdrawl": "Y", -- hard code
-      "_3b_Partial_Withdrawl_Amount": 5000  -- hard code
-    }
-
-Link https://excel.uat.us.coherent.global/c... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Tuesday 15:51
-
-https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-…
-
-Ghosh,   Amlan   (Cognizant)     Dev Task S... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Tuesday 15:54
-
-Ghosh, Amlan (Cognizant) 
-
- 
-
-Dev	Task
-Sankalp/Sayan	UW screen configuration
-Deepak/ Salik	PDF (Jasper)
-Taufique	Login/sign up
-Anurag/Shobhit	Coherent integration for calculation (including field creation as needed)
- 
-
-
-👍
-1 Like reaction.
-
-Meeting ended: at Tuesday 15:55 after 48 minutes 3 seconds
-Hi all, I'll be a little late to join by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Wednesday 15:00
-
-Hi all, I'll be a little late to join
-
-in another webex call by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Wednesday 15:00
-
-in another webex call
-
-please start now by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Wednesday 15:00
-
-please start now
-
-Meeting ended: at Wednesday 15:09 after 8 minutes 43 seconds
-Meeting started at Thursday 15:01
-Rani, Aditi (Cognizant) was invited to the meeting.
-I have conflict  by Ghosh, Amlan (Cognizant)
-Ghosh, Amlan (Cognizant)
-Thursday 15:07
-
-I have conflict 
-
-will take the update later  by Ghosh, Amlan (Cognizant)
-Ghosh, Amlan (Cognizant)
-Thursday 15:07
-
-will take the update later 
-
-sure by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:07
-
-sure
-    Role View R001 Y,Y,Y,Y,Y R002 Y,N,Y,Y,N... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:16
-
- 
-
- 
-
-Role	View
-R001	Y,Y,Y,Y,Y
-R002	Y,N,Y,Y,N
-R003	N,N,Y,N,N
- 
-
-Sample example
-
-  Role name Role code admin R001 Sr_UW R002... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:17
-
- 
-
-Role name	Role code
-admin	R001
-Sr_UW	R002
-Jr_UW	R003
- 
-
-sample by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:17
-
-sample
-
-  User Table #UserCode *UserName *Password ... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:17
-
- 
-
-User Table
-#UserCode
-*UserName
-*Password
-*Eff St Date
-- Eff End Date
- 
-
-  Role Table #RoleCode *RoleName *RoleDesc by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:17
-
- 
-
-Role Table
-#RoleCode
-*RoleName
-*RoleDesc
- 
-
-  Role-User Map Table #RoleCode #UserCode *... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:26
-
- 
-
-Role-User Map Table
-#RoleCode
-#UserCode
-*Eff St Date
-- Eff End Date
- 
-
-  User Hierarchy This will enable to create... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:26
-
- 
-
-User Hierarchy
-This will enable to create the feature, who can view what and 
- 
-
-Begin Reference, https://excel.uat.us.coher... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:32
-
-Mukherjee, Sanjana (Cognizant)
-25-11-2025 15:51
-https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-…
-.
-
-  Dev Task Sankalp/Sayan UW screen configur... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:34
-
- 
-
-Dev	Task
-Sankalp/Sayan	UW screen configuration
-Deepak/ Salik	PDF (Jasper)
-Taufique	Login/sign up
-Anurag/Shobhit	Coherent integration for calculation (including field creation as needed)
-Aditi/Taufique/Sankalp	Role based login (view)
- 
-
-Main plans name should be Term Insurance, W... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Thursday 15:34
-
-Main plans name should be Term Insurance, Whole Life Insurance, Universal Life Insurance, Endowment Plan
-
-riders name should be ADD,CI,WOP,HCB, DB
-
-Begin Reference, Main plans name should be ... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:44
-
-De, Sayan (Cognizant)
-27-11-2025 15:34
-Main plans name should be Term Insurance, Whole Life Insurance, Universal Life Insurance, Endowment Plan riders name should be ADD,CI,WOP,HCB, DB
-As of now keep Option A, Option B
-
-And riders have already been added by someo... by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:45
-
-And riders have already been added by someone
-Integrate the code by Mukherjee, Sanjana (Cognizant)
-Mukherjee, Sanjana (Cognizant)
-Thursday 15:45
-
-Integrate the code
-Meeting ended: at Thursday 16:25 after 1 hour 23 minutes 33 seconds
-Meeting ended: at Yesterday 15:19 after 14 minutes 57 seconds
-Message by Ansari, Taufique (Cognizant), has attachments.
-Ansari, Taufique (Cognizant)
-Yesterday 15:35
-
-eapp-frontend.zip
-
-eapp-backend.zip
-
-has context menu
-
-
-
-
-11 new activities
-2 new notifications
-New activities
-Has context menu
-Chat
-
-
-
-
-Unread
-Channels
-Chats
-Meeting chats
-Unread messageLast messageGroup chatMeeting chatChatPersonal at mentionEveryone at mentionImportantUrgentDraftDraftMutedMeeting in progressMeet now in progressYou can't send messages because you are not a member of the chat.PrivateSharedHas context menuChannel at mentionTeam at mentionPersonal at mentionUnreadUnreadMeeting in progressUnreadChannelTeamHas pinned messagesSee moreCommunityTemporarily shownHas context menu
-
-Internal_Uw
-
-
-Chat
-
-Shared
-
-Has context menu
-
-Meet now
-
-
-9
-
-
-
-Press Ctrl+F to find in this chat
-Okay by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 09:18
-
-Okay
-
-De, Sayan (Cognizant) added Jadhav, Anurag Sanjay (Cognizant) to the chat and shared all chat history.
-Hi Ansari,   Taufique   (Cognizant)   Jadh... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 09:19
-
-Hi Ansari, Taufique (Cognizant) Jadhav, Anurag Sanjay (Cognizant)
-
-are you guys available for a quick call?  by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 09:26
-
-are you guys available for a quick call? 
-
-
-👍
-1 Like reaction.
-
-I am ready, maybe lets wait for them. by Salve, Sankalp Bhagwan (Cognizant)
-Salve, Sankalp Bhagwan (Cognizant)
-Monday 09:28
-
-I am ready, maybe lets wait for them.
-
-Okay will connect at 9.45 by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 09:28
-
-Okay will connect at 9.45
-
-ok by Salve, Sankalp Bhagwan (Cognizant)
-Salve, Sankalp Bhagwan (Cognizant)
-Monday 09:29
-
-ok
-
-Please join by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 09:44
-
-Please join
-
-Meeting ended at Monday 10:06 after 22 minutes 14 seconds
-Hi Ansari,   Taufique   (Cognizant)  creat... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 10:09
-
-Hi Ansari, Taufique (Cognizant) create a excel to make notes. Anurag will guide you with this
-
-And Check with Sankalp to develop application. Sankalp will tell you 
-
- 
-
- 
-
-
-👍
-1 Like reaction.
-
-De, Sayan (Cognizant) changed the group name to Internal_Uw.
-De, Sayan (Cognizant) added Mukherjee, Sanjana (Cognizant) and 3 others to the chat and shared all chat history.
-Hi Everyone   Anurag will be responsible f... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 10:12
-
-Hi Everyone 
-
-Anurag will be responsible for merging the code
-
-
-👍
-1 Like reaction.
-
-Monday 10:19 - You started a Meeting.
-Meeting ended at Monday 10:19 after 5 seconds
-Link https://cognizant.udemy.com/course/rep... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 15:58
-
-https://cognizant.udemy.com/course/reporting-with-jasperreports-java-spring-boot-jasperstudio-jaspe…
-
-Hi Salve,   Sankalp   Bhagwan   (Cognizant... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 18:24
-
-Hi Salve, Sankalp Bhagwan (Cognizant) Gautam, Deepak (Cognizant)
-
-can we connect now?
-
-
-👍
-1 Like reaction.
-
-yes  by Gautam, Deepak (Cognizant)
-Gautam, Deepak (Cognizant)
-Monday 18:25
-
-yes 
-
-Meeting ended at Monday 19:20 after 54 minutes
-Message by De, Sayan (Cognizant), has an attachment.
-De, Sayan (Cognizant)
-Monday 19:21
-
-
-cad90725-9c44-4c13-bd59-3672f2c57a73.pdf
-
-
-👍
-2 Like reactions.
-2
-
-thanks by Gautam, Deepak (Cognizant)
-Gautam, Deepak (Cognizant)
-Monday 19:21
-
-thanks
-
-Message by De, Sayan (Cognizant), has an attachment.
-De, Sayan (Cognizant)
-Monday 19:24
-
-
-Underwriting_fields - Copy.xlsx
-personal > 2270622_cognizant_com
-
-Sarfraz,   Md   Salik   (Cognizant)  help d... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Monday 19:26
-
-Sarfraz, Md Salik (Cognizant) help deepak to generate the pdf
-
-Agrawal, Shobhit (Cognizant)  Jadhav, Anurag Sanjay (Cognizant) help sanklap to develop the UI
-
-Message by Salve, Sankalp Bhagwan (Cognizant), has an attachment.
-Salve, Sankalp Bhagwan (Cognizant)
-Thursday 15:50
-
-t_quotation_save_sql_insert.sql
-
-hi Ansari,   Taufique   (Cognizant)   merg... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Yesterday 10:04
-
-hi Ansari, Taufique (Cognizant) 
-
-merge all the updated files and share the codebase by 1PM in the group
-
-
-👍
-1 Like reaction.
-
-Hi Everyone Share all the updated files to... by De, Sayan (Cognizant)
-De, Sayan (Cognizant)
-Yesterday 10:07
-
-Hi Everyone
-
-Share all the updated files to Taufique along with filepath by 12pm
-
-De, Sayan (Cognizant) added Rani, Aditi (Cognizant) to the chat and shared all chat history.
-has context menu
-
-
-
-
-
