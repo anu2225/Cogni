@@ -1,146 +1,186 @@
-ठीक आहे! मग folder नको, direct Components मध्येच फाईल तयार कर!
-हे absolutely fine आहे.
+import React, { useEffect, useState } from "react";
+import {
+  AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem,
+  Grid, useMediaQuery, useTheme, Drawer, List, ListItem,
+  ListItemButton, ListItemIcon, ListItemText, Divider,
+} from "@mui/material";
+import { Outlet, useNavigate, useLocation, useParams, matchPath } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import DescriptionIcon from "@mui/icons-material/Description";
+import PaymentIcon from "@mui/icons-material/Payment";
+import BentoIcon from "@mui/icons-material/Bento";
+import { Translate } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
+import cookies from "js-cookie";
+import styled from "@emotion/styled";
 
 
----
+// Custom Styled AppBar
+const CustomAppBar = styled(AppBar)({
+  backgroundColor: "rgba(255, 255, 255, 1)",
+});
 
-✅ Final Instruction (तुझ्या साठी perfect setup)
+// Language setup code 
+interface Language {
+  code: string;
+  name: string;
+  country_code: string;
+  dir: string;
+}
+const languages: Language[] = [
+  { code: "en", name: "English", country_code: "gb", dir: "ltr" },
+  { code: "th", name: "แบบไทย", country_code: "th", dir: "ltr" },
+];
 
-📍 इथे फाईल तयार कर:
+export default function App() {
+  const currentLanguageCode = cookies.get("i18next") || "en";
+  const currentLanguage = languages.find((l) => l.code === currentLanguageCode);
+  const { t } = useTranslation();
+  
+  // 1. HOOKS FOR ROUTING
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  const currentTxnId = params.txnTypeId; 
 
-src/Components/CalculatePremium.tsx
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-बस्स! No folder needed.
+  useEffect(() => {
+    document.body.dir = currentLanguage?.dir || "ltr";
+    document.title = t("app_title");
+  }, [currentLanguage, t]);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (event.type === "keydown" && ((event as React.KeyboardEvent).key === "Tab" || (event as React.KeyboardEvent).key === "Shift")) {
+      return;
+    }
+    setDrawerOpen(open);
+  };
 
 
----
+  // DEFINE MENU ITEMS (Use root path names)
+  const menuItems = [
+    { text: "Application Entry", icon: <DashboardIcon />, path: "application" },
+    { text: "Proofing", icon: <DescriptionIcon />, path: "proofing" },
+    { text: "Underwriting", icon: <DescriptionIcon />, path: "underwriting" },
+    { text: "Payment", icon: <PaymentIcon />, path: "payment" },
+    { text: "Claims", icon: <BentoIcon />, path: "claims" },
+  ];
 
-🚀 FULL WORKING FILE CODE (direct paste करण्यासाठी तयार)
-
-📄 src/Components/CalculatePremium.tsx
-
-import React, { useState } from "react";
-import axios from "../api/axiosInterceptor";
-
-const CalculatePremium: React.FC = () => {
-  const [sumAssured, setSumAssured] = useState("");
-  const [age, setAge] = useState("");
-  const [policyTerm, setPolicyTerm] = useState("");
-  const [premium, setPremium] = useState<number | null>(null);
-  const [message, setMessage] = useState("");
-
-  const handleCalculate = async () => {
-    try {
-      const payload = {
-        sumAssured: Number(sumAssured),
-        age: Number(age),
-        policyTerm: Number(policyTerm),
-      };
-
-      const res = await axios.post("/premium/calculate", payload);
-
-      setPremium(res.data.premium);
-      setMessage(res.data.message);
-    } catch (error) {
-      console.error("Error:", error);
-      setMessage("Error calculating premium!");
+  //  NAVIGATION FUNCTION
+  const handleNavigation = (path: string) => {
+    if (path === "application") {
+      // Application page usually REQUIRES an ID. 
+      // If we have one, go to it. If not, maybe go to a 'Search' page or stay put?
+      if (currentTxnId) {
+        navigate(`/application/${currentTxnId}`);
+      } else {
+        navigate('/application/new');
+        // navigate('/dashboard'); 
+      }
+    } else {
+      // For Underwriting, Proofing, etc.
+      // If we have an ID, append it. If not, just go to the list view.
+      if (currentTxnId) {
+        navigate(`/${path}/${currentTxnId}`);
+      } else {
+        navigate(`/${path}`);
+      }
     }
   };
 
-  return (
-    <div style={{ maxWidth: "450px", margin: "30px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "10px" }}>
-      <h2 style={{ textAlign: "center" }}>Premium Calculator</h2>
+  // 3. DETERMINE TITLE BASED ON URL
+  // We look at the current URL path to decide which title to show
+  const getCurrentTitle = () => {
+     const activeItem = menuItems.find((item) => 
+      location.pathname.includes(item.path)
+    );
+    
+    return activeItem ? activeItem.text : "Application Entry";
+  };
 
-      <label>Sum Assured</label>
-      <input
-        type="number"
-        value={sumAssured}
-        onChange={(e) => setSumAssured(e.target.value)}
-        placeholder="Enter Sum Assured"
-        style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-      />
-
-      <label>Age</label>
-      <input
-        type="number"
-        value={age}
-        onChange={(e) => setAge(e.target.value)}
-        placeholder="Enter Age"
-        style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-      />
-
-      <label>Policy Term</label>
-      <input
-        type="number"
-        value={policyTerm}
-        onChange={(e) => setPolicyTerm(e.target.value)}
-        placeholder="Enter Policy Term"
-        style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
-      />
-
-      <button
-        onClick={handleCalculate}
-        style={{
-          width: "100%",
-          padding: "12px",
-          backgroundColor: "black",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Calculate Premium
-      </button>
-
-      {premium !== null && (
-        <div style={{ marginTop: "20px", padding: "15px", backgroundColor: "#f4f4f4", borderRadius: "5px" }}>
-          <h3>Premium: ₹{premium}</h3>
-          <p>{message}</p>
-        </div>
-      )}
-    </div>
+  const list = () => (
+    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+      {/* ... Headers ... */}
+      <List>
+        {menuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              // USE THE NEW NAVIGATION FUNCTION
+              onClick={() => handleNavigation(item.path)} 
+              selected={location.pathname.includes(item.path)}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   );
-};
 
-export default CalculatePremium;
+  return (
+    <Box sx={{ flexGrow: 1, backgroundColor: "#C9E9EA", minHeight: "100vh" }}>
+      <CustomAppBar position="static">
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }} variant="dense">
+          <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer(true)}
+              sx={{ mr: 2, color: "black" }}
+            >
+              <MenuIcon />
+            </IconButton>
 
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              sx={{ color: "black", fontWeight: "bold" }}
+            >
+               {/* Display Dynamic Title */}
+              {getCurrentTitle()} 
+            </Typography>
+          </Box>
 
----
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton color="inherit" sx={{ color: "black" }} onClick={handleMenuOpen}>
+              <Translate />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+               {/* Language Menu Items (Same as before) */}
+               {languages.map(({ code, name }) => (
+                <MenuItem key={code} onClick={() => { i18next.changeLanguage(code); handleMenuClose(); }}>
+                  {name}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        </Toolbar>
+      </CustomAppBar>
 
-✔ Step 2 → App.tsx मध्ये route जोडा
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+        {list()}
+      </Drawer>
 
-src/App.tsx उघड
-Route add कर:
-
-import CalculatePremium from "./Components/CalculatePremium";
-
-<Route path="/calculate-premium" element={<CalculatePremium />} />
-
-
----
-
-✔ Step 3 → Menu / Tabs मध्ये link add कर
-
-<Link to="/calculate-premium">Calculate Premium</Link>
-
-
----
-
-🎉 तुझा Frontend Premium Calculator पूर्ण!
-
-✔ Backend ला request जाईल
-✔ Premium UI वर दिसेल
-✔ कोणताही error नाही
-✔ तुझ्या project structure मध्ये perfect बसतो
-
-
----
-
-जर तुला हवं असेल तर:
-
-🔥 मी UI अजून attractive करुन देऊ
-🔥 Validations add करुन देऊ
-🔥 Values auto-fill करु शकतो (PlanAndCoverage मधून)
-
-फक्त सांग — पुढे काय हवय?
+      <Grid container justifyContent="center" sx={{ maxWidth: 1280, margin: "auto", padding: { xs: "1rem", sm: "2rem" } }}>
+        <Grid item xs={12}>
+          {/* 5. THIS IS WHERE THE CHILD COMPONENTS RENDER */}
+          <Outlet /> 
+        </Grid>
+      </Grid>
+    </Box>
+  );
+}
