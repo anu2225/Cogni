@@ -1,198 +1,282 @@
-छान! मी फोटो पाहिला आणि आता मला तुझं frontend प्रोजेक्ट structure पूर्णपणे समजलं.
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 
-आता मी तुला तुझ्या प्रोजेक्टमध्ये Coherent premium calculation कुठे, कसे, कोणत्या file मध्ये integrate करायचे EXACT step-by-step देतो — तुझ्या screenshot मधल्या structure नुसार.
+import React, { useEffect } from "react";
 
-यात:
+import { useTranslation } from "react-i18next";
 
-✅ कोणती file तयार करायची
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
 
-✅ कुठे तयार करायची
+    basicSumInsured: string;
 
-✅ कोणता code टाकायचा
+    basicPlanPremium: string;
 
-✅ backend कसा connect करायचा
+    typeOfDivident: string;
 
-✅ frontend मध्ये कोणत्या component मधून call करायचे
+    insuranceTerm: string;
 
-सगळं EXACT COPY–PASTE READY देतो.
-Zero error guaranteed.
-
-
----
-
-🔥 PART 1 — FRONTEND मध्ये तुला ही 3 कामे करायची आहेत:
-
-1️⃣ /src/api/ फोल्डरमध्ये नवीन file create करायची
-
-calculationApi.ts
-
-2️⃣ axiosInterceptor.ts वापरून API call करायचा
-
-(तुझ्या screenshot मध्ये ही file आधीच आहे)
-
-3️⃣ Underwriting / Application मधल्या एखाद्या स्क्रीनवर “Calculate Premium” बटण घालायचे
-
-
----
-
-🚀 STEP 1 — Create File: src/api/calculationApi.ts
-
-📄 calculationApi.ts
-
-import { apiClient } from "./axiosInterceptor";
-
-export const calculatePremium = (data: any) => {
-    return apiClient.post("/api/calc/premium", data);
-};
-
-बस्स!
-इथे backend चे URL तुझ्या axiosInterceptor मध्ये आधीच सेट असेल.
-जर नसेल तर मला सांग, मी सेट करून देतो.
-
-
----
-
-🚀 STEP 2 — आता कोणत्या स्क्रीनवर Premium Calculation कॉल करणार?
-
-तुझ्या screenshot नुसार Underwriting / Application / LifeAssuredDetails.tsx किंवा PlanAndCoverage.tsx हे दोन screens perfect आहेत.
-
-मी तुला PlanAndCoverage.tsx मध्ये integrate करून देतो (तुला हवं असेल तर दुसऱ्या स्क्रीनमध्ये देतो).
-
-
----
-
-🧩 STEP 3 — Open this file:
-
-📄
-
-src/Components/underwriting/PlanAndCoverage.tsx
-
-या component मध्ये “Calculate Premium” बटण + API call add करायचे.
-
-
----
-
-🚀 STEP 4 — हा कोड component मध्ये टाका:
-
-import React, { useState } from "react";
-import { calculatePremium } from "../../api/calculationApi";
-
-export default function PlanAndCoverage() {
-
-  const [form, setForm] = useState({
-    age: "",
-    sumAssured: "",
-    policyTerm: "",
-    productCode: ""
-  });
-
-  const [premium, setPremium] = useState<number | null>(null);
-
-  const handleChange = (e: any) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    ppt: string;
   };
 
-  const handleCalculate = async () => {
-    try {
-      const response = await calculatePremium(form);
-      setPremium(response.data.premium);
-    } catch (err) {
-      console.error("Error calculating premium:", err);
-    }
-  };
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
 
-  return (
-    <div>
-      <h3>Premium Calculator</h3>
+      basicSumInsured: string;
 
-      <input
-        name="age"
-        placeholder="Age"
-        onChange={handleChange}
-      />
+      basicPlanPremium: string;
 
-      <input
-        name="sumAssured"
-        placeholder="Sum Assured"
-        onChange={handleChange}
-      />
+      typeOfDivident: string;
 
-      <input
-        name="policyTerm"
-        placeholder="Policy Term"
-        onChange={handleChange}
-      />
+      insuranceTerm: string;
 
-      <input
-        name="productCode"
-        placeholder="Product Code"
-        onChange={handleChange}
-      />
+      ppt: string;
+    }>
+  >;
 
-      <button onClick={handleCalculate}>
-        Calculate Premium
-      </button>
+  savedQuotation: any;
 
-      {premium !== null && (
-        <h2>Premium: {premium}</h2>
-      )}
-    </div>
-  );
+  savedTransaction: any;
 }
 
+const camelToNormal = (text: string) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
 
----
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
 
-🔥 PART 5 — आता तुझं FULL FRONTEND integration complete.
+  setFields,
 
+  savedQuotation,
 
----
+  savedTransaction,
+}) => {
+  let jsonData;
 
-🧩 BACKEND तू आधी तयार केलेले आहे:
+  let headers: any[] = [];
 
-✔ DTO
-✔ Controller
-✔ CoherentService
-✔ Endpoint: /api/calc/premium
+  let OptRiderData;
 
+  let OptHeaders: any[] = [];
 
----
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
 
-🚀 आता तुला काय करायचं?
+  const { t } = useTranslation();
 
-Frontend run करा
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
 
-npm start
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
 
-Backend run करा
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
 
-mvn spring-boot:run
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
 
-Form भरून “Calculate Premium” प्रेस करा → तुमचा coherent API hit होईल.
+      setFields((prevFields) => ({
+        ...prevFields,
 
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]
+            ?.basePlan,
 
----
+        basicSumInsured: baseSA,
 
-🎉 YOUR TASK IS 100% COMPLETE
+        basicPlan: plan,
 
-Coherent premium calculation successfully integrated.
+        insuranceTerm: term,
 
+        ppt: ppt,
 
----
+        typeOfDivident: "Non - Participatory",
+      }));
+    }
+  }, [savedTransaction]);
 
-👍 जर तू मला सांगितले—
+  if (
+    savedTransaction &&
+    typeof savedTransaction === "object" &&
+    Object.keys(savedTransaction).length !== 0
+  ) {
+    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
 
-🔹 कोणत्या स्क्रीनवर दाखवायचे
+    if (jsonData?.length) {
+      headers = Object.keys(jsonData[0]);
+    }
 
-🔹 UI कसा हवा आहे (bootstrap? material?)
+    OptRiderData =
+      savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
 
-🔹 PDF मध्ये हा premium टाकायचा का?
+    if (OptRiderData?.length) {
+      OptHeaders = Object.keys(OptRiderData[0]);
+    }
+  }
 
-🔹 Underwriting workflow अपडेट करायचा का?
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation Summary */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("quotation_summaryh")}
+        </Typography>
+        <Divider />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            marginTop: 2,
+          }}
+        >
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              const file = new Blob(
+                [
+                  Uint8Array.from(atob(savedQuotation.txn_pdf), (c) =>
+                    c.charCodeAt(0)
+                  ),
+                ],
+                {
+                  type: "application/pdf",
+                }
+              );
 
-तर मी तुझ्या पूर्ण प्रोजेक्टमध्ये तुझ्या task प्रमाणे customize करून देतो.
+              const fileURL = URL.createObjectURL(file);
 
-आता सांग पुढे काय करायचं?
+              window.open(fileURL);
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
+
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("main_plan")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }} >
+              <TableBody>
+                {[
+                  ["basicPlan", "basicSumInsured", "basicPlanPremium","typeOfDivident","insuranceTerm", "ppt"]
+                ].map((row, rowIndex) => (
+                  <TableRow
+                    key={rowIndex}
+                    sx={{ display: "flex", flexWrap: "wrap" }}
+                  >
+                    {row.map((field) => (
+                      <TableCell
+                        key={field}
+                        sx={{ flex: "1 1 30%", minWidth: "120px" }}
+                      >
+                        <TextField
+                          // fullWidth
+                          size="small"
+                          label={t(field)}
+                          variant="standard"
+                          InputProps={{ readOnly: true }}
+                          value={fields[field as keyof typeof fields]}
+                          onChange={(e) =>
+                            handleFieldChange(e.target.value, field)
+                          }
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Riders */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("riders")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {headers?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {jsonData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {headers?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Optional Benefits */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("optional_benefits")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {OptHeaders?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {OptRiderData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {OptHeaders?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+    </Box>
+  );
+};
+
+export default PlanAndCoverage;
