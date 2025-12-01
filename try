@@ -1,3 +1,71 @@
+
+package com.eapp.service;
+
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.reponseDTO.CalculationResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+@Slf4j
+public class CoherentService {
+
+    WebClient client = WebClient.builder()
+            .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
+            .build();
+
+    public CalculationResponse calculatePremium(CalculationRequest req) {
+
+        CalculationResponse resp = new CalculationResponse();
+
+        try {
+            Object coherentResponse = client.post()
+                    .uri("/execute")
+                    .bodyValue(buildRequestBody(req))
+                    .retrieve()
+                    .bodyToMono(Object.class)
+                    .block();
+
+            resp.setApiResponse(coherentResponse);
+            resp.setMessage("Coherent API success");
+            return resp;
+
+        } catch (Exception e) {
+
+            log.error("Coherent API failed, fallback applied: {}", e.getMessage());
+
+            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
+
+            resp.setMessage("Coherent down, fallback premium applied");
+            resp.setFallbackPremium(fallbackPremium);
+            return resp;
+        }
+    }
+
+    private Object buildRequestBody(CalculationRequest r) {
+
+        return new Object() {
+
+            public final Object request_data = new Object() {
+                public final Object inputs = r;
+            };
+
+            public final Object request_meta = new Object() {
+                public final String version_id = r.getVersion_id();
+                public final String call_purpose = r.getCall_purpose();
+                public final String source_system = r.getSource_system();
+            };
+        };
+    }
+}
+
+
+
+
+
+
+
 Here is the corrected, clean, and working version of your CoherentService class.
 
 Your main errors came from:
