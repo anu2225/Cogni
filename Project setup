@@ -1,90 +1,186 @@
-ठीक आहे Anurag.
-आता मी तुला FULL PREMIUM CALCULATION ENGINE
-(Backend + Frontend + Flow + File structure + Code)
-एकदम पहिल्या पायरीपासून शेवटपर्यंत COMPLETE देतो.
+छान Anurag — मला समजलं: उद्याच्या मीटिंगमध्ये तुझ्या “Coherent integration for calculation” टास्कचा पूर्ण, रन करण्याजोगा प्रोटोटाइप (frontend + backend) दाखवायचा आहे — मी आता तुझ्यासाठी पूर्ण प्रोजेक्ट फाइल्स (कोणती फाइल कुठे, पूर्ण code, run-commands, test snippets, आणि Coherent real-API कसं जोडायचं) एका ठिकाणी देतो. Copy-paste करून प्रोजेक्टमध्ये ठेवले/रिप्लेस केल्‍यावर तुझं calculation flow — User → Frontend form → Backend → (Coherent optional) → Frontend result — लगेच काम करेल.
 
-🚀 तुझं संपूर्ण task माझ्याकडून 100% पूर्ण करून देतो.
-फक्त copy-paste केलं तरी चालेल.
+मी पैकी सर्व महत्वाच्या फाइल्स आणि त्यांच्या अचूक paths देतो. (तुझ्या actual repo structure थोडा वेगळा असल्यास package path बदलून पेस्ट कर.)
 
 
 ---
 
-📌 PART 1 — BACKEND (SPRING BOOT)
+1) संपूर्ण संकल्पना (one-line)
 
-📁 Folder Structure
-
-src/
- └── main/java/com/premium/
-         ├── controller/
-         ├── service/
-         ├── dto/
-         └── PremiumApplication.java
+User fills form (age, SA, term, product, smoker) → Frontend POST → Backend /api/premium/calc → Backend tries Coherent (if enabled) else local engine → returns {"premium":..., "message":...} → Frontend shows premium.
 
 
 ---
 
-✅ STEP 1 — Create Request DTO
+2) BACKEND — Spring Boot (complete files)
 
-📄 src/main/java/com/premium/dto/CalculationRequest.java
+> Base package: com.eapp
+Project root assumed: eapp-backend (mvn project)
 
-package com.premium.dto;
+
+
+A. pom.xml — ensure required deps
+
+File: pom.xml (only relevant dependency section; add to your pom)
+
+<dependencies>
+  <!-- Spring Boot web + webflux for WebClient -->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-webflux</artifactId>
+  </dependency>
+
+  <!-- Lombok -->
+  <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+  </dependency>
+
+  <!-- Optional: if using mysql -->
+  <dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+  </dependency>
+
+  <!-- Test etc. -->
+</dependencies>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-maven-plugin</artifactId>
+    </plugin>
+  </plugins>
+</build>
+
+> IntelliJ: Lombok plugin ON + annotation processing ON.
+
+
+
+
+---
+
+B. application.properties
+
+File: src/main/resources/application.properties
+
+# server port (change if conflict)
+server.port=8001
+
+# Coherent config - update if you have real values
+coherent.baseurl=https://excel.uat.us.coherent.global/cognizant/api/v3
+coherent.api.key=PUT_REAL_KEY_HERE
+
+# default: false to use local calculation. set true to attempt coherent call by default
+premium.useCoherent=false
+
+
+---
+
+C. DTOs
+
+1) CalculationRequest.java
+
+File: src/main/java/com/eapp/dto/requestDTO/CalculationRequest.java
+
+package com.eapp.dto.requestDTO;
 
 import lombok.Data;
 
 @Data
 public class CalculationRequest {
-    private int age;
-    private double sumAssured;
-    private int policyTerm;
-    private String planCode;
+    private Integer age;
+    private Double sumAssured;
+    private Integer policyTerm;
+    private String productCode; // "Option A" / "Option B" etc
+    private String smoker;      // "Y" or "N"
+    // Add other fields mapping to Coherent if needed (e.g., occupation, DOB etc)
 }
 
+2) CalculationResponse.java
 
----
+File: src/main/java/com/eapp/dto/responseDTO/CalculationResponse.java
 
-✅ STEP 2 — Create Response DTO
-
-📄 src/main/java/com/premium/dto/CalculationResponse.java
-
-package com.premium.dto;
+package com.eapp.dto.responseDTO;
 
 import lombok.Data;
 
 @Data
 public class CalculationResponse {
-    private double premium;
+    private Double premium;
     private String message;
+    private Object rawResponse; // optional, store coherent raw body if needed
 }
 
 
 ---
 
-✅ STEP 3 — Create Service (Premium Engine Logic)
+D. PremiumService.java (local calculation engine)
 
-📄 src/main/java/com/premium/service/PremiumService.java
+File: src/main/java/com/eapp/service/PremiumService.java
 
-package com.premium.service;
+package com.eapp.service;
 
-import com.premium.dto.CalculationRequest;
-import com.premium.dto.CalculationResponse;
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.responseDTO.CalculationResponse;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 public class PremiumService {
 
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        double baseRate = 12.5;
-
-        double premium =
-                (req.getSumAssured() / 1000 * baseRate)
-                * (req.getAge() / 20.0)
-                * (req.getPolicyTerm() / 10.0);
-
+    /**
+     * Local simple calculation logic:
+     * - baseRate per 1000 SA depending on productCode
+     * - age loading
+     * - smoker loading
+     * - term factor
+     *
+     * Replace with acturial formula or coherent mapping when available.
+     */
+    public CalculationResponse calculatePremiumLocal(CalculationRequest req) {
         CalculationResponse res = new CalculationResponse();
-        res.setPremium(Math.round(premium));
-        res.setMessage("Premium calculated successfully!");
 
+        if (req == null || req.getAge() == null || req.getSumAssured() == null || req.getPolicyTerm() == null) {
+            res.setPremium(0.0);
+            res.setMessage("Invalid input - provide age, sumAssured and policyTerm");
+            return res;
+        }
+
+        double baseRate = 12.5; // per 1000
+        if ("Option B".equalsIgnoreCase(req.getProductCode())) baseRate = 15.0;
+        // base premium from SA
+        double premiumFromSA = (req.getSumAssured() / 1000.0) * baseRate;
+
+        // age loading (example)
+        double ageLoading = 0.0;
+        if (req.getAge() > 45) {
+            ageLoading = (req.getAge() - 45) * 0.5; // simple rupee loading
+        }
+
+        // smoker loading 20%
+        double smokerLoading = 0.0;
+        if ("Y".equalsIgnoreCase(req.getSmoker())) {
+            smokerLoading = 0.20 * premiumFromSA;
+        }
+
+        // policy term factor (shorter term higher for example)
+        double termFactor = 1.0;
+        if (req.getPolicyTerm() < 20) termFactor += (20 - req.getPolicyTerm()) * 0.01;
+
+        double premium = (premiumFromSA + ageLoading) * termFactor + smokerLoading;
+
+        BigDecimal bd = BigDecimal.valueOf(premium).setScale(2, RoundingMode.HALF_UP);
+        res.setPremium(bd.doubleValue());
+        res.setMessage("Calculated locally");
         return res;
     }
 }
@@ -92,235 +188,618 @@ public class PremiumService {
 
 ---
 
-✅ STEP 4 — Create Controller
+E. CoherentService.java (external call — placeholder + example)
 
-📄 src/main/java/com/premium/controller/PremiumController.java
+File: src/main/java/com/eapp/service/CoherentService.java
 
-package com.premium.controller;
+package com.eapp.service;
 
-import com.premium.dto.CalculationRequest;
-import com.premium.dto.CalculationResponse;
-import com.premium.service.PremiumService;
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.responseDTO.CalculationResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+public class CoherentService {
+
+    private final WebClient webClient;
+
+    public CoherentService(@Value("${coherent.baseurl}") String baseUrl,
+                           @Value("${coherent.api.key:}") String apiKey) {
+        WebClient.Builder builder = WebClient.builder().baseUrl(baseUrl);
+        if (apiKey != null && !apiKey.isEmpty()) {
+            builder.defaultHeader("Authorization", "Bearer " + apiKey);
+        }
+        this.webClient = builder.build();
+    }
+
+    /**
+     * Example: send request to coherent - update path & body as per actual Coherent contract.
+     */
+    public CalculationResponse calculatePremiumViaCoherent(CalculationRequest req) {
+        // NOTE: update uri and request mapping per Coherent docs
+        try {
+            CalculationResponse resp = webClient.post()
+                    .uri("/calculation/premium") // example, change if needed
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(req)
+                    .retrieve()
+                    .bodyToMono(CalculationResponse.class)
+                    .block();
+            return resp;
+        } catch (Exception ex) {
+            // Throw or return null to fallback
+            return null;
+        }
+    }
+}
+
+> Important: Real Coherent API will likely have a different request body shape (see your chat sample inputs JSON). If you have the real contract, I will map the body exactly.
+
+
+
+
+---
+
+F. PremiumController.java (public API for frontend)
+
+File: src/main/java/com/eapp/controller/PremiumController.java
+
+package com.eapp.controller;
+
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.responseDTO.CalculationResponse;
+import com.eapp.service.CoherentService;
+import com.eapp.service.PremiumService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/premium")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*")
 public class PremiumController {
 
     @Autowired
-    PremiumService premiumService;
+    private PremiumService premiumService;
 
-    @PostMapping("/calculate")
-    public CalculationResponse calculate(@RequestBody CalculationRequest req) {
-        return premiumService.calculatePremium(req);
+    @Autowired
+    private CoherentService coherentService;
+
+    @Value("${premium.useCoherent:false}")
+    private boolean useCoherentDefault;
+
+    /**
+     * POST /api/premium/calc
+     * optional query param ?mode=coherent to force calling Coherent
+     */
+    @PostMapping("/calc")
+    public CalculationResponse calculate(@RequestBody CalculationRequest req,
+                                         @RequestParam(value = "mode", required = false) String mode) {
+        boolean useCoherent = useCoherentDefault || "coherent".equalsIgnoreCase(mode);
+        if (useCoherent) {
+            CalculationResponse fromCoherent = coherentService.calculatePremiumViaCoherent(req);
+            if (fromCoherent != null) {
+                fromCoherent.setMessage("Calculated from Coherent");
+                return fromCoherent;
+            }
+            // fallback to local calculation if Coherent fails
+        }
+        return premiumService.calculatePremiumLocal(req);
     }
 }
 
 
 ---
 
-✅ STEP 5 — Start Backend
+G. Build & Run — Backend
 
-mvn clean install
+1. Build:
+
+
+
+mvn clean package
+
+2. Run:
+
+
+
 mvn spring-boot:run
 
-Backend Endpoint:
+— अथवा IntelliJ मधून Application run करा.
 
-👉 POST http://localhost:8080/api/premium/calculate
+3. Test with curl:
 
 
----
 
-📌 PART 2 — FRONTEND (React + Vite + TypeScript + TSX)
+curl -X POST http://localhost:8001/api/premium/calc \
+ -H "Content-Type: application/json" \
+ -d '{"age":35,"sumAssured":500000,"policyTerm":20,"productCode":"Option A","smoker":"N"}'
 
-📁 Folder Structure
+Expected example response:
 
-src/
- ├── pages/
- │     └── PremiumPage.tsx
- ├── components/premium/
- │     ├── PremiumForm.tsx
- │     └── PremiumResult.tsx
- ├── api/
- │     └── premiumApi.ts
- └── types/
-       └── premium.types.ts
+{"premium":6250.00,"message":"Calculated locally","rawResponse":null}
 
 
 ---
 
-✅ STEP 1 — Types for safety
+3) FRONTEND — React (Vite or CRA) — full files
 
-📄 src/types/premium.types.ts
-
-export interface PremiumCalculationRequest {
-  age: number;
-  sumAssured: number;
-  policyTerm: number;
-  planCode: string;
-}
-
-export interface PremiumCalculationResponse {
-  premium: number;
-  message: string;
-}
+> Project root: eapp-frontend (user already has this). Below files to create / replace.
 
 
----
 
-✅ STEP 2 — API File
+A. axiosInterceptor (base)
 
-📄 src/api/premiumApi.ts
+File: src/api/axiosInterceptor.ts
 
 import axios from "axios";
+
+const BASE = import.meta.env.VITE_API_URL || process.env.REACT_APP_API_URL || "http://localhost:8001";
+
+const instance = axios.create({
+  baseURL: BASE,
+  timeout: 15000,
+});
+
+export default instance;
+
+(If using CRA, use REACT_APP_API_URL; for Vite use VITE_API_URL.)
+
+
+---
+
+B. calculationApi.ts — wrapper
+
+File: src/api/calculationApi.ts
+
+import axios from "./axiosInterceptor";
+import type { AxiosResponse } from "axios";
+
+export const calculatePremium = (payload: any): Promise<AxiosResponse<any>> => {
+  // If you want to force Coherent: add '?mode=coherent'
+  return axios.post("/api/premium/calc", payload);
+};
+
+
+---
+
+C. Updated PlanAndCoverage.tsx (integrated calculate button)
+
+You already provided PlanAndCoverage; below is final TypeScript React component ready to paste. It uses calculatePremium from api above, shows loading, errors and binds result into basicPlanPremium field.
+
+File: src/components/PlanAndCoverage.tsx (replace existing)
+
 import {
-  PremiumCalculationRequest,
-  PremiumCalculationResponse,
-} from "../types/premium.types";
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { calculatePremium } from "../api/calculationApi";
 
-export const calculatePremiumApi = async (
-  data: PremiumCalculationRequest
-) => {
-  return axios.post<PremiumCalculationResponse>(
-    "http://localhost:8080/api/premium/calculate",
-    data
-  );
-};
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+    basicSumInsured: string;
+    basicPlanPremium: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+  };
 
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+      basicSumInsured: string;
+      basicPlanPremium: string;
+      typeOfDivident: string;
+      insuranceTerm: string;
+      ppt: string;
+    }>
+  >;
 
----
-
-✅ STEP 3 — PremiumForm (TSX UI)
-
-📄 src/components/premium/PremiumForm.tsx
-
-import React, { useState } from "react";
-import { PremiumCalculationRequest } from "../../types/premium.types";
-
-interface Props {
-  onSubmit: (data: PremiumCalculationRequest) => void;
+  savedQuotation: any;
+  savedTransaction: any;
 }
 
-const PremiumForm: React.FC<Props> = ({ onSubmit }) => {
-  const [form, setForm] = useState<PremiumCalculationRequest>({
-    age: 0,
-    sumAssured: 0,
-    policyTerm: 0,
-    planCode: "",
-  });
+const camelToNormal = (text: string) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]:
-        e.target.type === "number" ? Number(e.target.value) : e.target.value,
-    });
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedQuotation,
+  savedTransaction,
+}) => {
+  let jsonData;
+  let headers: any[] = [];
+  let OptRiderData;
+  let OptHeaders: any[] = [];
+
+  const [calculatedPremium, setCalculatedPremium] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA || savedTransaction[0]?.txn_input_json?.basicSumInsured;
+      const plan = savedTransaction[0]?.txn_input_json?.Plan || savedTransaction[0]?.txn_input_json?.basicPlan;
+      const term = savedTransaction[0]?.txn_input_json?.["SSPP.Policy_Term"] || savedTransaction[0]?.txn_input_json?.policyTerm;
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT || savedTransaction[0]?.txn_input_json?.ppt;
+
+      setFields((prevFields) => ({
+        ...prevFields,
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary?.[1]?.basePlan || prevFields.basicPlanPremium,
+        basicSumInsured: baseSA || prevFields.basicSumInsured,
+        basicPlan: plan || prevFields.basicPlan,
+        insuranceTerm: term || prevFields.insuranceTerm,
+        ppt: ppt || prevFields.ppt,
+        typeOfDivident: "Non - Participatory",
+      }));
+    }
+  }, [savedTransaction]);
+
+  // map savedTransaction outputs if present
+  if (
+    savedTransaction &&
+    typeof savedTransaction === "object" &&
+    Object.keys(savedTransaction).length !== 0
+  ) {
+    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
+    if (jsonData?.length) headers = Object.keys(jsonData[0]);
+
+    OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
+    if (OptRiderData?.length) OptHeaders = Object.keys(OptRiderData[0]);
+  }
+
+  const handlePremiumCalculation = async () => {
+    setError(null);
+    setCalculatedPremium(null);
+
+    // basic validation
+    const age = savedTransaction?.[0]?.txn_input_json?.Age || savedTransaction?.[0]?.txn_input_json?.insuredAge;
+    const sum = Number(fields.basicSumInsured);
+    const term = Number(fields.insuranceTerm) || Number(fields.ppt);
+
+    if (!age || !sum || !term) {
+      setError("Missing inputs: age, sum assured or term.");
+      return;
+    }
+
+    const payload = {
+      age: Number(age),
+      sumAssured: Number(sum),
+      policyTerm: Number(term),
+      productCode: fields.basicPlan || "Option A",
+      smoker: savedTransaction?.[0]?.txn_input_json?.Smoker || "N",
+    };
+
+    try {
+      setLoading(true);
+      const res = await calculatePremium(payload);
+      const data = res.data;
+      setCalculatedPremium(data.premium);
+      // update UI field
+      setFields((prev) => ({
+        ...prev,
+        basicPlanPremium: data.premium !== undefined ? String(data.premium) : prev.basicPlanPremium,
+      }));
+    } catch (err: any) {
+      console.error("Premium Calculation Error:", err);
+      setError(err?.response?.data?.message || err?.message || "Calculation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <h3>Premium Input</h3>
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation Summary */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("quotation_summaryh")}
+        </Typography>
+        <Divider />
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              try {
+                if (!savedQuotation?.txn_pdf) return;
+                const file = new Blob(
+                  [Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))],
+                  { type: "application/pdf" }
+                );
+                const fileURL = URL.createObjectURL(file);
+                window.open(fileURL);
+              } catch (e) {
+                console.error("Failed to open pdf", e);
+              }
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
 
-      <input type="number" name="age" placeholder="Age" onChange={handleChange} />
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("main_plan")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }}>
+              <TableBody>
+                {[
+                  ["basicPlan", "basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"],
+                ].map((row, rowIndex) => (
+                  <TableRow key={rowIndex} sx={{ display: "flex", flexWrap: "wrap" }}>
+                    {row.map((field) => (
+                      <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                        <TextField
+                          size="small"
+                          label={t(field)}
+                          variant="standard"
+                          InputProps={{ readOnly: field !== "basicPlan" }}
+                          value={fields[field as keyof typeof fields]}
+                          onChange={(e) => handleFieldChange(e.target.value, field)}
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-      <input type="number" name="sumAssured" placeholder="Sum Assured" onChange={handleChange} />
+          {/* Calculate button */}
+          <Box sx={{ marginTop: 2, textAlign: "right" }}>
+            <Button
+              variant="contained"
+              onClick={handlePremiumCalculation}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={20} /> : "Calculate Premium"}
+            </Button>
 
-      <input type="number" name="policyTerm" placeholder="Policy Term" onChange={handleChange} />
+            {calculatedPremium !== null && (
+              <Typography sx={{ marginTop: 1, fontWeight: "bold" }}>
+                Calculated Premium: {calculatedPremium}
+              </Typography>
+            )}
+            {error && (
+              <Typography color="error" sx={{ marginTop: 1 }}>
+                {error}
+              </Typography>
+            )}
+          </Box>
+        </Box>
+      </Paper>
 
-      <input type="text" name="planCode" placeholder="Plan Code" onChange={handleChange} />
+      {/* Riders */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("riders")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {headers?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {jsonData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {headers?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
 
-      <button onClick={() => onSubmit(form)}>Calculate</button>
-    </div>
+      {/* Optional Benefits */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("optional_benefits")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {OptHeaders?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {OptRiderData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {OptHeaders?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 
-export default PremiumForm;
+export default PlanAndCoverage;
+
+> Note: This component reads age and smoker from savedTransaction[0].txn_input_json if present. If your app uses different field names, update accordingly.
+
+
 
 
 ---
 
-✅ STEP 4 — PremiumResult (TSX UI)
+D. Add route for calculate page (optional)
 
-📄 src/components/premium/PremiumResult.tsx
-
-import React from "react";
-import { PremiumCalculationResponse } from "../../types/premium.types";
-
-interface Props {
-  result: PremiumCalculationResponse;
-}
-
-const PremiumResult: React.FC<Props> = ({ result }) => {
-  return (
-    <div style={{ marginTop: 20 }}>
-      <h2>Premium: ₹{result.premium}</h2>
-      <p>{result.message}</p>
-    </div>
-  );
-};
-
-export default PremiumResult;
+If you want a standalone premium page: File: src/pages/CalculatePremiumPage.tsx (earlier provided). Add route /calc-premium.
 
 
 ---
 
-✅ STEP 5 — Page Component
+E. Env for frontend
 
-📄 src/pages/PremiumPage.tsx
+Create .env or vite env:
 
-import React, { useState } from "react";
-import PremiumForm from "../components/premium/PremiumForm";
-import PremiumResult from "../components/premium/PremiumResult";
-import { calculatePremiumApi } from "../api/premiumApi";
-import { PremiumCalculationResponse } from "../types/premium.types";
-
-const PremiumPage = () => {
-  const [result, setResult] = useState<PremiumCalculationResponse | null>(null);
-
-  const handleSubmit = async (data: any) => {
-    const res = await calculatePremiumApi(data);
-    setResult(res.data);
-  };
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Premium Calculation Engine</h1>
-      <PremiumForm onSubmit={handleSubmit} />
-
-      {result && <PremiumResult result={result} />}
-    </div>
-  );
-};
-
-export default PremiumPage;
+# For CRA
+REACT_APP_API_URL=http://localhost:8001
+# For Vite
+VITE_API_URL=http://localhost:8001
 
 
 ---
 
-🚀 HOW THE FINAL FLOW WORKS
+F. Run frontend
 
-1️⃣ User TSX form मध्ये age, sumAssured, term भरतो
-2️⃣ “Calculate” क्लिक
-3️⃣ Axios backend ला request पाठवतो
-4️⃣ Backend formula वापरून premium काढतो
-5️⃣ response परत frontend
-6️⃣ UI मध्ये “Premium: ₹xxxx” दिसतो
+npm install
+npm run dev   # or npm start for CRA
+
+Open app and navigate to the form or component that contains PlanAndCoverage. Click Calculate Premium.
 
 
 ---
 
-🎉 तुमचा COMPLETE PREMIUM CALCULATION ENGINE तयार आहे!
+4) Testing + Demo script to show in meeting
 
-ही setup तुमच्या कंपनीमध्ये production-ready वापरता येईल.
+1. Start backend:
+
+
+
+cd eapp-backend
+mvn spring-boot:run
+
+2. Confirm endpoint works:
+
+
+
+curl -X POST http://localhost:8001/api/premium/calc -H "Content-Type: application/json" -d '{"age":35,"sumAssured":500000,"policyTerm":20,"productCode":"Option A","smoker":"N"}'
+
+Expected: JSON with premium and message.
+
+3. Start frontend:
+
+
+
+cd eapp-frontend
+npm install
+npm run dev
+
+4. In UI (Plan & Coverage), ensure basicSumInsured and other fields populated — click Calculate Premium. Show result.
+
+
 
 
 ---
 
-📌 Next Step
+5) Coherent integration — what I need to fully wire the real call
 
-तुला हे Plan & Coverage (existing tsx) मध्ये merge करायचं आहे का?
-किंवा sidebar menu मध्ये add करायचं आहे?
+If you want me to call the real Coherent engine (not placeholder), give me these details (I will implement mapping exactly):
 
-फक्त सांग — मी ताबडतोब integrate करून देतो.
+Coherent base URL (e.g., https://excel.uat.us.coherent.global/...) — you have one in chat.
+
+Auth method: API key / Bearer token / Basic Auth — and the key (or tell me header name).
+
+Exact request body Coherent expects (I saw a sample earlier — do you want to send {"request_data":{"inputs":{...}}} ? If yes, I will map).
+
+Example coherent response format (or I infer from docs) — so I can map premium field out of it.
+
+
+Once you provide above, I will return an updated CoherentService that transforms our CalculationRequest into the exact Coherent payload, sets headers, and maps response to CalculationResponse.rawResponse and premium.
+
+
+---
+
+6) Common problems and fixes (you faced earlier)
+
+Port already in use: find process and kill:
+
+Windows:
+
+netstat -ano | findstr :8001
+taskkill /PID <PID> /F
+
+Or change server.port in application.properties.
+
+
+Lombok errors in IDE: install Lombok plugin + enable annotation processing (Settings → Build → Annotation Processors).
+
+403 on /transaction-detail: your app may require auth token — make sure frontend axios interceptor adds JWT if needed. For premium API we allowed @CrossOrigin("*") and no auth; if your system expects JWT, you must include token in headers.
+
+
+
+---
+
+7) Deliverables I just provided (recap)
+
+Backend files (full code for DTOs, PremiumService, CoherentService, PremiumController)
+
+Frontend files (axiosInterceptor, calculationApi, full updated PlanAndCoverage.tsx)
+
+application.properties and pom.xml guidance
+
+Run & test instructions + curl
+
+Port conflict troubleshooting
+
+Next steps to wire real Coherent API (I can do mapping if you give credentials/contract)
+
+
+
+---
+
+Alright — आता तू काय अपेक्षित आहे सांग:
+
+मी इथेच Coherent real mapping आणि CoherentService मध्ये auth जोडून देऊ का? (जर होय तर API key + expected request shape द्या)
+
+किंवा मी आता तुझ्या repo मध्ये ठरवलेले files तयार करून ZIP देऊ का? (मी जे code दिलंय ते कॉपी-पेस्ट करुन project मध्ये ठेव.)
+
+
+तुम्हाला ठेवायचं असेल तर मी आता पुढचं टप्पं पूर्ण करेन: Coherent realtime integration — फक्त endpoint & auth द्या आणि मी mapping + sample request/response logs देईन.
