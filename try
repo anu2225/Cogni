@@ -1,183 +1,140 @@
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-@Slf4j
-public class CoherentService {
-
-    WebClient client = WebClient.builder()
-            .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
-            .build();
-
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        CalculationResponse resp = new CalculationResponse();
-
-        try {
-            Object coherentResponse = client.post()
-                    .uri("/execute")
-                    .bodyValue(buildRequestBody(req))
-                    .retrieve()
-                    .bodyToMono(Object.class)
-                    .block();
-
-            resp.setApiResponse(coherentResponse);
-            resp.setMessage("Coherent API success");
-            return resp;
-
-        } catch (Exception e) {
-
-            log.error("Coherent API failed, fallback applied: {}", e.getMessage());
-
-            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
-
-            resp.setMessage("Coherent down, fallback premium applied");
-            resp.setFallbackPremium(fallbackPremium);
-            return resp;
-        }
-    }
-
-    private Object buildRequestBody(CalculationRequest r) {
-
-        return new Object() {
-
-            public final Object request_data = new Object() {
-                public final Object inputs = r;
-            };
-
-            public final Object request_meta = new Object() {
-                public final String version_id = r.getVersion_id();
-                public final String call_purpose = r.getCall_purpose();
-                public final String source_system = r.getSource_system();
-            };
-        };
-    }
-}
-
-
-
-
-
-
-
-Here is the corrected, clean, and working version of your CoherentService class.
-
-Your main errors came from:
-
-❌ Mistakes you had
-
-You imported java.util.logging.ErrorManager and created a field named log, overriding Lombok's @Slf4j logger.
-
-Because of that, log.error(...) was throwing "Required type: Exception / Provided: String" errors.
-
-You don’t need ErrorManager AND you should not declare your own log field — Lombok gives it automatically.
-
-Also your old commented code was being interpreted, causing error messages.
-
-
-
----
-
-✅ Final Corrected Working Code
-
-Copy–paste this exact file:
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-@Slf4j
-public class CoherentService {
-
-    WebClient client = WebClient.builder()
-            .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
-            .build();
-
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        CalculationResponse resp = new CalculationResponse();
-
-        try {
-
-            Object coherentResponse = client.post()
-                    .uri("/execute")
-                    .bodyValue(buildRequestBody(req))
-                    .retrieve()
-                    .bodyToMono(Object.class)
-                    .block();
-
-            resp.setApiResponse(coherentResponse);
-            resp.setMessage("Coherent API success");
-            return resp;
-
-        } catch (Exception e) {
-
-            log.error("Coherent API failed, fallback applied: {}", e.getMessage());
-
-            // Fallback example calculation
-            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
-
-            resp.setMessage("Coherent down, fallback premium applied");
-            resp.setFallbackPremium(fallbackPremium);
-            return resp;
-        }
-    }
-
-    private Object buildRequestBody(CalculationRequest r) {
-
-        return new Object() {
-
-            public final Object request_data = new Object() {
-                public final Object inputs = r;
-            };
-
-            public final Object request_meta = new Object() {
-                public final String version_id = r.getVersion_id();
-                public final String call_purpose = r.getCall_purpose();
-                public final String source_system = r.getSource_system();
-            };
-        };
-    }
-}
-
-
----
-
-✅ Why this fixes your errors
-
-✔ Removed this wrong line:
-
-private ErrorManager log;
-
-✔ Because @Slf4j already provides:
-
-private static final Logger log;
-
-✔ Now this works:
-
-log.error("Coherent API failed, fallback applied: {}", e.getMessage());
-
-✔ No more "Required type: Exception, Provided: String" error.
-
-
----
-
-If you want, I can also send:
-
-✅ Updated DTOs
-✅ Updated Controller
-✅ Full project folder structure
-✅ Fully working end-to-end flow (0 to final response)
-
-Just tell me "full project code de" and I'll generate everything.
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.4</version>
+	</parent>
+
+	<groupId>com.eapp</groupId>
+	<artifactId>eapp-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>eapp-backend</name>
+
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+	<dependencies>
+
+		<!-- Web MVC -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- WebFlux (for WebClient) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- JPA -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- MySQL -->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- JWT -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Swagger v3 -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.38</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- SLF4J Logger -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.12</version>
+		</dependency>
+
+		<!-- Dev Tools -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.12.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
