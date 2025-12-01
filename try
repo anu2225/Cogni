@@ -1,120 +1,182 @@
-ठीक आहे Anurag, तुझं login झालं, token टाकून authorize पण झालं — तरीसुद्धा /api/calc/premium 403 देत आहे.
-👉 याचा एकच reason आहे: तुझ्या SecurityConfig मध्ये हा API protected आहे.
-
-
----
-
-✅ ROOT CAUSE → तू /api/calc/** ला permitAll दिलेलं नाही
-
-तुझ्या security config मध्ये फक्त हे allowed आहे:
-
-"/swagger-ui/**",
-"/v3/api-docs/**",
-"/api/auth/**",
-"/api/premium/**"
-
-पण तुझा API आहे:
-
-/api/calc/premium
-
-👉 म्हणजेच Spring Security त्याला block करत आहे → 403 Forbidden
-
-
----
-
-✅ 100% FIX → SecurityConfig मध्ये /api/calc/** allow कर
-
-हा तुझा updated SecurityConfig (कॉपी-पेस्ट करून टाका):
-
-
----
-
-⭐ UPDATED SecurityConfig.java
-
-package com.eapp.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/api/auth/**",
-                                "/api/calc/**"     // ✅ PREMIUM API NOW ALLOWED
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                );
-
-        return http.build();
-    }
-}
-
-
----
-
-🟢 अतिशय Important
-
-तुझा premium API path आहे → /api/calc/premium
-
-SecurityConfig मध्ये allow केलेले होते → /api/premium/** (wrong)
-
-म्हणून Spring ने block करून → 403 Forbidden दिलं
-
-
-
----
-
-🧪 आता Swagger मध्ये test करण्याची प्रक्रिया
-
-1. App पुन्हा RUN करा
-
-
-2. Swagger उघडा →
-
-http://localhost:8001/swagger-ui/index.html
-
-
-3. /api/calc/premium मध्ये body टाका:
-
 {
-  "sumAssured": 500000,
-  "policyTerm": 20,
-  "age": 30
+
+  "request_data": {
+
+    "inputs": {
+
+      "_1a_DOB": "1976-10-08",
+
+      "_1b_Product": "Option A",
+
+      "_1c_Gender": "Male",
+
+      "_1d_Face_Amount": 200000,
+
+      "_1e_Occupation": 4,
+
+      "_1h_Policy_Inception_Date": "2018-05-11",
+
+      "_1i_Smoker": "N",
+
+      "_1j_Pre_Existing_Disease": "Y",
+
+      "_1k_Extra_mortality": 0.75,
+
+      "_1p_Policy_Term": 45,
+
+      "_1r_Mandatory_Premium_Period": "ErrName",
+
+      "_1zb_PAV": 0,
+
+      "_1zc_per_mille_rating_death": 1,
+
+      "_1zd_per_mille_rating_TPD": 1,
+
+      "_1ze_per_mille_rating_SCI": 1,
+
+      "_2a_Death_Benefit": "Y",
+
+      "_2b_Total_and_Permanent_Disability_TPD": "Y",
+
+      "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+
+      "_2d_Staged_Critical_Illness_SCI": "Y",
+
+      "_2e_Hospital_Cash_Benefit_HCB": "Y",
+
+      "_3a_Partial_Withdrawl": "Y",
+
+      "_3b_Partial_Withdrawl_Amount": 5000
+
+    }
+
+  },
+
+  "request_meta": {
+
+    "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+
+    "call_purpose": "Spark - API Tester",
+
+    "source_system": "SPARK",
+
+    "correlation_id": null,
+
+    "requested_output": null,
+
+    "service_category": ""
+
+  }
+
 }
+ 
+input 
+ 
+{
 
+  "response_data": {
 
-4. Execute करा → आता response येईल.
+    "errors": [
 
+      {
 
+        "source_path": "$.Input._1r_Mandatory_Premium_Period",
 
+        "message": "The Policyholder has to pay the full Target Premium during the first 3 years.",
 
----
+        "additional_details": "Universal-Life-product-TestPrd",
 
-❤️ Want me to check your complete backend?
+        "error_type": "ValidationError"
 
-तुला पाहिजे असेल तर तू controller + service + dto चा screenshot पाठव,
-मी पूर्ण verify करून देतो.
+      }
+
+    ],
+
+    "outputs": {
+
+      "_1a_Policy_Expiry_Date": null,
+
+      "_1a2_Sub_Std_Risk": null,
+
+      "_2a_Death_Ben_Std_TP": null,
+
+      "_2b_TPD_Std_TP": null,
+
+      "_2c_SCI_Std_TP": null,
+
+      "_2d_HCB_Std_TP": null,
+
+      "_2e_ADD_Std_TP": null,
+
+      "_2f_Total_Std_Premium": null,
+
+      "_2g_Death_Ben_Sub_Std_TP": null,
+
+      "_2h_TPD_Sub_Std_TP": null,
+
+      "_2i_SCI_Sub_Std_TP": null,
+
+      "_2j_HCB_Sub_Std_TP": null,
+
+      "_2k_ADD_Sub_Std_TP": null,
+
+      "_2l_Total_Sub_Std_Premium": null,
+
+      "_2m_Total_Target_Premium": null,
+
+      "_3a_Face_Amt_NEW_after_withdrawl": null,
+
+      "_4a_COI_Death_Benefit": null,
+
+      "_4b_COI_TPD": null,
+
+      "_4c_COI_SCI": null,
+
+      "_4d_COI_ADD": null,
+
+      "_4e_COI_HCB": null,
+
+      "_4f_Total_COI": null,
+
+      "_5a_TPA_On_the_Monthly_Policy_Anniversary_Date": null,
+
+      "_5b_TPA_On_the_Policy_Effective_Date": null
+
+    },
+
+    "warnings": [],
+
+    "service_chain": []
+
+  },
+
+  "response_meta": {
+
+    "call_id": "",
+
+    "compiler_type": "Neuron",
+
+    "compiler_version": "",
+
+    "engine_id": "ACB68132DA07D6AFA76A03D18EDD6390",
+
+    "process_time": 3,
+
+    "request_timestamp": "2023-08-11T04:48:50.8649799Z",
+
+    "service_id": "75f44129-9057-4281-b525-d5070f9a81be",
+
+    "source_hash": "",
+
+    "system": "SPARK",
+
+    "version": "0.1.1",
+
+    "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d"
+
+  }
+
+}
+ 
+output
+ 
