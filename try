@@ -1,3 +1,14 @@
+Below is your same SecurityConfig, but I have added the Swagger JWT Token Button (Authorize Button) setup.
+
+This will allow you to enter Bearer Token from Swagger UI (top-right green “Authorize” button).
+
+
+---
+
+✅ Updated SecurityConfig (with Swagger JWT Support)
+
+👉 Copy–Paste this full file as it is
+
 package com.eapp.config;
 
 import org.springframework.context.annotation.Bean;
@@ -8,6 +19,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+// For Swagger JWT Button
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class SecurityConfig {
@@ -33,12 +51,105 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/auth/**",
-                                "/api/premium/**"
+                                "/api/auth/**",       // login signup
+                                "/api/premium/**"     // premium endpoint
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
 
         return http.build();
     }
+
+    // 👉 Swagger JWT Token Support
+    @Bean
+    public OpenAPI openAPI() {
+
+        // Security Scheme definition
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT");
+
+        // Add to components
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
+
+        return new OpenAPI()
+                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
+                .addSecurityItem(securityRequirement)
+                .info(new Info().title("EAPP API")
+                        .version("1.0")
+                        .description("Backend for Premium Calculator + User Auth"));
+    }
 }
+
+
+---
+
+✅ After adding this
+
+Swagger UI will show a Green Lock / Authorize Button like this:
+
+🔐 Authorize
+
+Click → Enter token like:
+
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+Click Authorize → Now all secured APIs work.
+
+
+---
+
+🧪 How to test your Premium API (without token)?
+
+You already allowed:
+
+/api/premium/**
+
+So Premium API works without token.
+
+Swagger → POST → /api/premium/calculate → Works directly.
+
+
+---
+
+🧪 How to test User APIs (with token)?
+
+1. First call login API:
+
+
+
+POST /api/auth/login
+
+You receive:
+
+{
+  "token": "eyJhbGciOi..."
+}
+
+2. Go to Swagger → Authorize
+
+
+3. Paste token:
+
+
+
+Bearer eyJhbGciOi...
+
+4. Call secured endpoints → they will work.
+
+
+
+
+---
+
+If you want I can also check your full backend folder & fix all errors step-by-step.
+
+Just send:
+
+📁 controller folder
+📁 service folder
+📁 config folder
+📁 dto folder
+
+I will clean everything and make it perfect.
