@@ -1,3 +1,25 @@
+Here is the corrected, clean, and working version of your CoherentService class.
+
+Your main errors came from:
+
+❌ Mistakes you had
+
+You imported java.util.logging.ErrorManager and created a field named log, overriding Lombok's @Slf4j logger.
+
+Because of that, log.error(...) was throwing "Required type: Exception / Provided: String" errors.
+
+You don’t need ErrorManager AND you should not declare your own log field — Lombok gives it automatically.
+
+Also your old commented code was being interpreted, causing error messages.
+
+
+
+---
+
+✅ Final Corrected Working Code
+
+Copy–paste this exact file:
+
 package com.eapp.service;
 
 import com.eapp.dto.requestDTO.CalculationRequest;
@@ -6,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.logging.ErrorManager;
-
 @Service
 @Slf4j
 public class CoherentService {
@@ -15,13 +35,13 @@ public class CoherentService {
     WebClient client = WebClient.builder()
             .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
             .build();
-    private ErrorManager log;
 
     public CalculationResponse calculatePremium(CalculationRequest req) {
 
         CalculationResponse resp = new CalculationResponse();
 
         try {
+
             Object coherentResponse = client.post()
                     .uri("/execute")
                     .bodyValue(buildRequestBody(req))
@@ -34,9 +54,10 @@ public class CoherentService {
             return resp;
 
         } catch (Exception e) {
-//            ErrorManager log = null;
-            log.error("Coherent API failed, fallback applied: {}",e.getMessage());
 
+            log.error("Coherent API failed, fallback applied: {}", e.getMessage());
+
+            // Fallback example calculation
             double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
 
             resp.setMessage("Coherent down, fallback premium applied");
@@ -48,7 +69,7 @@ public class CoherentService {
     private Object buildRequestBody(CalculationRequest r) {
 
         return new Object() {
-            
+
             public final Object request_data = new Object() {
                 public final Object inputs = r;
             };
@@ -61,3 +82,34 @@ public class CoherentService {
         };
     }
 }
+
+
+---
+
+✅ Why this fixes your errors
+
+✔ Removed this wrong line:
+
+private ErrorManager log;
+
+✔ Because @Slf4j already provides:
+
+private static final Logger log;
+
+✔ Now this works:
+
+log.error("Coherent API failed, fallback applied: {}", e.getMessage());
+
+✔ No more "Required type: Exception, Provided: String" error.
+
+
+---
+
+If you want, I can also send:
+
+✅ Updated DTOs
+✅ Updated Controller
+✅ Full project folder structure
+✅ Fully working end-to-end flow (0 to final response)
+
+Just tell me "full project code de" and I'll generate everything.
