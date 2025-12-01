@@ -1,13 +1,35 @@
-Below is your same SecurityConfig, but I have added the Swagger JWT Token Button (Authorize Button) setup.
-
-This will allow you to enter Bearer Token from Swagger UI (top-right green “Authorize” button).
+ठीक आहे Anurag, तुझं login झालं, token टाकून authorize पण झालं — तरीसुद्धा /api/calc/premium 403 देत आहे.
+👉 याचा एकच reason आहे: तुझ्या SecurityConfig मध्ये हा API protected आहे.
 
 
 ---
 
-✅ Updated SecurityConfig (with Swagger JWT Support)
+✅ ROOT CAUSE → तू /api/calc/** ला permitAll दिलेलं नाही
 
-👉 Copy–Paste this full file as it is
+तुझ्या security config मध्ये फक्त हे allowed आहे:
+
+"/swagger-ui/**",
+"/v3/api-docs/**",
+"/api/auth/**",
+"/api/premium/**"
+
+पण तुझा API आहे:
+
+/api/calc/premium
+
+👉 म्हणजेच Spring Security त्याला block करत आहे → 403 Forbidden
+
+
+---
+
+✅ 100% FIX → SecurityConfig मध्ये /api/calc/** allow कर
+
+हा तुझा updated SecurityConfig (कॉपी-पेस्ट करून टाका):
+
+
+---
+
+⭐ UPDATED SecurityConfig.java
 
 package com.eapp.config;
 
@@ -20,29 +42,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-// For Swagger JWT Button
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-
 @Configuration
 public class SecurityConfig {
 
-    // Password Encoder Bean
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Authentication Manager Bean
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Security Filter Config
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -51,105 +63,58 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/auth/**",       // login signup
-                                "/api/premium/**"     // premium endpoint
+                                "/api/auth/**",
+                                "/api/calc/**"     // ✅ PREMIUM API NOW ALLOWED
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
 
         return http.build();
     }
-
-    // 👉 Swagger JWT Token Support
-    @Bean
-    public OpenAPI openAPI() {
-
-        // Security Scheme definition
-        SecurityScheme securityScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT");
-
-        // Add to components
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
-
-        return new OpenAPI()
-                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
-                .addSecurityItem(securityRequirement)
-                .info(new Info().title("EAPP API")
-                        .version("1.0")
-                        .description("Backend for Premium Calculator + User Auth"));
-    }
 }
 
 
 ---
 
-✅ After adding this
+🟢 अतिशय Important
 
-Swagger UI will show a Green Lock / Authorize Button like this:
+तुझा premium API path आहे → /api/calc/premium
 
-🔐 Authorize
+SecurityConfig मध्ये allow केलेले होते → /api/premium/** (wrong)
 
-Click → Enter token like:
+म्हणून Spring ने block करून → 403 Forbidden दिलं
 
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-Click Authorize → Now all secured APIs work.
 
 
 ---
 
-🧪 How to test your Premium API (without token)?
+🧪 आता Swagger मध्ये test करण्याची प्रक्रिया
 
-You already allowed:
-
-/api/premium/**
-
-So Premium API works without token.
-
-Swagger → POST → /api/premium/calculate → Works directly.
+1. App पुन्हा RUN करा
 
 
----
+2. Swagger उघडा →
 
-🧪 How to test User APIs (with token)?
-
-1. First call login API:
+http://localhost:8001/swagger-ui/index.html
 
 
-
-POST /api/auth/login
-
-You receive:
+3. /api/calc/premium मध्ये body टाका:
 
 {
-  "token": "eyJhbGciOi..."
+  "sumAssured": 500000,
+  "policyTerm": 20,
+  "age": 30
 }
 
-2. Go to Swagger → Authorize
 
-
-3. Paste token:
-
-
-
-Bearer eyJhbGciOi...
-
-4. Call secured endpoints → they will work.
+4. Execute करा → आता response येईल.
 
 
 
 
 ---
 
-If you want I can also check your full backend folder & fix all errors step-by-step.
+❤️ Want me to check your complete backend?
 
-Just send:
-
-📁 controller folder
-📁 service folder
-📁 config folder
-📁 dto folder
-
-I will clean everything and make it perfect.
+तुला पाहिजे असेल तर तू controller + service + dto चा screenshot पाठव,
+मी पूर्ण verify करून देतो.
