@@ -1,41 +1,27 @@
-Bhau, he sagle errors ekach reason mule येत आहेत → तुझ्या DTO class (CalculationRequest & CalculationResponse) मधे जे field names आहेत, ते CoherentService मधल्या code मध्ये वापरलेल्या getter/setter नावांशी match होत नाहीत.
+Got it — I’ll give you a complete, final, working backend code (no Lombok) so IntelliJ won't complain about missing getters/setters or Lombok config. This includes:
 
-🔥 Why Errors?
+CalculationRequest DTO (all fields + getters/setters)
 
-Example:
+CalculationResponse DTO
 
-Code मध्ये: get_1a_DOB()
+CoherentService (calls Coherent URL with fallback local calculation)
 
-पण DTO मध्ये field नाव कदाचित private String dob; किंवा private String _1a_DOB;
+PremiumController (POST /premium/calculate)
 
-पण getter method नसली → error.
-
-
-हेच सर्व field names साठी होतंय.
+SecurityConfig (so swagger & auth endpoints are permitted + AuthenticationManager & PasswordEncoder beans)
 
 
----
-
-✅ मी तुला FINAL UPDATED WORKING DTO + SERVICE देतो
-
-यात: ✔ Coherent request body मधले सगळे fields proper names सह
-✔ Lombok वापरून getters/setters
-✔ Coherent API call
-✔ No errors
-✔ Tujhya project structure friendly code
+I use RestTemplate (simpler, no reactive config) and plain POJOs so you don’t need Lombok. Paste these files into the same package structure you have (com.eapp.dto.requestDTO, com.eapp.dto.reponseDTO, com.eapp.service, com.eapp.controller, com.eapp.config).
 
 
 ---
 
-✅ 1) CalculationRequest.java (FINAL — ERROR FREE)
+1) CalculationRequest.java
 
 package com.eapp.dto.requestDTO;
 
-import lombok.Data;
-
-@Data
 public class CalculationRequest {
-
+    // inputs
     private String _1a_DOB;
     private String _1b_Product;
     private String _1c_Gender;
@@ -61,107 +47,324 @@ public class CalculationRequest {
     private String _3a_Partial_Withdrawl;
     private double _3b_Partial_Withdrawl_Amount;
 
-    // Meta
+    // meta
     private String version_id;
     private String call_purpose;
     private String source_system;
+
+    // --- Getters & Setters ---
+    public String get_1a_DOB() { return _1a_DOB; }
+    public void set_1a_DOB(String _1a_DOB) { this._1a_DOB = _1a_DOB; }
+
+    public String get_1b_Product() { return _1b_Product; }
+    public void set_1b_Product(String _1b_Product) { this._1b_Product = _1b_Product; }
+
+    public String get_1c_Gender() { return _1c_Gender; }
+    public void set_1c_Gender(String _1c_Gender) { this._1c_Gender = _1c_Gender; }
+
+    public double get_1d_Face_Amount() { return _1d_Face_Amount; }
+    public void set_1d_Face_Amount(double _1d_Face_Amount) { this._1d_Face_Amount = _1d_Face_Amount; }
+
+    public int get_1e_Occupation() { return _1e_Occupation; }
+    public void set_1e_Occupation(int _1e_Occupation) { this._1e_Occupation = _1e_Occupation; }
+
+    public String get_1h_Policy_Inception_Date() { return _1h_Policy_Inception_Date; }
+    public void set_1h_Policy_Inception_Date(String _1h_Policy_Inception_Date) { this._1h_Policy_Inception_Date = _1h_Policy_Inception_Date; }
+
+    public String get_1i_Smoker() { return _1i_Smoker; }
+    public void set_1i_Smoker(String _1i_Smoker) { this._1i_Smoker = _1i_Smoker; }
+
+    public String get_1j_Pre_Existing_Disease() { return _1j_Pre_Existing_Disease; }
+    public void set_1j_Pre_Existing_Disease(String _1j_Pre_Existing_Disease) { this._1j_Pre_Existing_Disease = _1j_Pre_Existing_Disease; }
+
+    public double get_1k_Extra_mortality() { return _1k_Extra_mortality; }
+    public void set_1k_Extra_mortality(double _1k_Extra_mortality) { this._1k_Extra_mortality = _1k_Extra_mortality; }
+
+    public int get_1p_Policy_Term() { return _1p_Policy_Term; }
+    public void set_1p_Policy_Term(int _1p_Policy_Term) { this._1p_Policy_Term = _1p_Policy_Term; }
+
+    public String get_1r_Mandatory_Premium_Period() { return _1r_Mandatory_Premium_Period; }
+    public void set_1r_Mandatory_Premium_Period(String _1r_Mandatory_Premium_Period) { this._1r_Mandatory_Premium_Period = _1r_Mandatory_Premium_Period; }
+
+    public double get_1zb_PAV() { return _1zb_PAV; }
+    public void set_1zb_PAV(double _1zb_PAV) { this._1zb_PAV = _1zb_PAV; }
+
+    public double get_1zc_per_mille_rating_death() { return _1zc_per_mille_rating_death; }
+    public void set_1zc_per_mille_rating_death(double _1zc_per_mille_rating_death) { this._1zc_per_mille_rating_death = _1zc_per_mille_rating_death; }
+
+    public double get_1zd_per_mille_rating_TPD() { return _1zd_per_mille_rating_TPD; }
+    public void set_1zd_per_mille_rating_TPD(double _1zd_per_mille_rating_TPD) { this._1zd_per_mille_rating_TPD = _1zd_per_mille_rating_TPD; }
+
+    public double get_1ze_per_mille_rating_SCI() { return _1ze_per_mille_rating_SCI; }
+    public void set_1ze_per_mille_rating_SCI(double _1ze_per_mille_rating_SCI) { this._1ze_per_mille_rating_SCI = _1ze_per_mille_rating_SCI; }
+
+    public String get_2a_Death_Benefit() { return _2a_Death_Benefit; }
+    public void set_2a_Death_Benefit(String _2a_Death_Benefit) { this._2a_Death_Benefit = _2a_Death_Benefit; }
+
+    public String get_2b_Total_and_Permanent_Disability_TPD() { return _2b_Total_and_Permanent_Disability_TPD; }
+    public void set_2b_Total_and_Permanent_Disability_TPD(String _2b) { this._2b_Total_and_Permanent_Disability_TPD = _2b; }
+
+    public String get_2c_Accidental_Death_and_Dismemberment_ADD() { return _2c_Accidental_Death_and_Dismemberment_ADD; }
+    public void set_2c_Accidental_Death_and_Dismemberment_ADD(String _2c) { this._2c_Accidental_Death_and_Dismemberment_ADD = _2c; }
+
+    public String get_2d_Staged_Critical_Illness_SCI() { return _2d_Staged_Critical_Illness_SCI; }
+    public void set_2d_Staged_Critical_Illness_SCI(String _2d) { this._2d_Staged_Critical_Illness_SCI = _2d; }
+
+    public String get_2e_Hospital_Cash_Benefit_HCB() { return _2e_Hospital_Cash_Benefit_HCB; }
+    public void set_2e_Hospital_Cash_Benefit_HCB(String _2e) { this._2e_Hospital_Cash_Benefit_HCB = _2e; }
+
+    public String get_3a_Partial_Withdrawl() { return _3a_Partial_Withdrawl; }
+    public void set_3a_Partial_Withdrawl(String _3a_Partial_Withdrawl) { this._3a_Partial_Withdrawl = _3a_Partial_Withdrawl; }
+
+    public double get_3b_Partial_Withdrawl_Amount() { return _3b_Partial_Withdrawl_Amount; }
+    public void set_3b_Partial_Withdrawl_Amount(double _3b) { this._3b_Partial_Withdrawl_Amount = _3b; }
+
+    public String getVersion_id() { return version_id; }
+    public void setVersion_id(String version_id) { this.version_id = version_id; }
+
+    public String getCall_purpose() { return call_purpose; }
+    public void setCall_purpose(String call_purpose) { this.call_purpose = call_purpose; }
+
+    public String getSource_system() { return source_system; }
+    public void setSource_system(String source_system) { this.source_system = source_system; }
 }
 
 
 ---
 
-✅ 2) CalculationResponse.java (FINAL)
+2) CalculationResponse.java
 
 package com.eapp.dto.reponseDTO;
 
-import lombok.Data;
-
-@Data
 public class CalculationResponse {
-
     private Object apiResponse;
     private String message;
     private double fallbackPremium;
+
+    public Object getApiResponse() { return apiResponse; }
+    public void setApiResponse(Object apiResponse) { this.apiResponse = apiResponse; }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+
+    public double getFallbackPremium() { return fallbackPremium; }
+    public void setFallbackPremium(double fallbackPremium) { this.fallbackPremium = fallbackPremium; }
 }
 
 
 ---
 
-✅ 3) CoherentService.java (FINAL — ERROR FREE)
+3) CoherentService.java
 
 package com.eapp.service;
 
 import com.eapp.dto.requestDTO.CalculationRequest;
 import com.eapp.dto.reponseDTO.CalculationResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
-@Slf4j
 public class CoherentService {
+    private static final Logger log = LoggerFactory.getLogger(CoherentService.class);
 
-    WebClient client = WebClient.builder()
-            .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
-            .build();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public CalculationResponse calculatePremium(CalculationRequest req) {
+    // Use your full coherent execute URL here (from your message)
+    private final String COHERENT_URL = "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
 
-        CalculationResponse resp = new CalculationResponse();
+    public CalculationResponse calculatePremium(CalculationRequest request) {
+        CalculationResponse result = new CalculationResponse();
 
         try {
-            Object coherentResponse = client.post()
-                    .uri("/execute")
-                    .bodyValue(buildRequestBody(req))
-                    .retrieve()
-                    .bodyToMono(Object.class)
-                    .block();
+            Map<String, Object> body = buildCoherentBody(request);
 
-            resp.setApiResponse(coherentResponse);
-            resp.setMessage("Coherent API success");
-            return resp;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            // If you need an Authorization header insert here:
+            // headers.set("Authorization", "Bearer " + "YOUR_TOKEN_HERE");
 
-        } catch (Exception e) {
-            log.error("Coherent API failed, fallback applied: {}", e.getMessage());
+            HttpEntity<Map<String,Object>> entity = new HttpEntity<>(body, headers);
 
-            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
+            ResponseEntity<Object> resp = restTemplate.exchange(
+                    COHERENT_URL,
+                    HttpMethod.POST,
+                    entity,
+                    Object.class
+            );
 
-            resp.setMessage("Coherent down, fallback premium applied");
-            resp.setFallbackPremium(fallbackPremium);
-            return resp;
+            result.setApiResponse(resp.getBody());
+            result.setMessage("Coherent API returned response, success.");
+            return result;
+
+        } catch (Exception ex) {
+            log.error("Coherent call failed, using fallback calculation", ex);
+
+            // Simple fallback formula: e.g. 2% of Face Amount (customize as needed)
+            double fallback = request.get_1d_Face_Amount() * 0.02;
+            result.setFallbackPremium(fallback);
+            result.setMessage("Coherent API failed, returned fallback premium.");
+            return result;
         }
     }
 
-    private Object buildRequestBody(CalculationRequest r) {
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> buildCoherentBody(CalculationRequest r) {
+        Map<String,Object> body = new HashMap<>();
 
-        return new Object() {
-            public final Object request_data = new Object() {
-                public final Object inputs = r;
-            };
+        Map<String,Object> request_data = new HashMap<>();
+        Map<String,Object> inputs = new HashMap<>();
 
-            public final Object request_meta = new Object() {
-                public final String version_id = r.getVersion_id();
-                public final String call_purpose = r.getCall_purpose();
-                public final String source_system = r.getSource_system();
-            };
-        };
+        // fill inputs exactly as expected by Coherent
+        inputs.put("_1a_DOB", r.get_1a_DOB());
+        inputs.put("_1b_Product", r.get_1b_Product());
+        inputs.put("_1c_Gender", r.get_1c_Gender());
+        inputs.put("_1d_Face_Amount", r.get_1d_Face_Amount());
+        inputs.put("_1e_Occupation", r.get_1e_Occupation());
+        inputs.put("_1h_Policy_Inception_Date", r.get_1h_Policy_Inception_Date());
+        inputs.put("_1i_Smoker", r.get_1i_Smoker());
+        inputs.put("_1j_Pre_Existing_Disease", r.get_1j_Pre_Existing_Disease());
+        inputs.put("_1k_Extra_mortality", r.get_1k_Extra_mortality());
+        inputs.put("_1p_Policy_Term", r.get_1p_Policy_Term());
+        inputs.put("_1r_Mandatory_Premium_Period", r.get_1r_Mandatory_Premium_Period());
+        inputs.put("_1zb_PAV", r.get_1zb_PAV());
+        inputs.put("_1zc_per_mille_rating_death", r.get_1zc_per_mille_rating_death());
+        inputs.put("_1zd_per_mille_rating_TPD", r.get_1zd_per_mille_rating_TPD());
+        inputs.put("_1ze_per_mille_rating_SCI", r.get_1ze_per_mille_rating_SCI());
+
+        inputs.put("_2a_Death_Benefit", r.get_2a_Death_Benefit());
+        inputs.put("_2b_Total_and_Permanent_Disability_TPD", r.get_2b_Total_and_Permanent_Disability_TPD());
+        inputs.put("_2c_Accidental_Death_and_Dismemberment_ADD", r.get_2c_Accidental_Death_and_Dismemberment_ADD());
+        inputs.put("_2d_Staged_Critical_Illness_SCI", r.get_2d_Staged_Critical_Illness_SCI());
+        inputs.put("_2e_Hospital_Cash_Benefit_HCB", r.get_2e_Hospital_Cash_Benefit_HCB());
+
+        inputs.put("_3a_Partial_Withdrawl", r.get_3a_Partial_Withdrawl());
+        inputs.put("_3b_Partial_Withdrawl_Amount", r.get_3b_Partial_Withdrawl_Amount());
+
+        request_data.put("inputs", inputs);
+        body.put("request_data", request_data);
+
+        Map<String,Object> meta = new HashMap<>();
+        meta.put("version_id", r.getVersion_id());
+        meta.put("call_purpose", r.getCall_purpose());
+        meta.put("source_system", r.getSource_system());
+        body.put("request_meta", meta);
+
+        return body;
     }
 }
 
 
 ---
 
-🔥 Final Output
+4) PremiumController.java
 
-हे code 100% compile होईल, कारण
-✔ Getter योग्य आहेत
-✔ Setter Lombok ने auto-generate
-✔ Field names EXACT तुझ्या दिलेल्या request body प्रमाणे
-✔ No more “Cannot resolve method…” errors
+package com.eapp.controller;
+
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.reponseDTO.CalculationResponse;
+import com.eapp.service.CoherentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/premium")
+public class PremiumController {
+
+    @Autowired
+    private CoherentService coherentService;
+
+    @PostMapping("/calculate")
+    public CalculationResponse calculatePremium(@RequestBody CalculationRequest request) {
+        return coherentService.calculatePremium(request);
+    }
+}
 
 
 ---
 
-हवे असल्यास मी तुला Controller + Service + DTO सर्व एका ZIP-project structure मध्ये सुद्धा बनवून देऊ शकतो.
+5) SecurityConfig.java (optional, add if you use Spring Security)
 
-फक्त सांग!
+package com.eapp.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration conf) throws Exception {
+        return conf.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/api/auth/**",
+                    "/premium/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            );
+
+        return http.build();
+    }
+}
+
+
+---
+
+Notes & next steps to avoid errors in IntelliJ
+
+1. Replace existing files with these plain Java files (no Lombok). Ensure package names match your project structure.
+
+
+2. If you previously had Lombok, either remove Lombok usage or keep Lombok dependency + annotation processor enabled. (I removed Lombok to avoid those IDE errors.)
+
+
+3. Add spring-boot-starter-web in pom.xml (you already have). For RestTemplate no extra dependency required. If you want WebClient you must add reactive dependencies.
+
+
+4. If you need Authorization header for Coherent, add token to headers.set("Authorization", "Bearer " + token); in CoherentService.
+
+
+5. Rebuild project / mvn clean package or reload in IntelliJ. The earlier cannot resolve errors should disappear because getters/setters exist explicitly.
+
+
+6. Test in Postman / Swagger: POST http://localhost:8001/premium/calculate with JSON body like the sample you provided.
+
+
+
+
+---
+
+If you want, I can:
+
+Modify fallback formula (use age, smoker, sumassured) — tell me exact rule.
+
+Add an example sample JSON body for testing (I can paste that ready-to-send).
+
+Add header token insertion and how to put token in Swagger UI (I can show Swagger config steps).
+
+
+Which one next? Want the test JSON body now?
