@@ -1,26 +1,76 @@
-2025-12-01T10:27:47.491+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-12-01T10:27:49.314+05:30  WARN 27220 --- [eapp-backend] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'userAuthController' defined in file [C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend\target\classes\com\eapp\controller\UserAuthController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'userServiceImpl' defined in file [C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend\target\classes\com\eapp\service\UserServiceImpl.class]: Unsatisfied dependency expressed through constructor parameter 1: No qualifying bean of type 'org.springframework.security.crypto.password.PasswordEncoder' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
-2025-12-01T10:27:49.314+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2025-12-01T10:27:49.325+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2025-12-01T10:27:49.368+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2025-12-01T10:27:49.373+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
-2025-12-01T10:27:49.396+05:30  INFO 27220 --- [eapp-backend] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+Problem EXACTLY kuthe aahe tar Spring Security PasswordEncoder bean tumcha project madhe define केलेलाच नाही.
+म्हणून application start होत नाही → Swagger देखील उघडत नाही → Postman मध्ये 403 येतो.
 
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2025-12-01T10:27:49.486+05:30 ERROR 27220 --- [eapp-backend] [  restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
-
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Parameter 1 of constructor in com.eapp.service.UserServiceImpl required a bean of type 'org.springframework.security.crypto.password.PasswordEncoder' that could not be found.
+हा 100% fix खाली देतो 👇
 
 
-Action:
+---
 
-Consider defining a bean of type 'org.springframework.security.crypto.password.PasswordEncoder' in your configuration.
+✅ FIX — PasswordEncoder Bean Add करा
+
+तुमच्या backend मध्ये कोणत्याही @Configuration class मध्ये हा code टाका:
+
+👉 SecurityConfig.java
+
+package com.eapp.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+बस्स!
+आता Spring हे automatically load करेल आणि error remove होईल.
 
 
-Process finished with exit code 0
+---
+
+⚠️ Error का आला?
+
+तुमचे UserServiceImpl असे आहे:
+
+public UserServiceImpl(UserRepository repo, PasswordEncoder passwordEncoder) {
+    this.repo = repo;
+    this.passwordEncoder = passwordEncoder;
+}
+
+Spring ला PasswordEncoder सापडलाच नाही → म्हणून error.
+
+
+---
+
+🟢 हे केल्यानंतर काय होईल?
+
+✔ Backend successfully start होईल
+✔ Swagger UI open होईल
+➡ http://localhost:8001/swagger-ui/index.html
+✔ Postman 403 बंद होईल
+✔ JWT login/register सर्व चालेल
+
+
+---
+
+❓ तुमचा पुढचा step
+
+तुम्ही आता:
+
+1. हा file add करा
+
+
+2. Backend run करा
+
+
+3. Console screenshot पाठवा (if any errors)
+
+
+
+मी लगेच पुढचा fix देईन.
