@@ -27,3 +27,42 @@
   "sumAssured": 0,
   "smoker": true
 }
+
+
+
+
+
+
+{
+  "get_1a_DOB": "1995-06-12",
+  "get_1b_Product": "Universal Life Plan",
+  "get_1c_Gender": "Male",
+  "get_1d_Face_Amount": 500000,
+  "get_1e_Occupation": 1,
+  "get_1h_Policy_Inception_Date": "2025-01-01",
+  "get_1i_Smoker": "No",
+  "get_1j_Pre_Existing_Disease": "None",
+  "get_1k_Extra_mortality": 0,
+  "get_1p_Policy_Term": 20,
+  "get_1r_Mandatory_Premium_Period": "10 Years",
+  "get_1zb_PAV": 20000,
+  "get_1zc_per_mille_rating_death": 5,
+  "get_1zd_per_mille_rating_TPD": 3,
+  "get_1ze_per_mille_rating_SCI": 2,
+
+  "get_2a_Death_Benefit": "Yes",
+  "get_2b_Total_and_Permanent_Disability_TPD": "Yes",
+  "get_2c_Accidental_Death_and_Dismemberment_ADD": "No",
+  "get_2d_Staged_Critical_Illness_SCI": "Yes",
+  "get_2e_Hospital_Cash_Benefit_HCB": "No",
+
+  "get_3a_Partial_Withdrawl": "Yes",
+  "get_3b_Partial_Withdrawl_Amount": 10000,
+
+  "version_id": "v3",
+  "call_purpose": "Test Execution",
+  "source_system": "EAPP-System",
+
+  "sumAssured": 500000,
+  "smoker": false
+}
