@@ -1,3 +1,207 @@
+
+capp-backend
+
+Version control
+
+Current FileDO
+
+@
+
+Q
+
+&
+
+4
+
+se.java
+
+PremiumController.java x
+
+PremiumService.java
+
+14
+
+CoherentService.java
+
+main
+
+java
+
+public class PremiumController {
+
+35
+
+0145
+
+Project
+
+com.eapp
+
+if (fromCoherent != null) {
+
+36
+
+37
+
+> config
+
+Problems
+
+fromCoherent.setMessage("Calculated from Coherent");
+
+return fromCoherent;
+
+File 6
+
+Project Errors
+
+Server-Side Analysis
+
+Vulnerable Dependencies
+
+B
+
+T
+
+PremiumController.java C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend\src\main\java\com\eapp/controller 6 problems
+
+Cannot resolve method 'setMessage' in 'CalculationResponse:36
+
+Class 'PremiumController' is never used:14
+
+Private field 'premiumService' is never assigned :17
+
+Private field 'coherentService' is never assigned :20
+
+Private field 'useCoherentDefault' is never assigned:23
+
+Method 'calculate(com.eapp.dto.requestDTO.CalculationRequest, java.lang.String)' is never used:30
+
+
+
+
+
+eapp-backend
+
+Version control
+
+Current File
+
+X 10 OneCranitent
+
+DO!
+
+&Q
+
+Project
+
+sejava
+
+PremiumController.java
+
+PremiumService javax
+
+CoherentService.java
+
+X
+
+01411
+
+m
+
+java
+
+import java.math.BigDecimal;
+
+import java.math.RoundingMode:
+
+com.eapp
+
+>config
+
+Service 2 usages
+
+Problems
+
+File 10
+
+10
+
+Project Errors
+
+Server-Side Analysis
+
+Vulnerable Dependencies
+
+PremiumService java C:Users\2440835 OneDrive-Cognizant
+
+Documentstanuragleapp-backendieapp-backendieapp-backend/src/main/java\com\eapp/service 16 problems
+
+१७
+
+main
+
+Cannot resolve method 'getAge' in 'CalculationRequest:25
+
+Cannot resolve method 'getSumAssured in 'CalculationRequest 25
+
+Cannot resolve method 'getPolicy Term' in 'CalculationRequest 25
+
+Cannot resolve method 'setPremium' in 'CalculationResponse:26
+
+Cannot resolve method 'setMessage' in 'CalculationResponse 27
+
+Cannot resolve method 'getProductCode' in 'CalculationRequest 32
+
+Cannot resolve method 'getSumAssured in 'CalculationRequest 34
+
+Cannot resolve method 'getAge' in 'Calculation Request 38
+
+Cannot resolve method 'getAge' in 'Calculation Request 39
+
+Cannot resolve method 'getSmoker' in 'CalculationRequest 44
+
+Cannot resolve method 'getPolicy Term' in 'CalculationRequest 50
+
+Cannot resolve method 'getPolicy Term' in 'Calculation Request 50
+
+Cannot resolve method 'setPremium' in 'CalculationResponse 55
+
+Cannot resolve method 'setMessage' in 'CalculationResponse 56
+
+Blank line will be ignored 19
+
+Typo: In word 'acturial 20
+
+Ceapp-backend > sro
+
+main
+
+java >
+
+com
+
+eapp >
+
+service >
+
+PremiumService
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 छान Anurag — मला समजलं: उद्याच्या मीटिंगमध्ये तुझ्या “Coherent integration for calculation” टास्कचा पूर्ण, रन करण्याजोगा प्रोटोटाइप (frontend + backend) दाखवायचा आहे — मी आता तुझ्यासाठी पूर्ण प्रोजेक्ट फाइल्स (कोणती फाइल कुठे, पूर्ण code, run-commands, test snippets, आणि Coherent real-API कसं जोडायचं) एका ठिकाणी देतो. Copy-paste करून प्रोजेक्टमध्ये ठेवले/रिप्लेस केल्‍यावर तुझं calculation flow — User → Frontend form → Backend → (Coherent optional) → Frontend result — लगेच काम करेल.
 
 मी पैकी सर्व महत्वाच्या फाइल्स आणि त्यांच्या अचूक paths देतो. (तुझ्या actual repo structure थोडा वेगळा असल्यास package path बदलून पेस्ट कर.)
