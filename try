@@ -1,286 +1,69 @@
-
-ठीक आहे भाऊ ❤️
-आता मी तुला Step-2: CoherentService.java चा FINAL UPDATED COMPLETE WORKING CODE देतो —
-हा direct copy–paste कर, 100% काम करेल, null कधीच येणार नाही.
-
-
----
-
-✅ FINAL — CoherentService.java (READY TO USE, DIRECT COPY–PASTE)
-
-👉 तुझा URL + तुझा JWT token already ठेवलेला format मध्ये आहे.
-👉 फक्त token value तू paste करायचा.
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.PremiumCalcRequest;
-import com.eapp.dto.reponseDTO.PremiumCalcResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-@RequiredArgsConstructor
-public class CoherentService {
-
-    private final WebClient coherentWebClient;
-
-    // ==== COHERENT URL ====
-    private static final String COHERENT_URL =
-            "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
-
-    // ==== PASTE YOUR JWT TOKEN HERE ====
-    private static final String JWT_TOKEN =
-            "PASTE_YOUR_JWT_TOKEN_HERE";
-
-    public PremiumCalcResponse calculatePremium(PremiumCalcRequest request) {
-
-        Object coherentResponse = coherentWebClient.post()
-                .uri(COHERENT_URL)
-                .header("Authorization", "Bearer " + JWT_TOKEN)
-                .header("Content-Type", "application/json")
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(Object.class)
-                .block();
-
-        PremiumCalcResponse response = new PremiumCalcResponse();
-        response.setCoherentResult(coherentResponse);
-        response.setStatus("SUCCESS");
-
-        return response;
-    }
+{
+    "coherentResult": {
+        "status": "Success",
+        "response_data": {
+            "outputs": {
+                "_5a_TPA_On_the_Monthly_Policy_Anniversary_Date": 108293,
+                "_2a_Death_Ben_Std_TP": 7822,
+                "_4f_Total_COI": 10748.98,
+                "_4c_COI_SCI": 144.42,
+                "_4d_COI_ADD": 30.6,
+                "_2m_Total_Target_Premium": 29539,
+                "_2j_HCB_Sub_Std_TP": 2030.0,
+                "_4e_COI_HCB": 10520,
+                "_2l_Total_Sub_Std_Premium": 7044,
+                "_2c_SCI_Std_TP": 7822,
+                "_2i_SCI_Sub_Std_TP": 1000,
+                "_3a_Face_Amt_NEW_after_withdrawl": 206773,
+                "_2h_TPD_Sub_Std_TP": 1000,
+                "_1a_Policy_Expiry_Date": "2063-05-11",
+                "_2k_ADD_Sub_Std_TP": 314,
+                "_2g_Death_Ben_Sub_Std_TP": 2700,
+                "_2e_ADD_Std_TP": 1836.0,
+                "_2f_Total_Std_Premium": 22495,
+                "_5b_TPA_On_the_Policy_Effective_Date": 195924,
+                "_4b_COI_TPD": 27.52,
+                "_4a_COI_Death_Benefit": 26.44,
+                "_2d_HCB_Std_TP": 3597,
+                "_2b_TPD_Std_TP": 1418,
+                "_1a2_Sub_Std_Risk": "Y"
+            },
+            "warnings": [
+                {
+                    "source_path": "Default Values",
+                    "message": "Input parameter(s) missing. API request using the Default Values."
+                }
+            ],
+            "errors": [
+                {
+                    "error_category": "validation_error",
+                    "error_type": "error.VALIDATION",
+                    "additional_details": "Universal-Life-product-TestPrd",
+                    "source_path": "$.Input._1r_Mandatory_Premium_Period",
+                    "message": "The Policyholder has to pay the full Target Premium during the first 3 years."
+                }
+            ],
+            "service_chain": null
+        },
+        "response_meta": {
+            "service_id": "75f44129-9057-4281-b525-d5070f9a81be",
+            "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+            "version": "0.1.1",
+            "process_time": 125,
+            "call_id": "0fa3cdb1-6f2b-4574-8443-0bd9e3a6473a",
+            "compiler_type": "Neuron",
+            "compiler_version": "1.8.2",
+            "source_hash": null,
+            "engine_id": "93609A7E3B49805339DE8800C36DC402",
+            "correlation_id": "",
+            "parameterset_version_id": null,
+            "system": "SPARK",
+            "request_timestamp": "2025-12-03T10:47:23.305Z"
+        },
+        "error": null
+    },
+    "status": null
 }
-
-
----
-
-🔥 इतकंच करायचं —
-
-1️⃣ तुझा JWT Token copy करून replace कर:
-
-private static final String JWT_TOKEN = "PASTE_YOUR_JWT_TOKEN_HERE";
-
-2️⃣ काहीच बदलू नकोस — हा कोड direct काम करेल.
-
-3️⃣ null कधीच नाही येणार — direct Coherent full JSON मिळेल.
-
-
----
-
-🙏 आता Step-3 पाहिजे का?
-
-(WebClientConfig.java final version)
-किंवा Controller final version?
-
-तू सांग — मी लगेच देतो.
-
-
-
-
-
-
-
-
-
-
-ठीक आहे Anurag 🔥
-आता मी तुला सगळं एकदम क्लीन, नीट, production-level, final working दोन files देतो:
-
-WebClientConfig.java
-
-CoherentService.java
-
-
-हे दोन्ही तू as-is copy-paste केलेस की तुझा Coherent API लगेच hit होईल.
-
-तुला run कसा करायचा तेही खाली दिलंय.
-
-
----
-
-✅ FINAL FILE 1: WebClientConfig.java
-
-📌 File path: src/main/java/com/eapp/config/WebClientConfig.java
-
-package com.eapp.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Configuration
-public class WebClientConfig {
-
-    @Bean
-    public WebClient coherentWebClient() {
-
-        return WebClient.builder()
-                .exchangeStrategies(
-                        ExchangeStrategies.builder()
-                                .codecs(cfg -> cfg.defaultCodecs()
-                                        .maxInMemorySize(16 * 1024 * 1024)) // 16MB
-                                .build()
-                )
-                .build();
-    }
-}
-
-
----
-
-✅ FINAL FILE 2: CoherentService.java
-
-📌 File path: src/main/java/com/eapp/service/CoherentService.java
-
-👉 तुझ्या दिलेल्या URL + JWT Token इथे टाकले आहेत
-👉 हे 100% काम करेल
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.PremiumCalcRequest;
-import com.eapp.dto.reponseDTO.PremiumCalcResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-@Service
-@RequiredArgsConstructor
-public class CoherentService {
-
-    private final WebClient coherentWebClient;
-
-    // === Coherent Execution API URL ===
-    private static final String COHERENT_URL =
-            "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
-
-    // === Your JWT Token ===
-    private static final String JWT_TOKEN =
-            "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjQ3NjIzMDcsImlhdCI6MTc2NDc1NTEwNywiYXV0aF90aW1lIjoxNzY0NzU1MTA0LCJqdGkiOiJvbnJ0YWM6OWI0YWE4MmItMDhiNC00YzdhLThhZDUtNzU5YTJlZjM3MzcyIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImJkMTUxNTQ4LWQ1NmItNGVhZS1iNmNhLTM4ODZkZjIxMDQyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjJmOGFhZGVjLWIxMDEtNDJkMy04YzA1LWQyOWQwZDI3NzY2ZSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNheWFuIERlIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzYXlhbi5kZUBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6IlNheWFuIiwiZmFtaWx5X25hbWUiOiJEZSIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE2OTI3MTE1MTU1MTUsInJlbGF0aW9uIjoicGFydG5lciJ9.eY2QPbFt8oRosfjvk_cyXwXbFnEngHTy7TJxoa2n9rOT1dUkKAj_EzX0RPjXs00KcnrUbVtLqDWe-Kv-tnFiGdKdFhybBW9oRbqgs2tbCoSxpYoAlwAxJRFFjHvjth9ylJowHpzLLh-WLvzdMHvw1ZbRtvrnit_sYjzbPaR2eBir_eRKGdN31EnInNHu6PGyg-IXYeEWp0GPvfTUDY53dYpPiZuMLycDn3epb8GlwIEGEsiEYlpAl-wNz7t4UR6JJVg0SXD-oWOPCrehxeGQw66Giw4uZcuY_uHk4POXq5kayKz1VZehULdKceG-0abRQ1g5uh_5nHJNLcH2oa3cCg";
-
-    public PremiumCalcResponse calculatePremium(PremiumCalcRequest request) {
-
-        return coherentWebClient.post()
-                .uri(COHERENT_URL)
-                .header("Authorization", "Bearer " + JWT_TOKEN)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(request), PremiumCalcRequest.class)
-                .retrieve()
-                .bodyToMono(PremiumCalcResponse.class)
-                .block();
-    }
-}
-
-
----
-
-🚀 RUN कसा करायचा?
-
-✔ Step 1: Backend चालू कर
-
-mvn clean install
-mvn spring-boot:run
-
-✔ Step 2: Swagger उघड
-
-http://localhost:8080/swagger-ui/index.html
-
-✔ Step 3:
-
-POST /calculatePremium वर जा → तुझा request JSON टाक → Execute कर.
-
-→ Coherent API hit होईल
-→ Response मिळेल
-
-
----
-
-❤️ जर Error आला तर
-
-फक्त screenshot upload कर,
-मी लगेच fix करून देतो.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.PremiumCalcRequest;
-import com.eapp.dto.reponseDTO.PremiumCalcResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-@RequiredArgsConstructor
-public class CoherentService {
-
-    private final WebClient coherentClient;
-
-    public PremiumCalcResponse calculatePremium(PremiumCalcRequest request) {
-
-        Object coherentResponse = coherentClient.post()
-                .uri("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute")      // full path added in WebClientConfig
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(Object.class)
-                .block();
-
-        PremiumCalcResponse response = new PremiumCalcResponse();
-        response.setPremiumResult(coherentResponse);
-        response.setStatus("SUCCESS");
-
-        return response;
-    }
-}
-
-
-
-
-package com.eapp.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Configuration
-public class WebClientConfig {
-
-    @Bean
-    public WebClient coherentWebClient() {
-        return WebClient.builder()
-                .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute")
-                .build();
-    }
-}
-
-
-
-eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjQ3NjIzMDcsImlhdCI6MTc2NDc1NTEwNywiYXV0aF90aW1lIjoxNzY0NzU1MTA0LCJqdGkiOiJvbnJ0YWM6OWI0YWE4MmItMDhiNC00YzdhLThhZDUtNzU5YTJlZjM3MzcyIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImJkMTUxNTQ4LWQ1NmItNGVhZS1iNmNhLTM4ODZkZjIxMDQyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjJmOGFhZGVjLWIxMDEtNDJkMy04YzA1LWQyOWQwZDI3NzY2ZSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNheWFuIERlIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzYXlhbi5kZUBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6IlNheWFuIiwiZmFtaWx5X25hbWUiOiJEZSIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE2OTI3MTE1MTU1MTUsInJlbGF0aW9uIjoicGFydG5lciJ9.eY2QPbFt8oRosfjvk_cyXwXbFnEngHTy7TJxoa2n9rOT1dUkKAj_EzX0RPjXs00KcnrUbVtLqDWe-Kv-tnFiGdKdFhybBW9oRbqgs2tbCoSxpYoAlwAxJRFFjHvjth9ylJowHpzLLh-WLvzdMHvw1ZbRtvrnit_sYjzbPaR2eBir_eRKGdN31EnInNHu6PGyg-IXYeEWp0GPvfTUDY53dYpPiZuMLycDn3epb8GlwIEGEsiEYlpAl-wNz7t4UR6JJVg0SXD-oWOPCrehxeGQw66Giw4uZcuY_uHk4POXq5kayKz1VZehULdKceG-0abRQ1g5uh_5nHJNLcH2oa3cCg
- 
-
-
-
-
-https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute
-
-
-
-
-
 
 
 
