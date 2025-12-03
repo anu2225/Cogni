@@ -1,3 +1,121 @@
+package com.eapp.service;
+
+import com.eapp.dto.requestDTO.CalculationRequest;
+import com.eapp.dto.reponseDTO.CalculationResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.MediaType;
+
+import java.util.*;
+
+@Service
+@Slf4j
+public class CoherentService {
+
+    private final WebClient client;
+
+    public CoherentService() {
+        this.client = WebClient.builder()
+                .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
+                .build();
+    }
+
+    public CalculationResponse calculatePremium(CalculationRequest req) {
+
+        CalculationResponse resp = new CalculationResponse();
+
+        try {
+            Map<String, Object> body = buildRequestBody(req);
+
+            Object coherentResponse =
+                    client
+                            .post()
+                            .uri("/execute")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(body)
+                            .retrieve()
+                            .bodyToMono(Object.class)
+                            .block();
+
+            resp.setApiResponse(coherentResponse);
+            resp.setMessage("Coherent API success");
+            return resp;
+
+        } catch (Exception e) {
+            log.error("Coherent API failed", e);
+
+            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
+
+            resp.setMessage("Coherent down → fallback premium applied");
+            resp.setFallbackPremium(fallbackPremium);
+
+            return resp;
+        }
+    }
+
+    private Map<String, Object> buildRequestBody(CalculationRequest r) {
+
+        Map<String, Object> root = new HashMap<>();
+
+        // ---- EXACT FORMAT AS PER Coherent API ----
+        Map<String, Object> requestData = new HashMap<>();
+
+        // Coherent accepts a LIST of inputs, not an object
+        List<Map<String, Object>> inputList = new ArrayList<>();
+
+        // convert object → map
+        Map<String, Object> inputMap = new HashMap<>();
+        inputMap.put("1a_DOB", r.get_1a_DOB());
+        inputMap.put("1b_Product", r.get_1b_Product());
+        inputMap.put("1c_Gender", r.get_1c_Gender());
+        inputMap.put("1d_Face_Amount", r.get_1d_Face_Amount());
+        inputMap.put("1e_Occupation", r.get_1e_Occupation());
+        inputMap.put("1h_Policy_Inception_Date", r.get_1h_Policy_Inception_Date());
+        inputMap.put("1i_Smoker", r.get_1i_Smoker());
+        inputMap.put("1j_Pre_Existing_Disease", r.get_1j_Pre_Existing_Disease());
+        inputMap.put("1k_Extra_mortality", r.get_1k_Extra_mortality());
+        inputMap.put("1p_Policy_Term", r.get_1p_Policy_Term());
+        inputMap.put("1r_Mandatory_Premium_Period", r.get_1r_Mandatory_Premium_Period());
+        inputMap.put("1zb_PAV", r.get_1zb_PAV());
+        inputMap.put("1zc_per_mille_rating_death", r.get_1zc_per_mille_rating_death());
+        inputMap.put("1zd_per_mille_rating_TPD", r.get_1zd_per_mille_rating_TPD());
+        inputMap.put("1ze_per_mille_rating_SCI", r.get_1ze_per_mille_rating_SCI());
+        inputMap.put("2a_Death_Benefit", r.get_2a_Death_Benefit());
+        inputMap.put("2b_Total_and_Permanent_Disability_TPD", r.get_2b_Total_and_Permanent_Disability_TPD());
+        inputMap.put("2c_Accidental_Death_and_Dismemberment_ADD", r.get_2c_Accidental_Death_and_Dismemberment_ADD());
+        inputMap.put("2d_Staged_Critical_Illness_SCI", r.get_2d_Staged_Critical_Illness_SCI());
+        inputMap.put("2e_Hospital_Cash_Benefit_HCB", r.get_2e_Hospital_Cash_Benefit_HCB());
+        inputMap.put("3a_Partial_Withdrawl", r.get_3a_Partial_Withdrawl());
+        inputMap.put("3b_Partial_Withdrawl_Amount", r.get_3b_Partial_Withdrawl_Amount());
+
+        inputList.add(inputMap);
+
+        requestData.put("inputs", inputList);
+
+        // META
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("version_id", r.getVersion_id());
+        meta.put("call_purpose", r.getCall_purpose());
+        meta.put("source_system", r.getSource_system());
+
+        root.put("request_data", requestData);
+        root.put("request_meta", meta);
+
+        return root;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 Nice — I pulled out the uploaded project (you said “2” — I used the eapp-backend (1).zip). I’ve prepared a complete, ready-to-paste set of Java files + small config changes that fix the errors you showed (missing log, missing getters like get_1d_Face_Amount(), password encoder/auth manager, CORS for your React frontend, fallback local calculation, coherent call, and Swagger JWT authorize support).
 
 Below you’ll find the full updated code for the important classes (DTOs, service, controller, security, CORS, and application.properties) plus a short pom.xml hint. Copy these files into your project (same package com.eapp.*) replacing the old ones, run mvn clean install and start. I kept everything minimal & compatible with your Spring Boot 3.2.4 setup and Java 21.
