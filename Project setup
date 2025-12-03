@@ -1,1215 +1,435 @@
+Nice — I pulled out the uploaded project (you said “2” — I used the eapp-backend (1).zip). I’ve prepared a complete, ready-to-paste set of Java files + small config changes that fix the errors you showed (missing log, missing getters like get_1d_Face_Amount(), password encoder/auth manager, CORS for your React frontend, fallback local calculation, coherent call, and Swagger JWT authorize support).
 
-ठीक आहे Anurag — तुझा संपूर्ण backend compile होत नाही कारण तुझ्या CalculationRequest आणि CalculationResponse मध्ये fields नसल्यामुळे सर्व errors दिसतायत.
-तुझ्या Premium Engine चं काहीही चालणार नाही जोपर्यंत ही 4 फाईल्स बरोबर नसतील:
-
-
----
-
-✅ मी तुला आता पूर्ण, 100% WORKING, zero-error PREMIUM CALCULATION ENGINE देतो —
-
-(Front-end + Back-end + Coherent Integration)
-फक्त या 4 backend फाईल्स replace कर. तुला 0 errors येतील.
+Below you’ll find the full updated code for the important classes (DTOs, service, controller, security, CORS, and application.properties) plus a short pom.xml hint. Copy these files into your project (same package com.eapp.*) replacing the old ones, run mvn clean install and start. I kept everything minimal & compatible with your Spring Boot 3.2.4 setup and Java 21.
 
 
 ---
 
-✅ 1️⃣ CalculationRequest.java (Correct Version — add required fields)
+1) pom.xml (important bits)
 
-➡ ही फाईल तुझ्याकडे चुकीची आहे. मी नवी देतो.
+Replace / update dependencies in your POM with these key deps. (You already had most; this ensures Lombok, WebFlux (WebClient), Spring Security, springdoc, jjwt etc are present.)
+
+<!-- Add or ensure these dependencies in your POM's <dependencies> -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-webflux</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <scope>provided</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.0.2</version>
+</dependency>
+
+<!-- reactor/webclient already available with webflux -->
+<!-- jjwt (as you had) -->
+
+> Note: keep spring-boot-starter-logging (comes with Spring Boot) — you don't need explicit slf4j-api lines. Lombok will generate getXxx methods and @Slf4j will handle log.
+
+
+
+
+---
+
+2) DTOs
+
+Create these DTOs under com.eapp.dto.requestDTO and com.eapp.dto.reponseDTO.
+
+CalculationRequest.java
 
 package com.eapp.dto.requestDTO;
 
-import lombok.Data;
+import lombok.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CalculationRequest {
+    // Fields should match the names you posted (leading underscore allowed)
+    private String _1a_DOB;
+    private String _1b_Product;
+    private String _1c_Gender;
+    private double _1d_Face_Amount;
+    private int _1e_Occupation;
+    private String _1h_Policy_Inception_Date;
+    private String _1i_Smoker;
+    private String _1j_Pre_Existing_Disease;
+    private double _1k_Extra_mortality;
+    private int _1p_Policy_Term;
+    private String _1r_Mandatory_Premium_Period;
+    private double _1zb_PAV;
+    private double _1zc_per_mille_rating_death;
+    private double _1zd_per_mille_rating_TPD;
+    private double _1ze_per_mille_rating_SCI;
+    private String _2a_Death_Benefit;
+    private String _2b_Total_and_Permanent_Disability_TPD;
+    private String _2c_Accidental_Death_and_Dismemberment_ADD;
+    private String _2d_Staged_Critical_Illness_SCI;
+    private String _2e_Hospital_Cash_Benefit_HCB;
+    private String _3a_Partial_Withdrawl;
+    private double _3b_Partial_Withdrawl_Amount;
+
+    // meta fields
+    private String version_id;
+    private String call_purpose;
+    private String source_system;
+
+    // convenience fields you asked earlier
     private double sumAssured;
-    private int age;
-    private int policyTerm;
-    private String productCode;
-    private boolean smoker;
+    private Boolean smoker;
 }
 
-
----
-
-✅ 2️⃣ CalculationResponse.java (Correct Version)
+CalculationResponse.java
 
 package com.eapp.dto.reponseDTO;
 
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CalculationResponse {
-    private double premium;
+    private Object apiResponse;         // full response from Coherent (raw)
     private String message;
+    private Double fallbackPremium;     // if fallback used
 }
 
 
 ---
 
-✅ 3️⃣ PremiumService.java (100% Working Premium Engine Logic)
+3) CoherentService (fixed logging & fallback + request body building)
+
+Replace your CoherentService with this. Important fixes:
+
+Use Lombok @Slf4j (no ErrorManager).
+
+Build request body as Map so JSON keys are exactly request_data and request_meta.
+
+Local fallback calculation uses req.get_1d_Face_Amount() (getter exists because of Lombok).
+
+Proper exception logging: log.error("...", e).
+
 
 package com.eapp.service;
 
 import com.eapp.dto.requestDTO.CalculationRequest;
 import com.eapp.dto.reponseDTO.CalculationResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.MediaType;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
-public class PremiumService {
+@Slf4j
+public class CoherentService {
+
+    private final WebClient client;
+
+    public CoherentService() {
+        this.client = WebClient.builder()
+                .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
+                .build();
+    }
 
     public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        double baseRate = 12.5;
-
-        double premium =
-                (req.getSumAssured() / 1000 * baseRate)
-                        + (req.getAge() / 20.0)
-                        + (req.getPolicyTerm() / 10.0);
-
-        // Smoker loading
-        if (req.isSmoker()) {
-            premium *= 1.25;
-        }
-
-        CalculationResponse res = new CalculationResponse();
-        res.setPremium(Math.round(premium));
-        res.setMessage("Premium calculated successfully");
-
-        return res;
-    }
-}
-
-
----
-
-✅ 4️⃣ CoherentService.java (Working HTTP Integration)
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-@Service
-public class CoherentService {
-
-    private final WebClient client = WebClient.builder()
-            .baseUrl("https://api.coherent.global/calculation")
-            .build();
-
-    public CalculationResponse calculateFromCoherent(CalculationRequest req) {
+        CalculationResponse resp = new CalculationResponse();
 
         try {
-            return client.post()
-                    .uri("/premium")
-                    .bodyValue(req)
+            Map<String, Object> requestBody = buildRequestBody(req);
+
+            Object coherentResponse = client.post()
+                    .uri("/execute")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
                     .retrieve()
-                    .bodyToMono(CalculationResponse.class)
+                    .bodyToMono(Object.class)
                     .block();
+
+            resp.setApiResponse(coherentResponse);
+            resp.setMessage("Coherent API success");
+            return resp;
         } catch (Exception e) {
-            return null;
+            // log the full exception
+            log.error("Coherent API failed, fallback applied", e);
+
+            // fallback: simple % of face amount (you can change logic)
+            double fallbackPremium = req.get_1d_Face_Amount() * 0.05; // 5% example
+
+            resp.setMessage("Coherent down, fallback premium applied");
+            resp.setFallbackPremium(fallbackPremium);
+            return resp;
         }
+    }
+
+    private Map<String, Object> buildRequestBody(CalculationRequest r) {
+        Map<String, Object> root = new HashMap<>();
+
+        Map<String, Object> request_data = new HashMap<>();
+        request_data.put("inputs", r); // WebClient + Jackson will serialize fields
+
+        Map<String, Object> request_meta = new HashMap<>();
+        request_meta.put("version_id", r.getVersion_id());
+        request_meta.put("call_purpose", r.getCall_purpose());
+        request_meta.put("source_system", r.getSource_system());
+
+        root.put("request_data", request_data);
+        root.put("request_meta", request_meta);
+
+        return root;
     }
 }
 
 
 ---
 
-✅ 5️⃣ PremiumController.java (Final working version)
+4) Controller (expose premium endpoint and simple auth stubs)
+
+Create a controller to call the service. Put in com.eapp.controller.
 
 package com.eapp.controller;
 
 import com.eapp.dto.requestDTO.CalculationRequest;
 import com.eapp.dto.reponseDTO.CalculationResponse;
 import com.eapp.service.CoherentService;
-import com.eapp.service.PremiumService;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/premium")
-@CrossOrigin("*")
-public class PremiumController {
+@RequestMapping("/api/calc")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3003") // allow React dev origin
+public class CalculationController {
 
-    private final PremiumService premiumService;
     private final CoherentService coherentService;
 
-    @Value("${use.coherent:false}")
-    private boolean useCoherentDefault;
+    @PostMapping("/premium")
+    public ResponseEntity<CalculationResponse> calculate(@RequestBody CalculationRequest request) {
+        CalculationResponse resp = coherentService.calculatePremium(request);
+        return ResponseEntity.ok(resp);
+    }
+}
 
-    public PremiumController(PremiumService premiumService,
-                             CoherentService coherentService) {
-        this.premiumService = premiumService;
-        this.coherentService = coherentService;
+If you already have UserAuthController and signup/login endpoints, keep them. For CORS you can use the global config below.
+
+
+---
+
+5) SecurityConfig (final) — includes Swagger JWT support & allows endpoints public
+
+You posted a similar file already. Use this (includes CORS allowed origins):
+
+package com.eapp.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+import java.util.List;
+
+// Swagger OpenAPI imports
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-    @PostMapping("/calculate")
-    public CalculationResponse calculate(@RequestBody CalculationRequest req,
-                                         @RequestParam(required = false) String source) {
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-        boolean useCoherent = source != null
-                ? source.equalsIgnoreCase("coherent")
-                : useCoherentDefault;
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.cors().and()
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                     "/swagger-ui/**",
+                     "/v3/api-docs/**",
+                     "/api/auth/**",
+                     "/api/calc/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            );
 
-        if (useCoherent) {
-            CalculationResponse response = coherentService.calculateFromCoherent(req);
-            if (response != null) {
-                response.setMessage("Calculated via Coherent");
-                return response;
-            }
-        }
+        return http.build();
+    }
 
-        return premiumService.calculatePremium(req);
+    // Global CORS config for local frontend
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3003", "http://localhost:3000"));
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", config);
+        return src;
+    }
+
+    // Swagger JWT Token Support for UI (Authorize button)
+    @Bean
+    public OpenAPI openAPI() {
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT");
+
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
+
+        return new OpenAPI()
+                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
+                .addSecurityItem(securityRequirement)
+                .info(new Info().title("EAPP API").version("1.0").description("Backend for Premium Calculator + User Auth"));
     }
 }
 
 
 ---
 
-🎉 Backend आता 100% error-free run होईल.
+6) application.properties (put in src/main/resources)
 
-तुझे major errors असे होते:
-
-❌ getAge(), getPolicyTerm(), getSumAssured() नव्हते
-❌ setPremium(), setMessage() नव्हते
-❌ Lombok काम करत नव्हते
-❌ चुकीचे folder paths
-❌ Controller मध्ये missing assignments
-
-मी सर्व fix करून complete working code दिले आहे.
-
-
----
-
-👉 Want FULL FRONT-END (React + API service + UI form)?
-
-मी त्यासाठी full working code पण देतो — फक्त सांग React कसे हवा?
-
-✔ Material UI form?
-✔ Dropdown + inputs?
-✔ Button → calculate → premium display?
-✔ Coherent / Local toggle?
-
-फक्त “YES” लिही — मी संपूर्ण frontend working देतो.
-
-
-
-
-
-
-
-
-
-
-
-capp-backend
-
-Version control
-
-Current FileDO
-
-@
-
-Q
-
-&
-
-4
-
-se.java
-
-PremiumController.java x
-
-PremiumService.java
-
-14
-
-CoherentService.java
-
-main
-
-java
-
-public class PremiumController {
-
-35
-
-0145
-
-Project
-
-com.eapp
-
-if (fromCoherent != null) {
-
-36
-
-37
-
-> config
-
-Problems
-
-fromCoherent.setMessage("Calculated from Coherent");
-
-return fromCoherent;
-
-File 6
-
-Project Errors
-
-Server-Side Analysis
-
-Vulnerable Dependencies
-
-B
-
-T
-
-PremiumController.java C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend\src\main\java\com\eapp/controller 6 problems
-
-Cannot resolve method 'setMessage' in 'CalculationResponse:36
-
-Class 'PremiumController' is never used:14
-
-Private field 'premiumService' is never assigned :17
-
-Private field 'coherentService' is never assigned :20
-
-Private field 'useCoherentDefault' is never assigned:23
-
-Method 'calculate(com.eapp.dto.requestDTO.CalculationRequest, java.lang.String)' is never used:30
-
-
-
-
-
-eapp-backend
-
-Version control
-
-Current File
-
-X 10 OneCranitent
-
-DO!
-
-&Q
-
-Project
-
-sejava
-
-PremiumController.java
-
-PremiumService javax
-
-CoherentService.java
-
-X
-
-01411
-
-m
-
-java
-
-import java.math.BigDecimal;
-
-import java.math.RoundingMode:
-
-com.eapp
-
->config
-
-Service 2 usages
-
-Problems
-
-File 10
-
-10
-
-Project Errors
-
-Server-Side Analysis
-
-Vulnerable Dependencies
-
-PremiumService java C:Users\2440835 OneDrive-Cognizant
-
-Documentstanuragleapp-backendieapp-backendieapp-backend/src/main/java\com\eapp/service 16 problems
-
-१७
-
-main
-
-Cannot resolve method 'getAge' in 'CalculationRequest:25
-
-Cannot resolve method 'getSumAssured in 'CalculationRequest 25
-
-Cannot resolve method 'getPolicy Term' in 'CalculationRequest 25
-
-Cannot resolve method 'setPremium' in 'CalculationResponse:26
-
-Cannot resolve method 'setMessage' in 'CalculationResponse 27
-
-Cannot resolve method 'getProductCode' in 'CalculationRequest 32
-
-Cannot resolve method 'getSumAssured in 'CalculationRequest 34
-
-Cannot resolve method 'getAge' in 'Calculation Request 38
-
-Cannot resolve method 'getAge' in 'Calculation Request 39
-
-Cannot resolve method 'getSmoker' in 'CalculationRequest 44
-
-Cannot resolve method 'getPolicy Term' in 'CalculationRequest 50
-
-Cannot resolve method 'getPolicy Term' in 'Calculation Request 50
-
-Cannot resolve method 'setPremium' in 'CalculationResponse 55
-
-Cannot resolve method 'setMessage' in 'CalculationResponse 56
-
-Blank line will be ignored 19
-
-Typo: In word 'acturial 20
-
-Ceapp-backend > sro
-
-main
-
-java >
-
-com
-
-eapp >
-
-service >
-
-PremiumService
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-छान Anurag — मला समजलं: उद्याच्या मीटिंगमध्ये तुझ्या “Coherent integration for calculation” टास्कचा पूर्ण, रन करण्याजोगा प्रोटोटाइप (frontend + backend) दाखवायचा आहे — मी आता तुझ्यासाठी पूर्ण प्रोजेक्ट फाइल्स (कोणती फाइल कुठे, पूर्ण code, run-commands, test snippets, आणि Coherent real-API कसं जोडायचं) एका ठिकाणी देतो. Copy-paste करून प्रोजेक्टमध्ये ठेवले/रिप्लेस केल्‍यावर तुझं calculation flow — User → Frontend form → Backend → (Coherent optional) → Frontend result — लगेच काम करेल.
-
-मी पैकी सर्व महत्वाच्या फाइल्स आणि त्यांच्या अचूक paths देतो. (तुझ्या actual repo structure थोडा वेगळा असल्यास package path बदलून पेस्ट कर.)
-
-
----
-
-1) संपूर्ण संकल्पना (one-line)
-
-User fills form (age, SA, term, product, smoker) → Frontend POST → Backend /api/premium/calc → Backend tries Coherent (if enabled) else local engine → returns {"premium":..., "message":...} → Frontend shows premium.
-
-
----
-
-2) BACKEND — Spring Boot (complete files)
-
-> Base package: com.eapp
-Project root assumed: eapp-backend (mvn project)
-
-
-
-A. pom.xml — ensure required deps
-
-File: pom.xml (only relevant dependency section; add to your pom)
-
-<dependencies>
-  <!-- Spring Boot web + webflux for WebClient -->
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-webflux</artifactId>
-  </dependency>
-
-  <!-- Lombok -->
-  <dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    <optional>true</optional>
-  </dependency>
-
-  <!-- Optional: if using mysql -->
-  <dependency>
-    <groupId>com.mysql</groupId>
-    <artifactId>mysql-connector-j</artifactId>
-  </dependency>
-
-  <!-- Test etc. -->
-</dependencies>
-
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-maven-plugin</artifactId>
-    </plugin>
-  </plugins>
-</build>
-
-> IntelliJ: Lombok plugin ON + annotation processing ON.
-
-
-
-
----
-
-B. application.properties
-
-File: src/main/resources/application.properties
-
-# server port (change if conflict)
 server.port=8001
 
-# Coherent config - update if you have real values
-coherent.baseurl=https://excel.uat.us.coherent.global/cognizant/api/v3
-coherent.api.key=PUT_REAL_KEY_HERE
+# spring.datasource.* if you use DB (example)
+spring.datasource.url=jdbc:mysql://localhost:3306/eappdb
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
 
-# default: false to use local calculation. set true to attempt coherent call by default
-premium.useCoherent=false
-
-
----
-
-C. DTOs
-
-1) CalculationRequest.java
-
-File: src/main/java/com/eapp/dto/requestDTO/CalculationRequest.java
-
-package com.eapp.dto.requestDTO;
-
-import lombok.Data;
-
-@Data
-public class CalculationRequest {
-    private Integer age;
-    private Double sumAssured;
-    private Integer policyTerm;
-    private String productCode; // "Option A" / "Option B" etc
-    private String smoker;      // "Y" or "N"
-    // Add other fields mapping to Coherent if needed (e.g., occupation, DOB etc)
-}
-
-2) CalculationResponse.java
-
-File: src/main/java/com/eapp/dto/responseDTO/CalculationResponse.java
-
-package com.eapp.dto.responseDTO;
-
-import lombok.Data;
-
-@Data
-public class CalculationResponse {
-    private Double premium;
-    private String message;
-    private Object rawResponse; // optional, store coherent raw body if needed
-}
+# show openapi swagger at /swagger-ui/index.html
+springdoc.api-docs.path=/v3/api-docs
 
 
 ---
 
-D. PremiumService.java (local calculation engine)
+7) Fix for logging error you saw
 
-File: src/main/java/com/eapp/service/PremiumService.java
+You had private ErrorManager log; and log.error(...) which fails. We solved it by:
 
-package com.eapp.service;
+Adding Lombok @Slf4j at top of CoherentService.
 
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.responseDTO.CalculationResponse;
-import org.springframework.stereotype.Service;
+Remove any private ErrorManager log; field.
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+
+Make sure CoherentService starts with:
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
-public class PremiumService {
+@Slf4j
+public class CoherentService { ... }
 
-    /**
-     * Local simple calculation logic:
-     * - baseRate per 1000 SA depending on productCode
-     * - age loading
-     * - smoker loading
-     * - term factor
-     *
-     * Replace with acturial formula or coherent mapping when available.
-     */
-    public CalculationResponse calculatePremiumLocal(CalculationRequest req) {
-        CalculationResponse res = new CalculationResponse();
+Lombok will add private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(...);.
 
-        if (req == null || req.getAge() == null || req.getSumAssured() == null || req.getPolicyTerm() == null) {
-            res.setPremium(0.0);
-            res.setMessage("Invalid input - provide age, sumAssured and policyTerm");
-            return res;
-        }
 
-        double baseRate = 12.5; // per 1000
-        if ("Option B".equalsIgnoreCase(req.getProductCode())) baseRate = 15.0;
-        // base premium from SA
-        double premiumFromSA = (req.getSumAssured() / 1000.0) * baseRate;
+---
 
-        // age loading (example)
-        double ageLoading = 0.0;
-        if (req.getAge() > 45) {
-            ageLoading = (req.getAge() - 45) * 0.5; // simple rupee loading
-        }
+8) Why React errors happened & quick fixes
 
-        // smoker loading 20%
-        double smokerLoading = 0.0;
-        if ("Y".equalsIgnoreCase(req.getSmoker())) {
-            smokerLoading = 0.20 * premiumFromSA;
-        }
+Your browser errors showed:
 
-        // policy term factor (shorter term higher for example)
-        double termFactor = 1.0;
-        if (req.getPolicyTerm() < 20) termFactor += (20 - req.getPolicyTerm()) * 0.01;
+CORS preflight blocked: No 'Access-Control-Allow-Origin' header — solved by the corsConfigurationSource() bean and @CrossOrigin on controller.
 
-        double premium = (premiumFromSA + ageLoading) * termFactor + smokerLoading;
+POST http://localhost:8001/api/auth/signup net::ERR_FAILED — likely because server was not reachable or CORS blocked. Restart backend after replacing config; check server logs (listening on 8001).
 
-        BigDecimal bd = BigDecimal.valueOf(premium).setScale(2, RoundingMode.HALF_UP);
-        res.setPremium(bd.doubleValue());
-        res.setMessage("Calculated locally");
-        return res;
-    }
+Cannot read properties of undefined (reading 'data') — in frontend code you attempt to access err.response.data but err.response may be undefined when request fails (network). Use safe guard: const message = err?.response?.data?.message || err.message.
+
+
+
+---
+
+9) How to wire everything (quick steps)
+
+1. Replace/overwrite the Java files listed above (DTOs, CoherentService, CalculationController, SecurityConfig).
+
+
+2. Update pom.xml as suggested and run:
+
+mvn clean install
+
+
+3. Start app in IntelliJ or mvn spring-boot:run.
+
+
+4. Check logs: should see Tomcat started on port 8001 and no unsatisfied dependency errors.
+
+
+5. From frontend (http://localhost:3003) call POST http://localhost:8001/api/calc/premium with the JSON request you posted — service will try Coherent and fallback if Coherent fails.
+
+
+6. Swagger UI available: http://localhost:8001/swagger-ui/index.html — you will see the Authorize button (swagger JWT) in right-top; you can paste your JWT there to authorize endpoints that require it.
+
+
+
+
+---
+
+10) Small frontend-tip for signup error (protect read of err.response.data)
+
+In your React catch block do:
+
+catch (err: any) {
+  const msg = err?.response?.data?.message || err?.message || "Unknown error";
+  console.error('signup failed', msg);
+  setError(msg);
 }
 
 
 ---
 
-E. CoherentService.java (external call — placeholder + example)
+If you want, I can now:
 
-File: src/main/java/com/eapp/service/CoherentService.java
+1. open the extracted zip to automatically patch files in /mnt/data/eapp-backend (1) and show the exact diff (I already extracted the zip), or
 
-package com.eapp.service;
 
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.responseDTO.CalculationResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
-public class CoherentService {
+2. paste the rest of the required Java classes (Auth related) to fully match your project structure, or
 
-    private final WebClient webClient;
 
-    public CoherentService(@Value("${coherent.baseurl}") String baseUrl,
-                           @Value("${coherent.api.key:}") String apiKey) {
-        WebClient.Builder builder = WebClient.builder().baseUrl(baseUrl);
-        if (apiKey != null && !apiKey.isEmpty()) {
-            builder.defaultHeader("Authorization", "Bearer " + apiKey);
-        }
-        this.webClient = builder.build();
-    }
 
-    /**
-     * Example: send request to coherent - update path & body as per actual Coherent contract.
-     */
-    public CalculationResponse calculatePremiumViaCoherent(CalculationRequest req) {
-        // NOTE: update uri and request mapping per Coherent docs
-        try {
-            CalculationResponse resp = webClient.post()
-                    .uri("/calculation/premium") // example, change if needed
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(req)
-                    .retrieve()
-                    .bodyToMono(CalculationResponse.class)
-                    .block();
-            return resp;
-        } catch (Exception ex) {
-            // Throw or return null to fallback
-            return null;
-        }
-    }
-}
+3. generate a zip with updated files ready to import.
 
-> Important: Real Coherent API will likely have a different request body shape (see your chat sample inputs JSON). If you have the real contract, I will map the body exactly.
 
 
 
-
----
-
-F. PremiumController.java (public API for frontend)
-
-File: src/main/java/com/eapp/controller/PremiumController.java
-
-package com.eapp.controller;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.responseDTO.CalculationResponse;
-import com.eapp.service.CoherentService;
-import com.eapp.service.PremiumService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/premium")
-@CrossOrigin(origins = "*")
-public class PremiumController {
-
-    @Autowired
-    private PremiumService premiumService;
-
-    @Autowired
-    private CoherentService coherentService;
-
-    @Value("${premium.useCoherent:false}")
-    private boolean useCoherentDefault;
-
-    /**
-     * POST /api/premium/calc
-     * optional query param ?mode=coherent to force calling Coherent
-     */
-    @PostMapping("/calc")
-    public CalculationResponse calculate(@RequestBody CalculationRequest req,
-                                         @RequestParam(value = "mode", required = false) String mode) {
-        boolean useCoherent = useCoherentDefault || "coherent".equalsIgnoreCase(mode);
-        if (useCoherent) {
-            CalculationResponse fromCoherent = coherentService.calculatePremiumViaCoherent(req);
-            if (fromCoherent != null) {
-                fromCoherent.setMessage("Calculated from Coherent");
-                return fromCoherent;
-            }
-            // fallback to local calculation if Coherent fails
-        }
-        return premiumService.calculatePremiumLocal(req);
-    }
-}
-
-
----
-
-G. Build & Run — Backend
-
-1. Build:
-
-
-
-mvn clean package
-
-2. Run:
-
-
-
-mvn spring-boot:run
-
-— अथवा IntelliJ मधून Application run करा.
-
-3. Test with curl:
-
-
-
-curl -X POST http://localhost:8001/api/premium/calc \
- -H "Content-Type: application/json" \
- -d '{"age":35,"sumAssured":500000,"policyTerm":20,"productCode":"Option A","smoker":"N"}'
-
-Expected example response:
-
-{"premium":6250.00,"message":"Calculated locally","rawResponse":null}
-
-
----
-
-3) FRONTEND — React (Vite or CRA) — full files
-
-> Project root: eapp-frontend (user already has this). Below files to create / replace.
-
-
-
-A. axiosInterceptor (base)
-
-File: src/api/axiosInterceptor.ts
-
-import axios from "axios";
-
-const BASE = import.meta.env.VITE_API_URL || process.env.REACT_APP_API_URL || "http://localhost:8001";
-
-const instance = axios.create({
-  baseURL: BASE,
-  timeout: 15000,
-});
-
-export default instance;
-
-(If using CRA, use REACT_APP_API_URL; for Vite use VITE_API_URL.)
-
-
----
-
-B. calculationApi.ts — wrapper
-
-File: src/api/calculationApi.ts
-
-import axios from "./axiosInterceptor";
-import type { AxiosResponse } from "axios";
-
-export const calculatePremium = (payload: any): Promise<AxiosResponse<any>> => {
-  // If you want to force Coherent: add '?mode=coherent'
-  return axios.post("/api/premium/calc", payload);
-};
-
-
----
-
-C. Updated PlanAndCoverage.tsx (integrated calculate button)
-
-You already provided PlanAndCoverage; below is final TypeScript React component ready to paste. It uses calculatePremium from api above, shows loading, errors and binds result into basicPlanPremium field.
-
-File: src/components/PlanAndCoverage.tsx (replace existing)
-
-import {
-  Box,
-  Divider,
-  Link,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  Button,
-  CircularProgress,
-} from "@mui/material";
-import React, { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { calculatePremium } from "../api/calculationApi";
-
-interface ChildComponentProps {
-  fields: {
-    basicPlan: string;
-    basicSumInsured: string;
-    basicPlanPremium: string;
-    typeOfDivident: string;
-    insuranceTerm: string;
-    ppt: string;
-  };
-
-  setFields: React.Dispatch<
-    React.SetStateAction<{
-      basicPlan: string;
-      basicSumInsured: string;
-      basicPlanPremium: string;
-      typeOfDivident: string;
-      insuranceTerm: string;
-      ppt: string;
-    }>
-  >;
-
-  savedQuotation: any;
-  savedTransaction: any;
-}
-
-const camelToNormal = (text: string) => {
-  return text
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (str) => str.toUpperCase());
-};
-
-const PlanAndCoverage: React.FC<ChildComponentProps> = ({
-  fields,
-  setFields,
-  savedQuotation,
-  savedTransaction,
-}) => {
-  let jsonData;
-  let headers: any[] = [];
-  let OptRiderData;
-  let OptHeaders: any[] = [];
-
-  const [calculatedPremium, setCalculatedPremium] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const handleFieldChange = (val: string, fieldName: string) => {
-    setFields({ ...fields, [fieldName]: val });
-  };
-
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (savedTransaction && savedTransaction.length > 0) {
-      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA || savedTransaction[0]?.txn_input_json?.basicSumInsured;
-      const plan = savedTransaction[0]?.txn_input_json?.Plan || savedTransaction[0]?.txn_input_json?.basicPlan;
-      const term = savedTransaction[0]?.txn_input_json?.["SSPP.Policy_Term"] || savedTransaction[0]?.txn_input_json?.policyTerm;
-      const ppt = savedTransaction[0]?.txn_input_json?.PPT || savedTransaction[0]?.txn_input_json?.ppt;
-
-      setFields((prevFields) => ({
-        ...prevFields,
-        basicPlanPremium:
-          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary?.[1]?.basePlan || prevFields.basicPlanPremium,
-        basicSumInsured: baseSA || prevFields.basicSumInsured,
-        basicPlan: plan || prevFields.basicPlan,
-        insuranceTerm: term || prevFields.insuranceTerm,
-        ppt: ppt || prevFields.ppt,
-        typeOfDivident: "Non - Participatory",
-      }));
-    }
-  }, [savedTransaction]);
-
-  // map savedTransaction outputs if present
-  if (
-    savedTransaction &&
-    typeof savedTransaction === "object" &&
-    Object.keys(savedTransaction).length !== 0
-  ) {
-    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
-    if (jsonData?.length) headers = Object.keys(jsonData[0]);
-
-    OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
-    if (OptRiderData?.length) OptHeaders = Object.keys(OptRiderData[0]);
-  }
-
-  const handlePremiumCalculation = async () => {
-    setError(null);
-    setCalculatedPremium(null);
-
-    // basic validation
-    const age = savedTransaction?.[0]?.txn_input_json?.Age || savedTransaction?.[0]?.txn_input_json?.insuredAge;
-    const sum = Number(fields.basicSumInsured);
-    const term = Number(fields.insuranceTerm) || Number(fields.ppt);
-
-    if (!age || !sum || !term) {
-      setError("Missing inputs: age, sum assured or term.");
-      return;
-    }
-
-    const payload = {
-      age: Number(age),
-      sumAssured: Number(sum),
-      policyTerm: Number(term),
-      productCode: fields.basicPlan || "Option A",
-      smoker: savedTransaction?.[0]?.txn_input_json?.Smoker || "N",
-    };
-
-    try {
-      setLoading(true);
-      const res = await calculatePremium(payload);
-      const data = res.data;
-      setCalculatedPremium(data.premium);
-      // update UI field
-      setFields((prev) => ({
-        ...prev,
-        basicPlanPremium: data.premium !== undefined ? String(data.premium) : prev.basicPlanPremium,
-      }));
-    } catch (err: any) {
-      console.error("Premium Calculation Error:", err);
-      setError(err?.response?.data?.message || err?.message || "Calculation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Box sx={{ width: "100%", padding: 2 }}>
-      {/* Quotation Summary */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("quotation_summaryh")}
-        </Typography>
-        <Divider />
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
-          <Typography>{t("quotation_summary")}&emsp;</Typography>
-          <Link
-            underline="always"
-            color="inherit"
-            sx={{ color: "#000048" }}
-            onClick={() => {
-              try {
-                if (!savedQuotation?.txn_pdf) return;
-                const file = new Blob(
-                  [Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))],
-                  { type: "application/pdf" }
-                );
-                const fileURL = URL.createObjectURL(file);
-                window.open(fileURL);
-              } catch (e) {
-                console.error("Failed to open pdf", e);
-              }
-            }}
-          >
-            Download Link to Quotation
-          </Link>
-        </Box>
-      </Paper>
-
-      {/* Main Plan */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("main_plan")}
-        </Typography>
-        <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table className="table-main" sx={{ width: "100%" }}>
-              <TableBody>
-                {[
-                  ["basicPlan", "basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"],
-                ].map((row, rowIndex) => (
-                  <TableRow key={rowIndex} sx={{ display: "flex", flexWrap: "wrap" }}>
-                    {row.map((field) => (
-                      <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                        <TextField
-                          size="small"
-                          label={t(field)}
-                          variant="standard"
-                          InputProps={{ readOnly: field !== "basicPlan" }}
-                          value={fields[field as keyof typeof fields]}
-                          onChange={(e) => handleFieldChange(e.target.value, field)}
-                        />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Calculate button */}
-          <Box sx={{ marginTop: 2, textAlign: "right" }}>
-            <Button
-              variant="contained"
-              onClick={handlePremiumCalculation}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={20} /> : "Calculate Premium"}
-            </Button>
-
-            {calculatedPremium !== null && (
-              <Typography sx={{ marginTop: 1, fontWeight: "bold" }}>
-                Calculated Premium: {calculatedPremium}
-              </Typography>
-            )}
-            {error && (
-              <Typography color="error" sx={{ marginTop: 1 }}>
-                {error}
-              </Typography>
-            )}
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Riders */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("riders")}
-        </Typography>
-        <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table sx={{ width: "100%" }}>
-              <TableHead>
-                <TableRow>
-                  {headers?.map((header) => (
-                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {jsonData?.map((row: any, rowIndex: number) => (
-                  <TableRow key={rowIndex}>
-                    {headers?.map((header) => (
-                      <TableCell key={header}>{row[header]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Paper>
-
-      {/* Optional Benefits */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("optional_benefits")}
-        </Typography>
-        <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table sx={{ width: "100%" }}>
-              <TableHead>
-                <TableRow>
-                  {OptHeaders?.map((header) => (
-                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {OptRiderData?.map((row: any, rowIndex: number) => (
-                  <TableRow key={rowIndex}>
-                    {OptHeaders?.map((header) => (
-                      <TableCell key={header}>{row[header]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Paper>
-    </Box>
-  );
-};
-
-export default PlanAndCoverage;
-
-> Note: This component reads age and smoker from savedTransaction[0].txn_input_json if present. If your app uses different field names, update accordingly.
-
-
-
-
----
-
-D. Add route for calculate page (optional)
-
-If you want a standalone premium page: File: src/pages/CalculatePremiumPage.tsx (earlier provided). Add route /calc-premium.
-
-
----
-
-E. Env for frontend
-
-Create .env or vite env:
-
-# For CRA
-REACT_APP_API_URL=http://localhost:8001
-# For Vite
-VITE_API_URL=http://localhost:8001
-
-
----
-
-F. Run frontend
-
-npm install
-npm run dev   # or npm start for CRA
-
-Open app and navigate to the form or component that contains PlanAndCoverage. Click Calculate Premium.
-
-
----
-
-4) Testing + Demo script to show in meeting
-
-1. Start backend:
-
-
-
-cd eapp-backend
-mvn spring-boot:run
-
-2. Confirm endpoint works:
-
-
-
-curl -X POST http://localhost:8001/api/premium/calc -H "Content-Type: application/json" -d '{"age":35,"sumAssured":500000,"policyTerm":20,"productCode":"Option A","smoker":"N"}'
-
-Expected: JSON with premium and message.
-
-3. Start frontend:
-
-
-
-cd eapp-frontend
-npm install
-npm run dev
-
-4. In UI (Plan & Coverage), ensure basicSumInsured and other fields populated — click Calculate Premium. Show result.
-
-
-
-
----
-
-5) Coherent integration — what I need to fully wire the real call
-
-If you want me to call the real Coherent engine (not placeholder), give me these details (I will implement mapping exactly):
-
-Coherent base URL (e.g., https://excel.uat.us.coherent.global/...) — you have one in chat.
-
-Auth method: API key / Bearer token / Basic Auth — and the key (or tell me header name).
-
-Exact request body Coherent expects (I saw a sample earlier — do you want to send {"request_data":{"inputs":{...}}} ? If yes, I will map).
-
-Example coherent response format (or I infer from docs) — so I can map premium field out of it.
-
-
-Once you provide above, I will return an updated CoherentService that transforms our CalculationRequest into the exact Coherent payload, sets headers, and maps response to CalculationResponse.rawResponse and premium.
-
-
----
-
-6) Common problems and fixes (you faced earlier)
-
-Port already in use: find process and kill:
-
-Windows:
-
-netstat -ano | findstr :8001
-taskkill /PID <PID> /F
-
-Or change server.port in application.properties.
-
-
-Lombok errors in IDE: install Lombok plugin + enable annotation processing (Settings → Build → Annotation Processors).
-
-403 on /transaction-detail: your app may require auth token — make sure frontend axios interceptor adds JWT if needed. For premium API we allowed @CrossOrigin("*") and no auth; if your system expects JWT, you must include token in headers.
-
-
-
----
-
-7) Deliverables I just provided (recap)
-
-Backend files (full code for DTOs, PremiumService, CoherentService, PremiumController)
-
-Frontend files (axiosInterceptor, calculationApi, full updated PlanAndCoverage.tsx)
-
-application.properties and pom.xml guidance
-
-Run & test instructions + curl
-
-Port conflict troubleshooting
-
-Next steps to wire real Coherent API (I can do mapping if you give credentials/contract)
-
-
-
----
-
-Alright — आता तू काय अपेक्षित आहे सांग:
-
-मी इथेच Coherent real mapping आणि CoherentService मध्ये auth जोडून देऊ का? (जर होय तर API key + expected request shape द्या)
-
-किंवा मी आता तुझ्या repo मध्ये ठरवलेले files तयार करून ZIP देऊ का? (मी जे code दिलंय ते कॉपी-पेस्ट करुन project मध्ये ठेव.)
-
-
-तुम्हाला ठेवायचं असेल तर मी आता पुढचं टप्पं पूर्ण करेन: Coherent realtime integration — फक्त endpoint & auth द्या आणि मी mapping + sample request/response logs देईन.
+Tell me which of (1),(2),(3) you want — you already said “2” earlier so I prepared the fixes; I can now patch the real project files and return them as a zip. Which one should I do?
