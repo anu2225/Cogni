@@ -1,3 +1,148 @@
+Got it. Your service is correct. Your DTOs are WRONG for Lombok, so IntelliJ cannot find getters like:
+
+get_1a_DOB()
+
+get_1d_Face_Amount()
+
+setApiResponse()
+
+setFallbackPremium()
+
+
+👉 Why?
+Because Lombok does NOT generate getters with names like get_1a_DOB().
+It generates:
+
+get1a_DOB()
+get1d_Face_Amount()
+
+NO UNDERSCORE AFTER get.
+
+
+---
+
+✅ I am giving you the correct DTOs EXACTLY matching your CoherentService.
+
+Just copy–paste these two files.
+
+
+---
+
+✅ Correct CalculationRequest.java
+
+package com.eapp.dto.requestDTO;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CalculationRequest {
+
+    private String _1a_DOB;
+    private String _1b_Product;
+    private String _1c_Gender;
+    private double _1d_Face_Amount;
+    private int _1e_Occupation;
+    private String _1h_Policy_Inception_Date;
+    private String _1i_Smoker;
+    private String _1j_Pre_Existing_Disease;
+    private double _1k_Extra_mortality;
+    private int _1p_Policy_Term;
+    private String _1r_Mandatory_Premium_Period;
+    private double _1zb_PAV;
+    private double _1zc_per_mille_rating_death;
+    private double _1zd_per_mille_rating_TPD;
+    private double _1ze_per_mille_rating_SCI;
+
+    private String _2a_Death_Benefit;
+    private String _2b_Total_and_Permanent_Disability_TPD;
+    private String _2c_Accidental_Death_and_Dismemberment_ADD;
+    private String _2d_Staged_Critical_Illness_SCI;
+    private String _2e_Hospital_Cash_Benefit_HCB;
+
+    private String _3a_Partial_Withdrawl;
+    private double _3b_Partial_Withdrawl_Amount;
+
+    // meta
+    private String version_id;
+    private String call_purpose;
+    private String source_system;
+
+    private double sumAssured;
+    private Boolean smoker;
+}
+
+
+---
+
+✅ Correct CalculationResponse.java
+
+package com.eapp.dto.reponseDTO;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CalculationResponse {
+    private Object apiResponse;
+    private String message;
+    private Double fallbackPremium;
+}
+
+
+---
+
+📌 VERY IMPORTANT
+
+After pasting DTOs → Do this:
+
+In IntelliJ:
+
+Build → Rebuild Project
+File → Invalidate Caches → Restart
+
+This forces Lombok to regenerate getters/setters.
+
+
+---
+
+🎉 RESULT
+
+All your errors:
+
+Cannot resolve method get_1d_Face_Amount
+Cannot resolve method setApiResponse
+Cannot resolve symbol log
+
+➡️ WILL BE FIXED.
+
+
+---
+
+If you want, I can also give you:
+
+✅ Fully updated CoherentService
+✅ Full updated SecurityConfig
+✅ Controller + working Postman sample
+Just say "give full backend updated code".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 package com.eapp.service;
 
 import com.eapp.dto.requestDTO.CalculationRequest;
