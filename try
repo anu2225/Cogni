@@ -1,3 +1,52 @@
+package com.eapp.service;
+
+import com.eapp.dto.requestDTO.PremiumCalcRequest;
+import com.eapp.dto.reponseDTO.PremiumCalcResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+@RequiredArgsConstructor
+public class CoherentService {
+
+    private final WebClient coherentClient;
+
+    public PremiumCalcResponse calculatePremium(PremiumCalcRequest request) {
+
+        Object coherentResponse = coherentClient.post()
+                .uri("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute")      // full path added in WebClientConfig
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(Object.class)
+                .block();
+
+        PremiumCalcResponse response = new PremiumCalcResponse();
+        response.setPremiumResult(coherentResponse);
+        response.setStatus("SUCCESS");
+
+        return response;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 {
   "inputs": {
