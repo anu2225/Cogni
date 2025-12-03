@@ -1,3 +1,39 @@
+
+{
+  "inputs": {
+    "dob": "1995-08-12",
+    "product": "TERM_INSURANCE",
+    "gender": "MALE",
+    "faceAmount": 5000000,
+    "occupation": 1,
+    "policyInceptionDate": "2023-12-01",
+    "smoker": "NO",
+    "preExistingDisease": "NONE",
+    "extraMortality": 0,
+    "policyTerm": 20,
+    "mandatoryPremiumPeriod": "10",
+    "pav": 0,
+    "perMilleRatingDeath": 0,
+    "perMilleRatingTpd": 0,
+    "perMilleRatingSci": 0,
+    "deathBenefit": "YES",
+    "tpd": "NO",
+    "add": "NO",
+    "sci": "NO",
+    "hcb": "NO",
+    "partialWithdrawal": "NO",
+    "partialWithdrawalAmount": 0
+  }
+}
+
+
+
+
+
+
+
+
+
 ❌ Error samjun gelo — WebClientConfig madhun bean create hot nahi.
 
 Tujha log madhe issue clear disto:
