@@ -1,101 +1,209 @@
-SignUp.tsx:34  POST http://localhost:8001/api/auth/signup net::ERR_FAILED
-dispatchXhrRequest @ axios.js?v=9b0c073a:1513
-xhr @ axios.js?v=9b0c073a:1373
-dispatchRequest @ axios.js?v=9b0c073a:1590
-Promise.then
-_request @ axios.js?v=9b0c073a:1854
-request @ axios.js?v=9b0c073a:1776
-httpMethod @ axios.js?v=9b0c073a:1901
-wrap @ axios.js?v=9b0c073a:8
-handleSubmit @ SignUp.tsx:34
-callCallback2 @ chunk-OQJUKZWL.js?v=9b0c073a:3674
-invokeGuardedCallbackDev @ chunk-OQJUKZWL.js?v=9b0c073a:3699
-invokeGuardedCallback @ chunk-OQJUKZWL.js?v=9b0c073a:3733
-invokeGuardedCallbackAndCatchFirstError @ chunk-OQJUKZWL.js?v=9b0c073a:3736
-executeDispatch @ chunk-OQJUKZWL.js?v=9b0c073a:7016
-processDispatchQueueItemsInOrder @ chunk-OQJUKZWL.js?v=9b0c073a:7036
-processDispatchQueue @ chunk-OQJUKZWL.js?v=9b0c073a:7045
-dispatchEventsForPlugins @ chunk-OQJUKZWL.js?v=9b0c073a:7053
-(anonymous) @ chunk-OQJUKZWL.js?v=9b0c073a:7177
-batchedUpdates$1 @ chunk-OQJUKZWL.js?v=9b0c073a:18909
-batchedUpdates @ chunk-OQJUKZWL.js?v=9b0c073a:3579
-dispatchEventForPluginEventSystem @ chunk-OQJUKZWL.js?v=9b0c073a:7176
-dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-OQJUKZWL.js?v=9b0c073a:5478
-dispatchEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5472
-dispatchDiscreteEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5449Understand this error
-SignUp.tsx:38 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'data')
-    at SignUp.tsx:38:42
-    at async handleSubmit (SignUp.tsx:34:5)
-(anonymous) @ SignUp.tsx:38
-Promise.catch
-handleSubmit @ SignUp.tsx:37
-callCallback2 @ chunk-OQJUKZWL.js?v=9b0c073a:3674
-invokeGuardedCallbackDev @ chunk-OQJUKZWL.js?v=9b0c073a:3699
-invokeGuardedCallback @ chunk-OQJUKZWL.js?v=9b0c073a:3733
-invokeGuardedCallbackAndCatchFirstError @ chunk-OQJUKZWL.js?v=9b0c073a:3736
-executeDispatch @ chunk-OQJUKZWL.js?v=9b0c073a:7016
-processDispatchQueueItemsInOrder @ chunk-OQJUKZWL.js?v=9b0c073a:7036
-processDispatchQueue @ chunk-OQJUKZWL.js?v=9b0c073a:7045
-dispatchEventsForPlugins @ chunk-OQJUKZWL.js?v=9b0c073a:7053
-(anonymous) @ chunk-OQJUKZWL.js?v=9b0c073a:7177
-batchedUpdates$1 @ chunk-OQJUKZWL.js?v=9b0c073a:18909
-batchedUpdates @ chunk-OQJUKZWL.js?v=9b0c073a:3579
-dispatchEventForPluginEventSystem @ chunk-OQJUKZWL.js?v=9b0c073a:7176
-dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-OQJUKZWL.js?v=9b0c073a:5478
-dispatchEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5472
-dispatchDiscreteEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5449Understand this error
-signup:1 Access to XMLHttpRequest at 'http://localhost:8001/api/auth/signup' from origin 'http://localhost:3003' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
-SignUp.tsx:34  POST http://localhost:8001/api/auth/signup net::ERR_FAILED
-dispatchXhrRequest @ axios.js?v=9b0c073a:1513
-xhr @ axios.js?v=9b0c073a:1373
-dispatchRequest @ axios.js?v=9b0c073a:1590
-Promise.then
-_request @ axios.js?v=9b0c073a:1854
-request @ axios.js?v=9b0c073a:1776
-httpMethod @ axios.js?v=9b0c073a:1901
-wrap @ axios.js?v=9b0c073a:8
-handleSubmit @ SignUp.tsx:34
-callCallback2 @ chunk-OQJUKZWL.js?v=9b0c073a:3674
-invokeGuardedCallbackDev @ chunk-OQJUKZWL.js?v=9b0c073a:3699
-invokeGuardedCallback @ chunk-OQJUKZWL.js?v=9b0c073a:3733
-invokeGuardedCallbackAndCatchFirstError @ chunk-OQJUKZWL.js?v=9b0c073a:3736
-executeDispatch @ chunk-OQJUKZWL.js?v=9b0c073a:7016
-processDispatchQueueItemsInOrder @ chunk-OQJUKZWL.js?v=9b0c073a:7036
-processDispatchQueue @ chunk-OQJUKZWL.js?v=9b0c073a:7045
-dispatchEventsForPlugins @ chunk-OQJUKZWL.js?v=9b0c073a:7053
-(anonymous) @ chunk-OQJUKZWL.js?v=9b0c073a:7177
-batchedUpdates$1 @ chunk-OQJUKZWL.js?v=9b0c073a:18909
-batchedUpdates @ chunk-OQJUKZWL.js?v=9b0c073a:3579
-dispatchEventForPluginEventSystem @ chunk-OQJUKZWL.js?v=9b0c073a:7176
-dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-OQJUKZWL.js?v=9b0c073a:5478
-dispatchEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5472
-dispatchDiscreteEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5449Understand this error
-signup:1 Access to XMLHttpRequest at 'http://localhost:8001/api/auth/signup' from origin 'http://localhost:3003' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
-SignUp.tsx:34  POST http://localhost:8001/api/auth/signup net::ERR_FAILED
-dispatchXhrRequest @ axios.js?v=9b0c073a:1513
-xhr @ axios.js?v=9b0c073a:1373
-dispatchRequest @ axios.js?v=9b0c073a:1590
-Promise.then
-_request @ axios.js?v=9b0c073a:1854
-request @ axios.js?v=9b0c073a:1776
-httpMethod @ axios.js?v=9b0c073a:1901
-wrap @ axios.js?v=9b0c073a:8
-handleSubmit @ SignUp.tsx:34
-callCallback2 @ chunk-OQJUKZWL.js?v=9b0c073a:3674
-invokeGuardedCallbackDev @ chunk-OQJUKZWL.js?v=9b0c073a:3699
-invokeGuardedCallback @ chunk-OQJUKZWL.js?v=9b0c073a:3733
-invokeGuardedCallbackAndCatchFirstError @ chunk-OQJUKZWL.js?v=9b0c073a:3736
-executeDispatch @ chunk-OQJUKZWL.js?v=9b0c073a:7016
-processDispatchQueueItemsInOrder @ chunk-OQJUKZWL.js?v=9b0c073a:7036
-processDispatchQueue @ chunk-OQJUKZWL.js?v=9b0c073a:7045
-dispatchEventsForPlugins @ chunk-OQJUKZWL.js?v=9b0c073a:7053
-(anonymous) @ chunk-OQJUKZWL.js?v=9b0c073a:7177
-batchedUpdates$1 @ chunk-OQJUKZWL.js?v=9b0c073a:18909
-batchedUpdates @ chunk-OQJUKZWL.js?v=9b0c073a:3579
-dispatchEventForPluginEventSystem @ chunk-OQJUKZWL.js?v=9b0c073a:7176
-dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-OQJUKZWL.js?v=9b0c073a:5478
-dispatchEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5472
-dispatchDiscreteEvent @ chunk-OQJUKZWL.js?v=9b0c073a:5449Understand this error
-2SignUp.tsx:38 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'data')
-    at SignUp.tsx:38:42
-    at async handleSubmit (SignUp.tsx:34:5)
+//package com.eapp.config;
+//
+//import com.eapp.security.JwtAuthenticationFilter;
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.authentication.AuthenticationManager;
+//import org.springframework.security.authentication.AuthenticationProvider;
+//import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+//import org.springframework.security.config.http.SessionCreationPolicy;
+//import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.web.SecurityFilterChain;
+//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+//import org.springframework.web.cors.CorsConfiguration;
+//import org.springframework.web.cors.CorsConfigurationSource;
+//import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+//
+//import java.util.List;
+//
+//@Configuration
+//@EnableWebSecurity
+//public class SecurityConfig {
+//
+//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//    private final UserDetailsService userDetailsService;
+//
+//    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+//                          UserDetailsService userDetailsService) {
+//        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+//        this.userDetailsService = userDetailsService;
+//    }
+//
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ enable CORS
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/auth/**").permitAll()   // signup/login public
+//                        .anyRequest().authenticated()                  // everything else requires JWT
+//                )
+//                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authenticationProvider(authenticationProvider())
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+//
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+//        configuration.setAllowedOrigins(List.of("http://localhost:3003")); // frontend origin
+//        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+//        configuration.setAllowedHeaders(List.of("Authorization","Content-Type","Accept"));
+//        configuration.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//
+//        return source;
+//    }
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//
+//    @Bean
+//    public AuthenticationProvider authenticationProvider() {
+//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+//        authProvider.setUserDetailsService(userDetailsService);
+//        authProvider.setPasswordEncoder(passwordEncoder());
+//        return authProvider;
+//    }
+//
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+//        return config.getAuthenticationManager();
+//    }
+//}
+
+//2)
+//package com.eapp.config;
+//
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.security.authentication.AuthenticationManager;
+//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.web.SecurityFilterChain;
+//
+//@Configuration
+//public class SecurityConfig {
+//
+//    // Password Encoder Bean
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//
+//    // Authentication Manager Bean
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+//        return config.getAuthenticationManager();
+//    }
+//
+//    // Security Filter Config
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//
+//        http.csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/swagger-ui/**",
+//                                "/v3/api-docs/**",
+//                                "/api/auth/**",
+//                                "/api/premium/**"
+//                        ).permitAll()
+//                        .anyRequest().authenticated()
+//                );
+//
+//        return http.build();
+//    }
+//}
+
+
+package com.eapp.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+// For Swagger JWT Button
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+
+@Configuration
+public class SecurityConfig {
+
+    // Password Encoder Bean
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // Authentication Manager Bean
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    // Security Filter Config
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/auth/**",       // login signup
+                                "/api/calc/**"     // ✅ PREMIUM API NOW ALLOWED
+                                // premium endpoint
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                );
+
+        return http.build();
+    }
+
+    // 👉 Swagger JWT Token Support
+    @Bean
+    public OpenAPI openAPI() {
+
+        // Security Scheme definition
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT");
+
+        // Add to components
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
+
+        return new OpenAPI()
+                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
+                .addSecurityItem(securityRequirement)
+                .info(new Info().title("EAPP API")
+                        .version("1.0")
+                        .description("Backend for Premium Calculator + User Auth"));
+    }
+}
+
+
