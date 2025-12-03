@@ -1,119 +1,61 @@
-OK Anurag, problem clear दिसतोय → तुझ्या प्रोजेक्टमध्ये WebClient resolve होत नाही, म्हणजेच spring-webflux dependency missing आहे.
+java: constructor PremiumCalcController(com.eapp.service.CoherentService) is already defined in class com.eapp.controller.PremiumCalcController
+package com.eapp.controller;
 
-खाली तुझ्या pom.xml मध्ये टाकायचा EXACT + LATEST + STABLE setup देतो.
-हा pom तू जसाच्या तसा कॉपी-पेस्ट कर.
-हे टाकल्यानंतर Reimport Maven कर → मग WebClient, Bean, Configuration, Lombok सगळे resolve होतील.
+import com.eapp.dto.requestDTO.PremiumCalcRequest;
+import com.eapp.dto.reponseDTO.PremiumCalcResponse;
+import com.eapp.service.CoherentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/api/calc")
+@RequiredArgsConstructor
+public class PremiumCalcController {
 
----
+    private final CoherentService coherentService;
 
-✅ LATEST WORKING pom.xml (Spring Boot 3.3.4 + WebClient + Lombok)
+    public PremiumCalcController(CoherentService coherentService) {
+        this.coherentService = coherentService;
+    }
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.eapp</groupId>
-    <artifactId>premium-calculation</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>premium-calculation</name>
-
-    <!-- Latest Stable Spring Boot -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
-        <relativePath/>
-    </parent>
-
-    <properties>
-        <java.version>17</java.version>
-    </properties>
-
-    <dependencies>
-
-        <!-- WebFlux = WebClient -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <!-- Spring Web (optional if you have controllers) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Validation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- JSON -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-</project>
-
-
----
-
-🔧 Important – IntelliJ मध्ये हे कर
-
-✔ Maven री-इम्पोर्ट करा
-→ Right side: Maven tab → Reload icon (Reimport)
-
-✔ Lombok Plugin enable करा
-→ File → Settings → Plugins → Search “Lombok” → Install
-→ File → Settings → Build → Compiler → Annotation Processors → Enable
-
-✔ Java version 17 वापर (Spring Boot 3.x साठी required)
-
-
----
-
-👍 आता WebClient resolve होईल
-
-हा code आता error देणार नाही:
-
-@Bean
-public WebClient webClient() {
-    return WebClient.builder()
-            .baseUrl(baseurl)
-            .defaultHeader("Api-Key", apiKey)
-            .build();
+    @PostMapping("/premium")
+    public PremiumCalcResponse calculate(@RequestBody PremiumCalcRequest request) {
+        return coherentService.calculatePremium(request);
+    }
 }
 
 
----
+package com.eapp.service;
 
-तुला हवे असेल तर मी full working backend project folder structure + all files ready देतो, फक्त सांग.
+import com.eapp.dto.requestDTO.PremiumCalcRequest;
+import com.eapp.dto.reponseDTO.PremiumCalcResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+@RequiredArgsConstructor
+public class CoherentService {
+
+    private final WebClient coherentClient;
+
+    public CoherentService() {
+        coherentClient = null;
+    }
+
+    public PremiumCalcResponse calculatePremium(PremiumCalcRequest request) {
+
+        Object coherentResponse = coherentClient.post()
+                .uri("")           // base URL already set
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(Object.class)
+                .block();
+
+        PremiumCalcResponse response = new PremiumCalcResponse();
+        response.setPremiumResult(coherentResponse);
+        response.setStatus("SUCCESS");
+
+        return response;
+    }
+}
