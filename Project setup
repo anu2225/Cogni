@@ -1,698 +1,140 @@
-Got it. Your service is correct. Your DTOs are WRONG for Lombok, so IntelliJ cannot find getters like:
-
-get_1a_DOB()
-
-get_1d_Face_Amount()
-
-setApiResponse()
-
-setFallbackPremium()
-
-
-👉 Why?
-Because Lombok does NOT generate getters with names like get_1a_DOB().
-It generates:
-
-get1a_DOB()
-get1d_Face_Amount()
-
-NO UNDERSCORE AFTER get.
-
-
----
-
-✅ I am giving you the correct DTOs EXACTLY matching your CoherentService.
-
-Just copy–paste these two files.
-
-
----
-
-✅ Correct CalculationRequest.java
-
-package com.eapp.dto.requestDTO;
-
-import lombok.*;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CalculationRequest {
-
-    private String _1a_DOB;
-    private String _1b_Product;
-    private String _1c_Gender;
-    private double _1d_Face_Amount;
-    private int _1e_Occupation;
-    private String _1h_Policy_Inception_Date;
-    private String _1i_Smoker;
-    private String _1j_Pre_Existing_Disease;
-    private double _1k_Extra_mortality;
-    private int _1p_Policy_Term;
-    private String _1r_Mandatory_Premium_Period;
-    private double _1zb_PAV;
-    private double _1zc_per_mille_rating_death;
-    private double _1zd_per_mille_rating_TPD;
-    private double _1ze_per_mille_rating_SCI;
-
-    private String _2a_Death_Benefit;
-    private String _2b_Total_and_Permanent_Disability_TPD;
-    private String _2c_Accidental_Death_and_Dismemberment_ADD;
-    private String _2d_Staged_Critical_Illness_SCI;
-    private String _2e_Hospital_Cash_Benefit_HCB;
-
-    private String _3a_Partial_Withdrawl;
-    private double _3b_Partial_Withdrawl_Amount;
-
-    // meta
-    private String version_id;
-    private String call_purpose;
-    private String source_system;
-
-    private double sumAssured;
-    private Boolean smoker;
-}
-
-
----
-
-✅ Correct CalculationResponse.java
-
-package com.eapp.dto.reponseDTO;
-
-import lombok.*;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CalculationResponse {
-    private Object apiResponse;
-    private String message;
-    private Double fallbackPremium;
-}
-
-
----
-
-📌 VERY IMPORTANT
-
-After pasting DTOs → Do this:
-
-In IntelliJ:
-
-Build → Rebuild Project
-File → Invalidate Caches → Restart
-
-This forces Lombok to regenerate getters/setters.
-
-
----
-
-🎉 RESULT
-
-All your errors:
-
-Cannot resolve method get_1d_Face_Amount
-Cannot resolve method setApiResponse
-Cannot resolve symbol log
-
-➡️ WILL BE FIXED.
-
-
----
-
-If you want, I can also give you:
-
-✅ Fully updated CoherentService
-✅ Full updated SecurityConfig
-✅ Controller + working Postman sample
-Just say "give full backend updated code".
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.MediaType;
-
-import java.util.*;
-
-@Service
-@Slf4j
-public class CoherentService {
-
-    private final WebClient client;
-
-    public CoherentService() {
-        this.client = WebClient.builder()
-                .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
-                .build();
-    }
-
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-
-        CalculationResponse resp = new CalculationResponse();
-
-        try {
-            Map<String, Object> body = buildRequestBody(req);
-
-            Object coherentResponse =
-                    client
-                            .post()
-                            .uri("/execute")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .bodyValue(body)
-                            .retrieve()
-                            .bodyToMono(Object.class)
-                            .block();
-
-            resp.setApiResponse(coherentResponse);
-            resp.setMessage("Coherent API success");
-            return resp;
-
-        } catch (Exception e) {
-            log.error("Coherent API failed", e);
-
-            double fallbackPremium = req.get_1d_Face_Amount() * 0.05;
-
-            resp.setMessage("Coherent down → fallback premium applied");
-            resp.setFallbackPremium(fallbackPremium);
-
-            return resp;
-        }
-    }
-
-    private Map<String, Object> buildRequestBody(CalculationRequest r) {
-
-        Map<String, Object> root = new HashMap<>();
-
-        // ---- EXACT FORMAT AS PER Coherent API ----
-        Map<String, Object> requestData = new HashMap<>();
-
-        // Coherent accepts a LIST of inputs, not an object
-        List<Map<String, Object>> inputList = new ArrayList<>();
-
-        // convert object → map
-        Map<String, Object> inputMap = new HashMap<>();
-        inputMap.put("1a_DOB", r.get_1a_DOB());
-        inputMap.put("1b_Product", r.get_1b_Product());
-        inputMap.put("1c_Gender", r.get_1c_Gender());
-        inputMap.put("1d_Face_Amount", r.get_1d_Face_Amount());
-        inputMap.put("1e_Occupation", r.get_1e_Occupation());
-        inputMap.put("1h_Policy_Inception_Date", r.get_1h_Policy_Inception_Date());
-        inputMap.put("1i_Smoker", r.get_1i_Smoker());
-        inputMap.put("1j_Pre_Existing_Disease", r.get_1j_Pre_Existing_Disease());
-        inputMap.put("1k_Extra_mortality", r.get_1k_Extra_mortality());
-        inputMap.put("1p_Policy_Term", r.get_1p_Policy_Term());
-        inputMap.put("1r_Mandatory_Premium_Period", r.get_1r_Mandatory_Premium_Period());
-        inputMap.put("1zb_PAV", r.get_1zb_PAV());
-        inputMap.put("1zc_per_mille_rating_death", r.get_1zc_per_mille_rating_death());
-        inputMap.put("1zd_per_mille_rating_TPD", r.get_1zd_per_mille_rating_TPD());
-        inputMap.put("1ze_per_mille_rating_SCI", r.get_1ze_per_mille_rating_SCI());
-        inputMap.put("2a_Death_Benefit", r.get_2a_Death_Benefit());
-        inputMap.put("2b_Total_and_Permanent_Disability_TPD", r.get_2b_Total_and_Permanent_Disability_TPD());
-        inputMap.put("2c_Accidental_Death_and_Dismemberment_ADD", r.get_2c_Accidental_Death_and_Dismemberment_ADD());
-        inputMap.put("2d_Staged_Critical_Illness_SCI", r.get_2d_Staged_Critical_Illness_SCI());
-        inputMap.put("2e_Hospital_Cash_Benefit_HCB", r.get_2e_Hospital_Cash_Benefit_HCB());
-        inputMap.put("3a_Partial_Withdrawl", r.get_3a_Partial_Withdrawl());
-        inputMap.put("3b_Partial_Withdrawl_Amount", r.get_3b_Partial_Withdrawl_Amount());
-
-        inputList.add(inputMap);
-
-        requestData.put("inputs", inputList);
-
-        // META
-        Map<String, Object> meta = new HashMap<>();
-        meta.put("version_id", r.getVersion_id());
-        meta.put("call_purpose", r.getCall_purpose());
-        meta.put("source_system", r.getSource_system());
-
-        root.put("request_data", requestData);
-        root.put("request_meta", meta);
-
-        return root;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-Nice — I pulled out the uploaded project (you said “2” — I used the eapp-backend (1).zip). I’ve prepared a complete, ready-to-paste set of Java files + small config changes that fix the errors you showed (missing log, missing getters like get_1d_Face_Amount(), password encoder/auth manager, CORS for your React frontend, fallback local calculation, coherent call, and Swagger JWT authorize support).
-
-Below you’ll find the full updated code for the important classes (DTOs, service, controller, security, CORS, and application.properties) plus a short pom.xml hint. Copy these files into your project (same package com.eapp.*) replacing the old ones, run mvn clean install and start. I kept everything minimal & compatible with your Spring Boot 3.2.4 setup and Java 21.
-
-
----
-
-1) pom.xml (important bits)
-
-Replace / update dependencies in your POM with these key deps. (You already had most; this ensures Lombok, WebFlux (WebClient), Spring Security, springdoc, jjwt etc are present.)
-
-<!-- Add or ensure these dependencies in your POM's <dependencies> -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-webflux</artifactId>
-</dependency>
-
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-security</artifactId>
-</dependency>
-
-<dependency>
-  <groupId>org.projectlombok</groupId>
-  <artifactId>lombok</artifactId>
-  <scope>provided</scope>
-</dependency>
-
-<dependency>
-  <groupId>org.springdoc</groupId>
-  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-  <version>2.0.2</version>
-</dependency>
-
-<!-- reactor/webclient already available with webflux -->
-<!-- jjwt (as you had) -->
-
-> Note: keep spring-boot-starter-logging (comes with Spring Boot) — you don't need explicit slf4j-api lines. Lombok will generate getXxx methods and @Slf4j will handle log.
-
-
-
-
----
-
-2) DTOs
-
-Create these DTOs under com.eapp.dto.requestDTO and com.eapp.dto.reponseDTO.
-
-CalculationRequest.java
-
-package com.eapp.dto.requestDTO;
-
-import lombok.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CalculationRequest {
-    // Fields should match the names you posted (leading underscore allowed)
-    private String _1a_DOB;
-    private String _1b_Product;
-    private String _1c_Gender;
-    private double _1d_Face_Amount;
-    private int _1e_Occupation;
-    private String _1h_Policy_Inception_Date;
-    private String _1i_Smoker;
-    private String _1j_Pre_Existing_Disease;
-    private double _1k_Extra_mortality;
-    private int _1p_Policy_Term;
-    private String _1r_Mandatory_Premium_Period;
-    private double _1zb_PAV;
-    private double _1zc_per_mille_rating_death;
-    private double _1zd_per_mille_rating_TPD;
-    private double _1ze_per_mille_rating_SCI;
-    private String _2a_Death_Benefit;
-    private String _2b_Total_and_Permanent_Disability_TPD;
-    private String _2c_Accidental_Death_and_Dismemberment_ADD;
-    private String _2d_Staged_Critical_Illness_SCI;
-    private String _2e_Hospital_Cash_Benefit_HCB;
-    private String _3a_Partial_Withdrawl;
-    private double _3b_Partial_Withdrawl_Amount;
-
-    // meta fields
-    private String version_id;
-    private String call_purpose;
-    private String source_system;
-
-    // convenience fields you asked earlier
-    private double sumAssured;
-    private Boolean smoker;
-}
-
-CalculationResponse.java
-
-package com.eapp.dto.reponseDTO;
-
-import lombok.*;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CalculationResponse {
-    private Object apiResponse;         // full response from Coherent (raw)
-    private String message;
-    private Double fallbackPremium;     // if fallback used
-}
-
-
----
-
-3) CoherentService (fixed logging & fallback + request body building)
-
-Replace your CoherentService with this. Important fixes:
-
-Use Lombok @Slf4j (no ErrorManager).
-
-Build request body as Map so JSON keys are exactly request_data and request_meta.
-
-Local fallback calculation uses req.get_1d_Face_Amount() (getter exists because of Lombok).
-
-Proper exception logging: log.error("...", e).
-
-
-package com.eapp.service;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.MediaType;
-import java.util.Map;
-import java.util.HashMap;
-
-@Service
-@Slf4j
-public class CoherentService {
-
-    private final WebClient client;
-
-    public CoherentService() {
-        this.client = WebClient.builder()
-                .baseUrl("https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd")
-                .build();
-    }
-
-    public CalculationResponse calculatePremium(CalculationRequest req) {
-        CalculationResponse resp = new CalculationResponse();
-
-        try {
-            Map<String, Object> requestBody = buildRequestBody(req);
-
-            Object coherentResponse = client.post()
-                    .uri("/execute")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToMono(Object.class)
-                    .block();
-
-            resp.setApiResponse(coherentResponse);
-            resp.setMessage("Coherent API success");
-            return resp;
-        } catch (Exception e) {
-            // log the full exception
-            log.error("Coherent API failed, fallback applied", e);
-
-            // fallback: simple % of face amount (you can change logic)
-            double fallbackPremium = req.get_1d_Face_Amount() * 0.05; // 5% example
-
-            resp.setMessage("Coherent down, fallback premium applied");
-            resp.setFallbackPremium(fallbackPremium);
-            return resp;
-        }
-    }
-
-    private Map<String, Object> buildRequestBody(CalculationRequest r) {
-        Map<String, Object> root = new HashMap<>();
-
-        Map<String, Object> request_data = new HashMap<>();
-        request_data.put("inputs", r); // WebClient + Jackson will serialize fields
-
-        Map<String, Object> request_meta = new HashMap<>();
-        request_meta.put("version_id", r.getVersion_id());
-        request_meta.put("call_purpose", r.getCall_purpose());
-        request_meta.put("source_system", r.getSource_system());
-
-        root.put("request_data", request_data);
-        root.put("request_meta", request_meta);
-
-        return root;
-    }
-}
-
-
----
-
-4) Controller (expose premium endpoint and simple auth stubs)
-
-Create a controller to call the service. Put in com.eapp.controller.
-
-package com.eapp.controller;
-
-import com.eapp.dto.requestDTO.CalculationRequest;
-import com.eapp.dto.reponseDTO.CalculationResponse;
-import com.eapp.service.CoherentService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/calc")
-@RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3003") // allow React dev origin
-public class CalculationController {
-
-    private final CoherentService coherentService;
-
-    @PostMapping("/premium")
-    public ResponseEntity<CalculationResponse> calculate(@RequestBody CalculationRequest request) {
-        CalculationResponse resp = coherentService.calculatePremium(request);
-        return ResponseEntity.ok(resp);
-    }
-}
-
-If you already have UserAuthController and signup/login endpoints, keep them. For CORS you can use the global config below.
-
-
----
-
-5) SecurityConfig (final) — includes Swagger JWT support & allows endpoints public
-
-You posted a similar file already. Use this (includes CORS allowed origins):
-
-package com.eapp.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfigurationSource;
-import java.util.List;
-
-// Swagger OpenAPI imports
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and()
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                     "/swagger-ui/**",
-                     "/v3/api-docs/**",
-                     "/api/auth/**",
-                     "/api/calc/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            );
-
-        return http.build();
-    }
-
-    // Global CORS config for local frontend
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3003", "http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
-        src.registerCorsConfiguration("/**", config);
-        return src;
-    }
-
-    // Swagger JWT Token Support for UI (Authorize button)
-    @Bean
-    public OpenAPI openAPI() {
-        SecurityScheme securityScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT");
-
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
-
-        return new OpenAPI()
-                .components(new Components().addSecuritySchemes("BearerAuth", securityScheme))
-                .addSecurityItem(securityRequirement)
-                .info(new Info().title("EAPP API").version("1.0").description("Backend for Premium Calculator + User Auth"));
-    }
-}
-
-
----
-
-6) application.properties (put in src/main/resources)
-
-server.port=8001
-
-# spring.datasource.* if you use DB (example)
-spring.datasource.url=jdbc:mysql://localhost:3306/eappdb
-spring.datasource.username=root
-spring.datasource.password=root
-spring.jpa.hibernate.ddl-auto=update
-
-# show openapi swagger at /swagger-ui/index.html
-springdoc.api-docs.path=/v3/api-docs
-
-
----
-
-7) Fix for logging error you saw
-
-You had private ErrorManager log; and log.error(...) which fails. We solved it by:
-
-Adding Lombok @Slf4j at top of CoherentService.
-
-Remove any private ErrorManager log; field.
-
-
-Make sure CoherentService starts with:
-
-import lombok.extern.slf4j.Slf4j;
-
-@Service
-@Slf4j
-public class CoherentService { ... }
-
-Lombok will add private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(...);.
-
-
----
-
-8) Why React errors happened & quick fixes
-
-Your browser errors showed:
-
-CORS preflight blocked: No 'Access-Control-Allow-Origin' header — solved by the corsConfigurationSource() bean and @CrossOrigin on controller.
-
-POST http://localhost:8001/api/auth/signup net::ERR_FAILED — likely because server was not reachable or CORS blocked. Restart backend after replacing config; check server logs (listening on 8001).
-
-Cannot read properties of undefined (reading 'data') — in frontend code you attempt to access err.response.data but err.response may be undefined when request fails (network). Use safe guard: const message = err?.response?.data?.message || err.message.
-
-
-
----
-
-9) How to wire everything (quick steps)
-
-1. Replace/overwrite the Java files listed above (DTOs, CoherentService, CalculationController, SecurityConfig).
-
-
-2. Update pom.xml as suggested and run:
-
-mvn clean install
-
-
-3. Start app in IntelliJ or mvn spring-boot:run.
-
-
-4. Check logs: should see Tomcat started on port 8001 and no unsatisfied dependency errors.
-
-
-5. From frontend (http://localhost:3003) call POST http://localhost:8001/api/calc/premium with the JSON request you posted — service will try Coherent and fallback if Coherent fails.
-
-
-6. Swagger UI available: http://localhost:8001/swagger-ui/index.html — you will see the Authorize button (swagger JWT) in right-top; you can paste your JWT there to authorize endpoints that require it.
-
-
-
-
----
-
-10) Small frontend-tip for signup error (protect read of err.response.data)
-
-In your React catch block do:
-
-catch (err: any) {
-  const msg = err?.response?.data?.message || err?.message || "Unknown error";
-  console.error('signup failed', msg);
-  setError(msg);
-}
-
-
----
-
-If you want, I can now:
-
-1. open the extracted zip to automatically patch files in /mnt/data/eapp-backend (1) and show the exact diff (I already extracted the zip), or
-
-
-
-2. paste the rest of the required Java classes (Auth related) to fully match your project structure, or
-
-
-
-3. generate a zip with updated files ready to import.
-
-
-
-
-Tell me which of (1),(2),(3) you want — you already said “2” earlier so I prepared the fixes; I can now patch the real project files and return them as a zip. Which one should I do?
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.4</version>
+	</parent>
+
+	<groupId>com.eapp</groupId>
+	<artifactId>eapp-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>eapp-backend</name>
+
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+	<dependencies>
+
+		<!-- Web MVC -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- WebFlux (for WebClient) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- JPA -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- MySQL -->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- JWT -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- Swagger v3 -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.38</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- SLF4J Logger -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.12</version>
+		</dependency>
+
+		<!-- Dev Tools -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.12.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
