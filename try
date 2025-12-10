@@ -170,3 +170,38 @@ role ENUM('ADMIN','STORE_MANAGER','CUSTOMER')
 The Packaged Foods Management System provides a modular MVC design for managing 
 products, batches, customers, and inventory with expiry alerts. It ensures secure role-based 
 access and efficient local deployment.
+
+
+
+
+Admin Dashboard
+Menu Items:
+Products (Add/Edit/Delete)
+Batches (Add/Edit/Delete)
+Customers (View/Add)
+User Management (Create users, assign roles)
+Pages:
+Product List → Add Product Form
+Batch List → Add Batch Form
+Customer List
+User List → Register User Form
+Store Manager Dashboard
+Menu Items:
+Inventory Report (View stock levels)
+Update Stock (Increase/Decrease quantity)
+Expiry Alerts (List of near-expiry batches)
+Orders (Place new order, view orders)
+Pages:
+Inventory Table → Batch, Product, Quantity, Expiry Date
+Place Order Form → Select Customer, Select Products/Batches
+Expiry Alert Table → Highlight batches expiring soon
+Customer Dashboard
+Menu Items:
+My Profile (View username, email)
+My Orders (View past orders)
+Pages:
+Profile Page → Name, Email, Phone
+Orders Table → Order ID, Date, Total Amount
+ 
+Just for customer 
+ 
