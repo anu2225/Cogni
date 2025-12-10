@@ -1,295 +1,172 @@
-{
-    "coherentResult": {
-        "status": "Success",
-        "response_data": {
-            "outputs": {
-                "_5a_TPA_On_the_Monthly_Policy_Anniversary_Date": 108293,
-                "_2a_Death_Ben_Std_TP": 7822,
-                "_4f_Total_COI": 10748.98,
-                "_4c_COI_SCI": 144.42,
-                "_4d_COI_ADD": 30.6,
-                "_2m_Total_Target_Premium": 29539,
-                "_2j_HCB_Sub_Std_TP": 2030.0,
-                "_4e_COI_HCB": 10520,
-                "_2l_Total_Sub_Std_Premium": 7044,
-                "_2c_SCI_Std_TP": 7822,
-                "_2i_SCI_Sub_Std_TP": 1000,
-                "_3a_Face_Amt_NEW_after_withdrawl": 206773,
-                "_2h_TPD_Sub_Std_TP": 1000,
-                "_1a_Policy_Expiry_Date": "2063-05-11",
-                "_2k_ADD_Sub_Std_TP": 314,
-                "_2g_Death_Ben_Sub_Std_TP": 2700,
-                "_2e_ADD_Std_TP": 1836.0,
-                "_2f_Total_Std_Premium": 22495,
-                "_5b_TPA_On_the_Policy_Effective_Date": 195924,
-                "_4b_COI_TPD": 27.52,
-                "_4a_COI_Death_Benefit": 26.44,
-                "_2d_HCB_Std_TP": 3597,
-                "_2b_TPD_Std_TP": 1418,
-                "_1a2_Sub_Std_Risk": "Y"
-            },
-            "warnings": [
-                {
-                    "source_path": "Default Values",
-                    "message": "Input parameter(s) missing. API request using the Default Values."
-                }
-            ],
-            "errors": [
-                {
-                    "error_category": "validation_error",
-                    "error_type": "error.VALIDATION",
-                    "additional_details": "Universal-Life-product-TestPrd",
-                    "source_path": "$.Input._1r_Mandatory_Premium_Period",
-                    "message": "The Policyholder has to pay the full Target Premium during the first 3 years."
-                }
-            ],
-            "service_chain": null
-        },
-        "response_meta": {
-            "service_id": "75f44129-9057-4281-b525-d5070f9a81be",
-            "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-            "version": "0.1.1",
-            "process_time": 125,
-            "call_id": "0fa3cdb1-6f2b-4574-8443-0bd9e3a6473a",
-            "compiler_type": "Neuron",
-            "compiler_version": "1.8.2",
-            "source_hash": null,
-            "engine_id": "93609A7E3B49805339DE8800C36DC402",
-            "correlation_id": "",
-            "parameterset_version_id": null,
-            "system": "SPARK",
-            "request_timestamp": "2025-12-03T10:47:23.305Z"
-        },
-        "error": null
-    },
-    "status": null
-}
-
-
-
-{
-  "inputs": {
-    "dob": "1995-08-12",
-    "product": "TERM_INSURANCE",
-    "gender": "MALE",
-    "faceAmount": 5000000,
-    "occupation": 1,
-    "policyInceptionDate": "2023-12-01",
-    "smoker": "NO",
-    "preExistingDisease": "NONE",
-    "extraMortality": 0,
-    "policyTerm": 20,
-    "mandatoryPremiumPeriod": "10",
-    "pav": 0,
-    "perMilleRatingDeath": 0,
-    "perMilleRatingTpd": 0,
-    "perMilleRatingSci": 0,
-    "deathBenefit": "YES",
-    "tpd": "NO",
-    "add": "NO",
-    "sci": "NO",
-    "hcb": "NO",
-    "partialWithdrawal": "NO",
-    "partialWithdrawalAmount": 0
-  }
-}
-
-
-
-
-
-2025-12-03T15:43:59.293+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.eapp.EappBackendApplication          : Starting EappBackendApplication using Java 21 with PID 28192 (C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend\target\classes started by 2440835 in C:\Users\2440835\OneDrive - Cognizant\Documents\anurag\eapp-backend\eapp-backend\eapp-backend)
-2025-12-03T15:43:59.297+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.eapp.EappBackendApplication          : No active profile set, falling back to 1 default profile: "default"
-2025-12-03T15:43:59.408+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-12-03T15:43:59.409+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-12-03T15:44:01.457+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2025-12-03T15:44:01.756+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 289 ms. Found 5 JPA repository interfaces.
-2025-12-03T15:44:03.204+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8001 (http)
-2025-12-03T15:44:03.231+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-12-03T15:44:03.231+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
-2025-12-03T15:44:03.327+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-12-03T15:44:03.328+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3919 ms
-2025-12-03T15:44:03.780+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2025-12-03T15:44:04.310+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@73cd574e
-2025-12-03T15:44:04.312+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2025-12-03T15:44:04.382+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2025-12-03T15:44:04.697+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.4.Final
-2025-12-03T15:44:04.782+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2025-12-03T15:44:05.173+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2025-12-03T15:44:06.310+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2025-12-03T15:44:06.314+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2025-12-03T15:44:06.840+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2025-12-03T15:44:08.306+05:30  WARN 28192 --- [eapp-backend] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-12-03T15:44:09.729+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3c4f1443, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1e40a44d, org.springframework.security.web.context.SecurityContextHolderFilter@4d77152f, org.springframework.security.web.header.HeaderWriterFilter@50d0ffa5, org.springframework.web.filter.CorsFilter@7844f875, org.springframework.security.web.authentication.logout.LogoutFilter@2b74023, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6f723d64, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3ee6f52e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4f922be2, org.springframework.security.web.access.ExceptionTranslationFilter@3fbd26bd, org.springframework.security.web.access.intercept.AuthorizationFilter@69b9628d]
-2025-12-03T15:44:10.508+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-12-03T15:44:10.586+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8001 (http) with context path ''
-2025-12-03T15:44:10.607+05:30  INFO 28192 --- [eapp-backend] [  restartedMain] com.eapp.EappBackendApplication          : Started EappBackendApplication in 12.136 seconds (process running for 12.997)
-2025-12-03T15:44:17.150+05:30  INFO 28192 --- [eapp-backend] [nio-8001-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-12-03T15:44:17.150+05:30  INFO 28192 --- [eapp-backend] [nio-8001-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-12-03T15:44:17.152+05:30  INFO 28192 --- [eapp-backend] [nio-8001-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
-2025-12-03T15:44:20.650+05:30 ERROR 28192 --- [eapp-backend] [nio-8001-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.web.reactive.function.client.WebClientResponseException$Unauthorized: 401 Unauthorized from POST https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute] with root cause
-
-org.springframework.web.reactive.function.client.WebClientResponseException$Unauthorized: 401 Unauthorized from POST https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute
-	at org.springframework.web.reactive.function.client.WebClientResponseException.create(WebClientResponseException.java:308) ~[spring-webflux-6.1.5.jar:6.1.5]
-	Suppressed: reactor.core.publisher.FluxOnAssembly$OnAssemblyException: 
-Error has been observed at the following site(s):
-	*__checkpoint ⇢ 401 UNAUTHORIZED from POST https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute [DefaultWebClient]
-Original Stack Trace:
-		at org.springframework.web.reactive.function.client.WebClientResponseException.create(WebClientResponseException.java:308) ~[spring-webflux-6.1.5.jar:6.1.5]
-		at org.springframework.web.reactive.function.client.DefaultClientResponse.lambda$createException$1(DefaultClientResponse.java:214) ~[spring-webflux-6.1.5.jar:6.1.5]
-		at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:106) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxOnErrorReturn$ReturnSubscriber.onNext(FluxOnErrorReturn.java:162) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.Operators$BaseFluxToMonoOperator.completePossiblyEmpty(Operators.java:2097) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxDefaultIfEmpty$DefaultIfEmptySubscriber.onComplete(FluxDefaultIfEmpty.java:134) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxMapFuseable$MapFuseableSubscriber.onComplete(FluxMapFuseable.java:152) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxContextWrite$ContextWriteSubscriber.onComplete(FluxContextWrite.java:126) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxMapFuseable$MapFuseableConditionalSubscriber.onComplete(FluxMapFuseable.java:350) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxFilterFuseable$FilterFuseableConditionalSubscriber.onComplete(FluxFilterFuseable.java:391) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.Operators$BaseFluxToMonoOperator.completePossiblyEmpty(Operators.java:2098) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.MonoCollect$CollectSubscriber.onComplete(MonoCollect.java:145) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxMap$MapSubscriber.onComplete(FluxMap.java:144) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxPeek$PeekSubscriber.onComplete(FluxPeek.java:260) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.FluxMap$MapSubscriber.onComplete(FluxMap.java:144) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.netty.channel.FluxReceive.onInboundComplete(FluxReceive.java:415) ~[reactor-netty-core-1.1.17.jar:1.1.17]
-		at reactor.netty.channel.ChannelOperations.onInboundComplete(ChannelOperations.java:446) ~[reactor-netty-core-1.1.17.jar:1.1.17]
-		at reactor.netty.channel.ChannelOperations.terminate(ChannelOperations.java:500) ~[reactor-netty-core-1.1.17.jar:1.1.17]
-		at reactor.netty.http.client.HttpClientOperations.onInboundNext(HttpClientOperations.java:793) ~[reactor-netty-http-1.1.17.jar:1.1.17]
-		at reactor.netty.channel.ChannelOperationsHandler.channelRead(ChannelOperationsHandler.java:114) ~[reactor-netty-core-1.1.17.jar:1.1.17]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:103) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:346) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:318) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.ssl.SslHandler.unwrap(SslHandler.java:1475) ~[netty-handler-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.ssl.SslHandler.decodeJdkCompatible(SslHandler.java:1338) ~[netty-handler-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.ssl.SslHandler.decode(SslHandler.java:1387) ~[netty-handler-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:529) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:468) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:290) ~[netty-codec-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:444) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1410) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:919) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:166) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:788) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562) ~[netty-transport-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997) ~[netty-common-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.107.Final.jar:4.1.107.Final]
-		at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.107.Final.jar:4.1.107.Final]
-		at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-	Suppressed: java.lang.Exception: #block terminated with an error
-		at reactor.core.publisher.BlockingSingleSubscriber.blockingGet(BlockingSingleSubscriber.java:104) ~[reactor-core-3.6.4.jar:3.6.4]
-		at reactor.core.publisher.Mono.block(Mono.java:1779) ~[reactor-core-3.6.4.jar:3.6.4]
-		at com.eapp.service.CoherentService.calculatePremium(CoherentService.java:22) ~[classes/:na]
-		at com.eapp.controller.PremiumCalcController.calculate(PremiumCalcController.java:18) ~[classes/:na]
-		at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-		at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-		at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:925) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:830) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.19.jar:6.0]
-		at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.19.jar:6.0]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at com.eapp.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:52) ~[classes/:na]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.2.3.jar:6.2.3]
-		at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.5.jar:6.1.5]
-		at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.19.jar:10.1.19]
-		at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-
+Project Title: Packaged Foods Management System
+1. Overview
+The Packaged Foods Management System is designed to manage operations for packaged 
+food products, including product catalog, stock monitoring, order processing, and compliance 
+tracking. It provides functionalities for product registration, batch tracking, expiry alerts, billing, 
+and reporting, all implemented using an MVC architecture.
+This design supports both Java (Spring MVC) and .NET (ASP.NET Core MVC) frameworks.
+The system consists of five primary modules:
+1. Product & Batch Management
+2. Customer Management
+3. Order & Billing Management
+4. Inventory & Expiry Tracking
+5. User Authentication & Authorization
+2. Assumptions
+• The system will be deployed locally using MySQL or SQL Server.
+• Role-based access will be implemented for Admin, Store Manager, and Customer 
+roles.
+• ORM tools (Hibernate for Java, Entity Framework Core for .NET) will handle 
+database interactions.
+• The UI will be responsive and optimized for mobile and desktop users.
+• Expiry alerts will be triggered based on batch dates.
+3. Module-Level Design
+3.1 Product & Batch Management Module
+Purpose: Handles product registration and batch details.
+• Controller:
+o ProductController
+▪ addProduct()
+▪ updateProduct()
+▪ getProductDetails()
+▪ getAllProducts()
+• Service:
+o ProductService
+▪ Business logic for product lifecycle.
+• Model:
+o Product Entity 
+▪ Attributes: 
+▪ productId (PK)
+▪ name
+▪ category
+▪ price
+▪ status (ACTIVE, INACTIVE)
+• Batch Entity:
+o Attributes: 
+▪ batchId (PK)
+▪ productId (FK)
+▪ manufactureDate
+▪ expiryDate
+▪ quantity
+3.2 Customer Management Module
+Purpose: Manages customer profiles and purchase history.
+• Controller:
+o CustomerController
+▪ addCustomer()
+▪ updateCustomer()
+▪ getCustomerDetails()
+• Service:
+o CustomerService
+▪ Handles customer lifecycle.
+• Model:
+o Customer Entity 
+▪ Attributes: 
+▪ customerId (PK)
+▪ name
+▪ email
+▪ phone
+▪ status (ACTIVE, INACTIVE)
+3.3 Order & Billing Management Module
+Purpose: Processes orders and billing.
+• Controller:
+o OrderController
+▪ placeOrder()
+▪ getOrderDetails()
+▪ generateBill()
+• Service:
+o OrderService
+▪ Handles order lifecycle and billing.
+• Model:
+o Order Entity 
+▪ Attributes: 
+▪ orderId (PK)
+▪ customerId (FK)
+▪ orderDate
+▪ totalAmount
+3.4 Inventory & Expiry Tracking Module
+Purpose: Tracks stock levels and expiry alerts.
+• Controller:
+o InventoryController
+▪ updateStock()
+▪ getStockReport()
+▪ checkExpiry()
+• Service:
+o InventoryService
+▪ Calculates stock availability and expiry alerts.
+• Model:
+o Inventory Entity 
+▪ Attributes: 
+▪ inventoryId (PK)
+▪ batchId (FK)
+▪ quantity
+3.5 User Authentication & Authorization Module
+Purpose: Provides secure login and role-based access.
+• Controller:
+o AuthController
+▪ login()
+▪ registerUser()
+▪ logout()
+▪ getUserProfile()
+• Service:
+o AuthService
+▪ Handles authentication and authorization.
+• Model:
+o User Entity 
+▪ Attributes: 
+▪ userId (PK)
+▪ username
+▪ password (hashed)
+▪ email
+▪ role (ADMIN, STORE_MANAGER, CUSTOMER)
+4. Database Schema
+Product Table
+CREATE TABLE Product (
+productId INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+category VARCHAR(50),
+price DECIMAL(10,2),
+status ENUM('ACTIVE','INACTIVE')
+);
+Batch Table
+CREATE TABLE Batch (
+batchId INT AUTO_INCREMENT PRIMARY KEY,
+productId INT,
+manufactureDate DATE,
+expiryDate DATE,
+quantity INT,
+FOREIGN KEY (productId) REFERENCES Product(productId)
+);
+Customer Table
+CREATE TABLE Customer (
+customerId INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+email VARCHAR(100),
+phone VARCHAR(15),
+status ENUM('ACTIVE','INACTIVE')
+);
+Order Table
+CREATE TABLE Orders (
+orderId INT AUTO_INCREMENT PRIMARY KEY,
+customerId INT,
+orderDate DATE,
+totalAmount DECIMAL(10,2),
+FOREIGN KEY (customerId) REFERENCES Customer(customerId)
+);
+User Table
+CREATE TABLE User (
+userId INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50) UNIQUE,
+password VARCHAR(255),
+email VARCHAR(100),
+role ENUM('ADMIN','STORE_MANAGER','CUSTOMER')
+);
+5. Local Deployment Details
+• Install MySQL or SQL Server, JDK 17/21/24 or .NET SDK 8.0.
+• Deploy using Apache Tomcat (Java) or Kestrel (.NET).
+• Steps: 
+1. Clone repository from GitHub/Bitbucket.
+2. Set up database schema.
+3. Configure application.properties or appsettings.json.
+4. Build and run application.
+6. Conclusion
+The Packaged Foods Management System provides a modular MVC design for managing 
+products, batches, customers, and inventory with expiry alerts. It ensures secure role-based 
+access and efficient local deployment.
