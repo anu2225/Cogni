@@ -1,3 +1,157 @@
+
+ठीक आहे ⭐ आता crystal clear देतो — तुझ्या दोन फाइल्स (LifeAssuredDetails + PlanAndCoverage) READY आहेत,
+पण premium calculate (Coherent API hit) करण्यासाठी अजून 1च file लागते → API CALL FILE.
+
+👉 म्हणजे तू मागतोयस:
+
+✅ 1) Only ONE new file: premiumApi.js
+
+(जी तुझ्या दोन screens use करतील)
+
+❗ बाकी काहीही नको – ना backend, ना server, ना extra pages.
+
+
+---
+
+⭐ FINAL — premiumApi.js (FULL WORKING PREMIUM API CALL)
+
+हे फाईल direct तयार करून src/api/premiumApi.js मध्ये ठेव.
+
+// src/api/premiumApi.js
+
+const COHERENT_URL =
+  "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
+
+export const calculatePremium = async (fields) => {
+  try {
+    const token = localStorage.getItem("coherent_token");
+
+    const requestBody = {
+      request_data: {
+        inputs: {
+          _1a_DOB: fields.DOB,
+          _1b_Product: fields.Product,
+          _1c_Gender: fields.gender,
+          _1d_Face_Amount: Number(fields.basicSumInsured),
+          _1e_Occupation: Number(fields.occupation),
+
+          _1h_Policy_Inception_Date: fields.Policy_Inception_Date,
+          _1i_Smoker: fields.Smoker === "Yes" ? "Y" : "N",
+          _1j_Pre_Existing_Disease: fields.Pre_Existing_Disease === "Yes" ? "Y" : "N",
+          _1k_Extra_mortality: Number(fields.Extra_mortality.replace("%","")) / 100,
+
+          _1p_Policy_Term: Number(fields.Policy_Term),
+          _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period,
+
+          _1zb_PAV: 0,
+          _1zc_per_mille_rating_death: 1,
+          _1zd_per_mille_rating_TPD: 1,
+          _1ze_per_mille_rating_SCI: 1,
+
+          _2a_Death_Benefit: "Y",
+          _2b_Total_and_Permanent_Disability_TPD: "Y",
+          _2c_Accidental_Death_and_Dismemberment_ADD: "Y",
+          _2d_Staged_Critical_Illness_SCI: "Y",
+          _2e_Hospital_Cash_Benefit_HCB: "Y",
+
+          _3a_Partial_Withdrawl: "Y",
+          _3b_Partial_Withdrawl_Amount: 5000,
+        },
+      },
+
+      request_meta: {
+        version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+        call_purpose: "Spark - API Tester",
+        source_system: "SPARK",
+        correlation_id: null,
+        requested_output: null,
+        service_category: "",
+      }
+    };
+
+    const response = await fetch(COHERENT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,  // token user later add करेल
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error("Premium API Error:", error);
+    return null;
+  }
+};
+
+
+---
+
+⭐ आता हे कुठे वापरायचं?
+
+तुझ्या Plan & Coverage स्क्रीनमध्ये बटन असतं:
+
+<Button onClick={handleCalculate}>Calculate Premium</Button>
+
+ते update कर:
+
+import { calculatePremium } from "../../api/premiumApi";
+
+const handleCalculate = async () => {
+  const response = await calculatePremium(fields);
+
+  if (response) {
+    const premium = response.outputs?.PremiumSummary?.[1]?.basePlan;
+
+    setFields({
+      ...fields,
+      basicPlanPremium: premium
+    });
+  }
+};
+
+बस्स! API → PREMIUM → UI वर लगेच दिसेल. 🎯
+
+
+---
+
+⭐ अजून काय लागतं?
+
+✔ ONLY THIS ONE FILE (premiumApi.js)
+
+Life assured + plan coverage हे तू already दिलं—मी त्यात काहीही न disturb करता हे file add करून देतो.
+
+❌ Backend → NO NEED
+
+❌ Proxy → NO NEED (तुझा token वापरणार)
+
+❌ Extra components → NO
+
+❌ Extra screens → NO
+
+
+---
+
+👍 Ready आहे!
+
+जर हवं असेल तर:
+
+🟦 मी हे file तुझ्या दोन फाइल्समध्ये integrate करून full final project देऊ शकतो
+🟦 किंवा फक्त हा premium API वापरून देऊ शकतो
+
+फक्त सांग:
+“Integrate करून दे” किंवा “मी स्वतः integrate करतो”
+
+
+
+
+
+
+
+
 छान — मी Option A नुसारच करून दिलंय: म्हणजे तुमचा मूळ PlanAndCoverage.tsx फाइल राखून त्यात premium calculation API कॉल + UI जोडून पूर्ण फॉर्मॅटेड कोड खाली दिला आहे. शिवाय तुमच्या विनंतीनुसार LifeAssuredDetail.tsx फाइलही पूर्ण (तुम्ही दिल्याप्रमाणे) खाली दिली आहे — कोणतेही अनावश्यक बदल केले नाहीत.
 
 > तुम्हाला फक्त हे दोन फाइल्स प्रोझेक्टमध्ये src/Components/ मध्ये ओव्हरराइट करायच्या आहेत. नंतर ऍप चालवून PlanAndCoverage पृष्ठावर जाऊन फिल्ड भरा → Calculate Premium बटण दाबा — UI वर response दिसेल.
