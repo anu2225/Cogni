@@ -1,95 +1,120 @@
-HI 
-please complete the spark call and save and everything should works 
-then connect with Sanklap, we need create few apis deepak needs someone who can help
- 
-Ha krta hu  aj rat Tak 
- 
-okay thanks
- 
-Sorry meri tabbet ki vajah se thoda idar udar ho raha hai 
- 
-Aj bhi hospital aya hu 
- 
-4 baje vapas jane ke bad kr dunga 
- 
-ok koi na
- 
-tum shobhit ko puch lena data wagera ke liye data should be saved properly  
-we need to make the api call by today
- 
-const getPremium = async () => {
-    const url = "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/PPT%20Tool/services/SPARK_property_insurance_premium_calculation_2/execute%22; // Replace with the actual API endpoint
-    const token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjE2MzM2ODEsImlhdCI6MTc2MTYyNjQ4MSwiYXV0aF90aW1lIjoxNzYxNjI2NDI5LCJqdGkiOiJvbnJ0YWM6ZThkMGQ4NDMtMTQ5NS00YTAwLWJlNTQtYWY5NmQ5MTY5NTNjIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6IjA4OWU1ZGMzLWI4N2ItNGQ5OS1hMTMyLTE3OGM3NmE3ODUyMCIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjQ2YzZkZmVjLThmNDYtNGI2MC1iNTIwLTk2MTdmN2UzYThmNCIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6ImFtbGFuIGdob3NoIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhbWxhbi5naG9zaEBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6ImFtbGFuIiwiZmFtaWx5X25hbWUiOiJnaG9zaCIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE3MTgxMDI1NzIzNTUsInJlbGF0aW9uIjoicGFydG5lciJ9.MKnZd8GaYodv1YdpiXWAIS3jlgLdeL4s3B-NaJCisrI6aru46OxjANEZGDlWs0mETA3RkEwXU9iBds3h-7rYJIfqOVfPbGtrfT7zH8F6DVC9M_NWnAC7221cWB9aJaJUq5kqmElw6Az5_PWiPaWlpx0lu2aJi61Dpzqzfxm9Wc_bX7Xjh8nhWHwJ6dE142vyzrXI35T2YM7S-0gCoPkZRG5-NtvuT-4nrmA7s3KuY4TQTHXTgfWASMVDzw8bcUvLi7PMaoqyfhm84ocvZ7XzFxDFKcfCB89jZTPmV2b-j57K1nUW3SzOjgpD1T6nOPE9eQi59yF2S2HY7VNaYcoVcQ";
- //"; // Replace with the actual token
- 
-    const requestBody = {
-        request_data: {
-            inputs: {
-                AccidentalDmgInput: fields.accdmg,
-                Country: localStorage.getItem('country'),
-                EarthquakeInput: fields.earthquake,
-                FireInput: fields.fire,
-                FloodInput: fields.flood,
-                PropertyVal: fields.tot_pd_asset_val,
-                TerrorismInput: fields.terrorism,
-                ZipCode: localStorage.getItem('zip')
-            }
-        },
-        request_meta: {
-            version_id: "b5100601-8d55-40f9-b7a2-02ce874c562c",
-            call_purpose: "Spark - API Tester",
-            source_system: "SPARK",
-            correlation_id: null,
-            requested_output: null,
-            service_category: ""
+{
+
+    "request_data": {
+
+        "inputs": {
+
+            "_1a_DOB": "1976-10-08",
+
+            "_1b_Product": "Option A",
+
+            "_1c_Gender": "Male",
+
+            "_1d_Face_Amount": 200000,
+
+            "_1e_Occupation": 4,
+
+            "_1h_Policy_Inception_Date": "2018-05-11",
+
+            "_1i_Smoker": "N",
+
+            "_1j_Pre_Existing_Disease": "Y",
+
+            "_1k_Extra_mortality": 0.75,
+
+            "_1p_Policy_Term": 45,
+
+            "_1r_Mandatory_Premium_Period": "ErrName",
+
+            "_1zb_PAV": 0,
+
+            "_1zc_per_mille_rating_death": 1,
+
+            "_1zd_per_mille_rating_TPD": 1,
+
+            "_1ze_per_mille_rating_SCI": 1,
+
+            "_2a_Death_Benefit": "Y",
+
+            "_2b_Total_and_Permanent_Disability_TPD": "Y",
+
+            "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+
+            "_2d_Staged_Critical_Illness_SCI": "Y",
+
+            "_2e_Hospital_Cash_Benefit_HCB": "Y",
+
+            "_3a_Partial_Withdrawl": "Y",
+
+            "_3b_Partial_Withdrawl_Amount": 5000
+
         }
-    };
- 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // Pass the token here
-            },
-            body: JSON.stringify(requestBody)
-        });
- 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
- 
-        const data = await response.json();
- 
-        setFields({
-          ...fields,
-          showBeneficiary:data
-      })
-        fields.accdmgPrem = data.response_data.outputs.AccidentalDamagePremium;
-        fields.terrorismPrem = data.response_data.outputs.TerrorismPremium;
-        fields.floodPrem = data.response_data.outputs.FloodPremium;
-        fields.firePrem = data.response_data.outputs.FirePremium;
-        fields.earthquakePrem = data.response_data.outputs.EarthquakePremium;
- 
-        const premiumSumValue = fields.accdmgPrem + fields.terrorismPrem + fields.floodPrem + fields.firePrem + fields.earthquakePrem;
-        fields.totalPremiumVal = premiumSumValue;
-        localStorage.setItem('totalPremiumVal',fields.totalPremiumVal);
- 
-        console.log(premiumSumValue);
-        console.log(data.response_data.outputs);
-        localStorage.setItem('accdmgPrem',fields.accdmgPrem);
-        localStorage.setItem('terrorismPrem',fields.terrorismPrem);
-        localStorage.setItem('floodPrem',fields.floodPrem);
-        localStorage.setItem('firePrem',fields.firePrem);
-        localStorage.setItem('earthquakePrem',fields.earthquakePrem);
-        return data;
-    } catch (error) {
-        console.error("Error fetching premium data:", error);
-        throw error;
+
+    },
+
+    "request_meta": {
+
+        "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+
+        "call_purpose": "Spark - API Tester",
+
+        "source_system": "SPARK",
+
+        "correlation_id": null,
+
+        "requested_output": null,
+
+        "service_category": ""
+
     }
-};
+
+}
  
-refer this code 
- 
-check the pnc product you will get this
+"inputs": {
+
+      "_1a_DOB": "1976-10-08", -- present
+
+      "_1b_Product": "Option A", --plan -- present
+
+      "_1c_Gender": "Male", -- present
+
+      "_1d_Face_Amount": 200000, -- present - basicSumAssured
+
+      "_1e_Occupation": 4, --present ?
+
+      "_1h_Policy_Inception_Date": "2018-05-11", --need to create a field - SYSDATE
+
+      "_1i_Smoker": "N", --need to create a field - dropdown Y/N
+
+      "_1j_Pre_Existing_Disease": "Y", --need to create a field - dropdown Y/N
+
+      "_1k_Extra_mortality": 0.75, --need to create a field - dropdown - % 5%, 10% - 100 %
+
+      "_1p_Policy_Term": 45, --need to create a field - text field
+
+      "_1r_Mandatory_Premium_Period": "ErrName", --need to create a field - textfield
+
+      "_1zb_PAV": 0, -- hard code
+
+      "_1zc_per_mille_rating_death": 1,  -- hard code
+
+      "_1zd_per_mille_rating_TPD": 1,  -- hard code
+
+      "_1ze_per_mille_rating_SCI": 1,  -- hard code
+
+      "_2a_Death_Benefit": "Y",
+
+      "_2b_Total_and_Permanent_Disability_TPD": "Y",
+
+      "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+
+      "_2d_Staged_Critical_Illness_SCI": "Y",
+
+      "_2e_Hospital_Cash_Benefit_HCB": "Y",
+
+      "_3a_Partial_Withdrawl": "Y", -- hard code
+
+      "_3b_Partial_Withdrawl_Amount": 5000  -- hard code
+
+    }
  
