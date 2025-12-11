@@ -1,4 +1,262 @@
 
+ठीक आहे — इमेज आणि error बघून issue स्पष्ट आहे: तुझ्या code मध्ये COHERENT_LOCAL_PROXY undefined आहे, म्हणजे जिथे URL ठेवलंय तिथे काही constant किंवा env variable set नाही. त्यामुळे getPremium फंक्शन run होताना ReferenceError येते आणि मग API call/401-403 errors येतात.
+
+मी खाली एक साफ, काम करणारा fix देतो — थेट usable फाईल्स / कोड स्निपेट्स (TypeScript / React) जे तुझ्या PlanAndCoverage.tsx आणि एक छोटा premiumService.ts वापरून काम करतील. तुझ्या प्रोजेक्टमध्ये बदल फक्त ह्याच फाईल्समध्ये करायचे — बाकी code जसाच्या तशा राहील.
+
+
+---
+
+1) ENV सेटअप (खूप महत्त्वाचे)
+
+तुम्ही .env किंवा Vite मध्ये खालील value ठेवा (तुझ्या proxy किंवा coherent endpoint नुसार):
+
+.env
+
+VITE_COHERENT_PROXY=http://localhost:8001/api/calc/premium
+# किंवा थेट coherent url (but token/CORS मुद्दे असतील)
+# VITE_COHERENT_PROXY=https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute
+
+नंतर dev server restart करा (npm run dev).
+
+> लक्षात ठेव: ते direct coherent endpoint असेल तर CORS/Authorization issue येऊ शकते — मग तुम्ही local backend (http://localhost:8001/api/calc/premium) run करून proxy करावे.
+
+
+
+
+---
+
+2) src/services/premiumService.ts — API wrapper (उपयुक्त आणि साफ)
+
+// src/services/premiumService.ts
+export interface PremiumFields {
+  // फक्त आवश्यक फील्ड्स — तुझ्या fields नुसार एडजस्ट कर
+  _1a_DOB?: string;
+  _1b_Product?: string;
+  _1c_Gender?: string;
+  _1d_Face_Amount?: number;
+  _1e_Occupation?: number | string;
+  _1h_Policy_Inception_Date?: string;
+  _1i_Smoker?: string;
+  _1j_Pre_Existing_Disease?: string;
+  _1k_Extra_mortality?: number; // 0.75 etc.
+  _1p_Policy_Term?: number;
+  _1r_Mandatory_Premium_Period?: string;
+}
+
+const getProxyUrl = () => {
+  const url = import.meta.env.VITE_COHERENT_PROXY;
+  if (!url) throw new Error("VITE_COHERENT_PROXY is not defined in .env");
+  return url;
+};
+
+export async function callPremiumApi(fields: PremiumFields, token?: string) {
+  const url = getProxyUrl();
+
+  // Build request body exactly as coherent expects
+  const requestBody = {
+    request_data: {
+      inputs: {
+        "_1a_DOB": fields._1a_DOB,
+        "_1b_Product": fields._1b_Product,
+        "_1c_Gender": fields._1c_Gender,
+        "_1d_Face_Amount": fields._1d_Face_Amount,
+        "_1e_Occupation": fields._1e_Occupation,
+        "_1h_Policy_Inception_Date": fields._1h_Policy_Inception_Date,
+        "_1i_Smoker": fields._1i_Smoker,
+        "_1j_Pre_Existing_Disease": fields._1j_Pre_Existing_Disease,
+        "_1k_Extra_mortality": fields._1k_Extra_mortality,
+        "_1p_Policy_Term": fields._1p_Policy_Term,
+        "_1r_Mandatory_Premium_Period": fields._1r_Mandatory_Premium_Period,
+        // hardcoded ones
+        "_1zb_PAV": 0,
+        "_1zc_per_mille_rating_death": 1,
+        "_1zd_per_mille_rating_TPD": 1,
+        "_1ze_per_mille_rating_SCI": 1,
+        "_2a_Death_Benefit": "Y",
+        "_2b_Total_and_Permanent_Disability_TPD": "Y",
+        "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+        "_2d_Staged_Critical_Illness_SCI": "Y",
+        "_2e_Hospital_Cash_Benefit_HCB": "Y",
+        "_3a_Partial_Withdrawl": "Y",
+        "_3b_Partial_Withdrawl_Amount": 5000
+      }
+    },
+    request_meta: {
+      version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+      call_purpose: "Spark - API Tester",
+      source_system: "SPARK",
+      correlation_id: null,
+      requested_output: null,
+      service_category: ""
+    }
+  };
+
+  const headers: Record<string,string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const resp = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!resp.ok) {
+    // Throw detailed error for debugging
+    const txt = await resp.text().catch(()=>"");
+    const err = new Error(`HTTP error! status: ${resp.status} - ${txt}`);
+    // @ts-ignore
+    err.status = resp.status;
+    throw err;
+  }
+
+  const data = await resp.json();
+  return data;
+}
+
+
+---
+
+3) PlanAndCoverage.tsx मध्ये getPremium वापरणे आणि button (मुख्य बदल)
+
+तुमच्या फायलकडे जिथे तुम्ही getPremium ठेवला आहे तिथे खालील बदल कर:
+
+// PlanAndCoverage.tsx (relevant parts)
+// ऊपरच्या imports मध्ये add कर:
+import { callPremiumApi } from "../services/premiumService";
+
+// ... component function मध्ये
+const [loading, setLoading] = useState(false);
+const [apiToken, setApiToken] = useState<string | undefined>(undefined); // set from localStorage or UI when available
+
+const onCalculatePremium = async () => {
+  try {
+    setLoading(true);
+
+    // Map your fields -> API inputs
+    const payload = {
+      _1a_DOB: fields.Policy_Inception_Date ?? fields.Policy_Inception_Date, // update mapping as needed
+      _1b_Product: fields.Product || "Option A",
+      _1c_Gender: fields.basicPlan /* <- replace with real gender field if present */ || "Male",
+      _1d_Face_Amount: Number(fields.basicSumInsured || 200000),
+      _1e_Occupation: fields.per_mille_rating_death || 4,
+      _1h_Policy_Inception_Date: fields.Policy_Inception_Date || new Date().toISOString().split('T')[0],
+      _1i_Smoker: fields.Smoker === "Yes" ? "Y" : "N",
+      _1j_Pre_Existing_Disease: fields.Pre_Existing_Disease === "Yes" ? "Y" : "N",
+      _1k_Extra_mortality: Number((fields.Extra_mortality || "75%").replace("%",""))/100,
+      _1p_Policy_Term: Number(fields.Policy_Term || 45),
+      _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period || "ErrName",
+    };
+
+    const data = await callPremiumApi(payload, apiToken);
+    // example response handling:
+    const outputs = data?.response_data?.outputs;
+    if (outputs) {
+      const accdmgPrem = outputs?.AccidentalDamagePremium ?? 0;
+      const terrorismPrem = outputs?.TerrorismPremium ?? 0;
+      const floodPrem = outputs?.FloodPremium ?? 0;
+      const firePrem = outputs?.FirePremium ?? 0;
+      const earthquakePrem = outputs?.EarthquakePremium ?? 0;
+
+      const total = accdmgPrem + terrorismPrem + floodPrem + firePrem + earthquakePrem;
+
+      // update fields state
+      setFields({
+        ...fields,
+        basicPlanPremium: String(total),
+        // store individual values if needed
+      });
+      console.log("Premium outputs", outputs);
+    } else {
+      console.warn("No outputs from premium API", data);
+      alert("Premium API returned no outputs. Check console.");
+    }
+  } catch (err:any) {
+    console.error("Error fetching premium data:", err);
+    if (err.status === 401) {
+      alert("Unauthorized (401). Check token.");
+    } else if (err.status === 403) {
+      alert("Forbidden (403). Check proxy or backend permissions.");
+    } else {
+      alert("Error fetching premium: " + err.message);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+// In JSX render where appropriate add a button:
+<Button variant="contained" onClick={onCalculatePremium} disabled={loading}>
+  {loading ? "Calculating..." : "Calculate Premium"}
+</Button>
+
+> नोट: वरच्या payload mapping मध्ये मी field names तुझ्या fields नुसार guessed केलेत — तुझ्या LifeAssured किंवा PlanAndCoverage मध्ये ज्या वास्तविक fields आहेत त्यानुसार _1a_DOB, _1c_Gender वगैरे नीट set कर.
+
+
+
+
+---
+
+4) COHERENT_LOCAL_PROXY is not defined चा मूळ उपाय
+
+OPTION A (Recommended): .env मध्ये VITE_COHERENT_PROXY define करा आणि premiumService मध्ये import.meta.env वापर. (ही method मी वर दिली आहे)
+
+OPTION B: जर code मध्ये COHERENT_LOCAL_PROXY म्हणून global variable वापरला असेल तर ते काढा आणि वरच्या import.meta.env approach वापरा.
+
+कुठेही COHERENT_LOCAL_PROXY शोधून const url = COHERENT_LOCAL_PROXY + "/..." असेल तर बदलून getProxyUrl() वापर करा.
+
+
+
+
+---
+
+5) CORS / 401 / 403 handling — practical tips
+
+Browser मध्ये थेट coherent endpoint hit करता येत नसेल (401/401/ERR_ABORTED) — मग तुमच्या local backend/proxy (http://localhost:8001) चालवून POST /api/calc/premium route तयार कर. त्या backend कडून coherent ला Request भेजा (server side) — server मध्ये token/credentials secure ठेवू शकतो.
+
+Backend नसेल तर एक फार सोपा express proxy बनवा (examples देऊ शकतो) — पण आधी .env set करा आणि browser मध्ये direct fetch करून पाहा.
+
+
+
+---
+
+6) Quick checklist — लगेच कर:
+
+1. .env मध्ये VITE_COHERENT_PROXY=... set कर आणि dev restart करा.
+
+
+2. src/services/premiumService.ts फाईल तयार करा (वरचा code).
+
+
+3. PlanAndCoverage.tsx मध्ये onCalculatePremium function paste कर आणि button ठेवा.
+
+
+4. कोणतीही COHERENT_LOCAL_PROXY references शोधून काढा किंवा replace करा. (IDE मध्ये search करा)
+
+
+5. Token असेल तर localStorage.getItem('token') किंवा UI ने setApiToken मध्ये set करा.
+
+
+
+
+---
+
+मला आता एक small काम करायचा आहे — तुझ्या साठी ready-to-paste full files द्यायचे. पण मी इंजोअच्याही आधी खात्री करतो की VITE_COHERENT_PROXY तुम्हाला set करायची आहे की नाही — कारण जर direct coherent endpoint वापरायचा असेल तर token आणि CORS लागतील. तू जे म्हणशील ते मी पुढे paste करेन:
+
+A) full premiumService.ts (दिलं आहे)
+
+B) updated PlanAndCoverage.tsx (पूर्ण component) — जे थेट काम करेल
+
+C) छोटा express proxy server sample (जर backend नसेल तर)
+
+
+साग की मी पुढे कोणता combo paste करावा — मी त्वरित पूर्ण फाईल्स copy-paste देईन (Marathi मध्ये).
+
+
+
+
+
 
 
 
