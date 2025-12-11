@@ -1,485 +1,75 @@
-छान — खाली तुला एकदम अंतिम, step-by-step, copy–paste ready, working frontend-only project दिलं आहे. प्रत्येक फाईलची पूर्ण सामग्री, कशी चालवायची आणि कोणते बदल करायचे — सगळं स्पष्ट असून, थेट Coherent API ला hit करेल आणि UI वर Premium दाखवेल.
-
-मी सर्व काही React + MUI + React Router वापरून दिलं आहे. (जर तुझ्याकडे वेगळं stack असेल तर मी ते सुद्धा बदलून देईन — पण असं समजून देत आहे की React project सुरू आहे.)
-
-
----
-
-🔧 Quick prerequisites (तुरंत चालवण्यासाठी)
-
-1. Node v16+ आणि npm installed.
-
-
-2. Create React App किंवा Vite project (मी CRA style assume करतो).
-
-
-3. Install dependencies:
-
-
-
-npm install @mui/material @emotion/react @emotion/styled react-router-dom
-
-4. .env मध्ये तुमचा token ठेवा (recommended):
-
-
-
-REACT_APP_COHERENT_TOKEN=your_token_here
-REACT_APP_COHERENT_URL=https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute
-
-(ही फाईल Git मध्ये commit करू नकोस.)
-
-
----
-
-📁 Complete folder + file list (copy–paste ready)
-
-src/
- ├── context/
- │     └── PremiumContext.js
- ├── pages/
- │     ├── LifeAssuredDetails.jsx
- │     ├── PlanAndCoverage.jsx
- │     └── PremiumPage.jsx
- ├── App.js
- └── index.js
-
-
----
-
-🧩 1) src/context/PremiumContext.js
-
-import React, { createContext, useState } from "react";
-
-export const PremiumContext = createContext();
-
-export const PremiumProvider = ({ children }) => {
-  const [lifeDetails, setLifeDetails] = useState({});
-  const [planDetails, setPlanDetails] = useState({});
-
-  return (
-    <PremiumContext.Provider value={{
-      lifeDetails, setLifeDetails,
-      planDetails, setPlanDetails
-    }}>
-      {children}
-    </PremiumContext.Provider>
-  );
-};
-
-
----
-
-🧾 2) src/pages/LifeAssuredDetails.jsx
-
-import React, { useContext, useState } from "react";
-import { PremiumContext } from "../context/PremiumContext";
-import { TextField, Button, MenuItem } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-
-export default function LifeAssuredDetails() {
-  const { setLifeDetails } = useContext(PremiumContext);
-  const navigate = useNavigate();
-
-  const [data, setData] = useState({
-    _1a_DOB: "",               // YYYY-MM-DD
-    _1c_Gender: "",            // "Male"/"Female"
-    _1e_Occupation: "",        // number/category
-    _1i_Smoker: "",            // "Y"/"N"
-    _1j_Pre_Existing_Disease: "" // "Y"/"N"
-  });
-
-  const handleNext = () => {
-    // Basic validation (add more if needed)
-    if (!data._1a_DOB || !data._1c_Gender || !data._1e_Occupation) {
-      alert("DOB, Gender and Occupation required");
-      return;
-    }
-    setLifeDetails(data);
-    navigate("/plan");
-  };
-
-  return (
-    <div style={{ maxWidth: 520, margin: "24px auto", padding: 12 }}>
-      <h2>Life Assured Details</h2>
-
-      <TextField
-        label="DOB"
-        type="date"
-        fullWidth
-        InputLabelProps={{ shrink: true }}
-        value={data._1a_DOB}
-        onChange={(e) => setData({ ...data, _1a_DOB: e.target.value })}
-        sx={{ mt: 2 }}
-      />
-
-      <TextField
-        select
-        label="Gender"
-        fullWidth
-        value={data._1c_Gender}
-        onChange={(e) => setData({ ...data, _1c_Gender: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        <MenuItem value="Male">Male</MenuItem>
-        <MenuItem value="Female">Female</MenuItem>
-      </TextField>
-
-      <TextField
-        select
-        label="Occupation (category id)"
-        fullWidth
-        value={data._1e_Occupation}
-        onChange={(e) => setData({ ...data, _1e_Occupation: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        {[1,2,3,4,5,6,7,8,9,10].map(n => <MenuItem key={n} value={n}>{n}</MenuItem>)}
-      </TextField>
-
-      <TextField
-        select
-        label="Smoker"
-        fullWidth
-        value={data._1i_Smoker}
-        onChange={(e) => setData({ ...data, _1i_Smoker: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        <MenuItem value="Y">Yes</MenuItem>
-        <MenuItem value="N">No</MenuItem>
-      </TextField>
-
-      <TextField
-        select
-        label="Pre Existing Disease"
-        fullWidth
-        value={data._1j_Pre_Existing_Disease}
-        onChange={(e) => setData({ ...data, _1j_Pre_Existing_Disease: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        <MenuItem value="Y">Yes</MenuItem>
-        <MenuItem value="N">No</MenuItem>
-      </TextField>
-
-      <Button variant="contained" fullWidth sx={{ mt: 3 }} onClick={handleNext}>
-        Next (Plan & Coverage)
-      </Button>
-    </div>
-  );
-}
-
-
----
-
-🧾 3) src/pages/PlanAndCoverage.jsx
-
-import React, { useContext, useState } from "react";
-import { PremiumContext } from "../context/PremiumContext";
-import { TextField, Button, MenuItem } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-
-export default function PlanAndCoverage() {
-  const { setPlanDetails } = useContext(PremiumContext);
-  const navigate = useNavigate();
-
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [data, setData] = useState({
-    _1b_Product: "",
-    _1d_Face_Amount: "",
-    _1h_Policy_Inception_Date: today, // SYSDATE default
-    _1k_Extra_mortality: "", // e.g., 0.75
-    _1p_Policy_Term: "",
-    _1r_Mandatory_Premium_Period: ""
-  });
-
-  const handleNext = () => {
-    if (!data._1b_Product || !data._1d_Face_Amount) {
-      alert("Product and Face Amount required");
-      return;
-    }
-    setPlanDetails(data);
-    navigate("/premium");
-  };
-
-  return (
-    <div style={{ maxWidth: 520, margin: "24px auto", padding: 12 }}>
-      <h2>Plan & Coverage</h2>
-
-      <TextField
-        select
-        label="Product"
-        fullWidth
-        value={data._1b_Product}
-        onChange={(e) => setData({ ...data, _1b_Product: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        <MenuItem value="Option A">Option A</MenuItem>
-        <MenuItem value="Option B">Option B</MenuItem>
-      </TextField>
-
-      <TextField
-        label="Face Amount"
-        fullWidth
-        type="number"
-        value={data._1d_Face_Amount}
-        onChange={(e) => setData({ ...data, _1d_Face_Amount: e.target.value })}
-        sx={{ mt: 2 }}
-      />
-
-      <TextField
-        label="Policy Term"
-        fullWidth
-        value={data._1p_Policy_Term}
-        onChange={(e) => setData({ ...data, _1p_Policy_Term: e.target.value })}
-        sx={{ mt: 2 }}
-      />
-
-      <TextField
-        label="Mandatory Premium Period"
-        fullWidth
-        value={data._1r_Mandatory_Premium_Period}
-        onChange={(e) => setData({ ...data, _1r_Mandatory_Premium_Period: e.target.value })}
-        sx={{ mt: 2 }}
-      />
-
-      <TextField
-        select
-        label="Extra Mortality"
-        fullWidth
-        value={data._1k_Extra_mortality}
-        onChange={(e) => setData({ ...data, _1k_Extra_mortality: e.target.value })}
-        sx={{ mt: 2 }}
-      >
-        {[0,0.25,0.5,0.75,1,2,5].map(val => <MenuItem key={val} value={val}>{val}</MenuItem>)}
-      </TextField>
-
-      <TextField
-        label="Policy Inception Date"
-        type="date"
-        fullWidth
-        InputLabelProps={{ shrink: true }}
-        value={data._1h_Policy_Inception_Date}
-        onChange={(e) => setData({ ...data, _1h_Policy_Inception_Date: e.target.value })}
-        sx={{ mt: 2 }}
-      />
-
-      <Button variant="contained" fullWidth sx={{ mt: 3 }} onClick={handleNext}>
-        Get Premium
-      </Button>
-    </div>
-  );
-}
-
-
----
-
-🧾 4) src/pages/PremiumPage.jsx
-
-import React, { useContext, useState } from "react";
-import { PremiumContext } from "../context/PremiumContext";
-import { Button, CircularProgress } from "@mui/material";
-
-export default function PremiumPage() {
-  const { lifeDetails, planDetails } = useContext(PremiumContext);
-  const [premium, setPremium] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [rawResponse, setRawResponse] = useState(null);
-
-  const buildPayload = () => {
-    return {
-      request_data: {
-        inputs: {
-          // combine pages
-          ...lifeDetails,
-          ...planDetails,
-
-          // hardcoded values required
-          _1zb_PAV: 0,
-          _1zc_per_mille_rating_death: 1,
-          _1zd_per_mille_rating_TPD: 1,
-          _1ze_per_mille_rating_SCI: 1,
-
-          _2a_Death_Benefit: "Y",
-          _2b_Total_and_Permanent_Disability_TPD: "Y",
-          _2c_Accidental_Death_and_Dismemberment_ADD: "Y",
-          _2d_Staged_Critical_Illness_SCI: "Y",
-          _2e_Hospital_Cash_Benefit_HCB: "Y",
-
-          _3a_Partial_Withdrawl: "Y",
-          _3b_Partial_Withdrawl_Amount: 5000
-        }
-      },
-      request_meta: {
-        version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-        call_purpose: "Spark - API Tester",
-        source_system: "SPARK"
-      }
-    };
-  };
-
-  const getPremium = async () => {
-    setLoading(true);
-    setPremium(null);
-    try {
-      const url = process.env.REACT_APP_COHERENT_URL || "YOUR_COHERENT_URL";
-      const token = process.env.REACT_APP_COHERENT_TOKEN || "YOUR_TOKEN";
-
-      const payload = buildPayload();
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+const getPremium = async () => {
+    const url = "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/PPT%20Tool/services/SPARK_property_insurance_premium_calculation_2/execute%22; // Replace with the actual API endpoint
+    const token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjE2MzM2ODEsImlhdCI6MTc2MTYyNjQ4MSwiYXV0aF90aW1lIjoxNzYxNjI2NDI5LCJqdGkiOiJvbnJ0YWM6ZThkMGQ4NDMtMTQ5NS00YTAwLWJlNTQtYWY5NmQ5MTY5NTNjIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6IjA4OWU1ZGMzLWI4N2ItNGQ5OS1hMTMyLTE3OGM3NmE3ODUyMCIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjQ2YzZkZmVjLThmNDYtNGI2MC1iNTIwLTk2MTdmN2UzYThmNCIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6ImFtbGFuIGdob3NoIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhbWxhbi5naG9zaEBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6ImFtbGFuIiwiZmFtaWx5X25hbWUiOiJnaG9zaCIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE3MTgxMDI1NzIzNTUsInJlbGF0aW9uIjoicGFydG5lciJ9.MKnZd8GaYodv1YdpiXWAIS3jlgLdeL4s3B-NaJCisrI6aru46OxjANEZGDlWs0mETA3RkEwXU9iBds3h-7rYJIfqOVfPbGtrfT7zH8F6DVC9M_NWnAC7221cWB9aJaJUq5kqmElw6Az5_PWiPaWlpx0lu2aJi61Dpzqzfxm9Wc_bX7Xjh8nhWHwJ6dE142vyzrXI35T2YM7S-0gCoPkZRG5-NtvuT-4nrmA7s3KuY4TQTHXTgfWASMVDzw8bcUvLi7PMaoqyfhm84ocvZ7XzFxDFKcfCB89jZTPmV2b-j57K1nUW3SzOjgpD1T6nOPE9eQi59yF2S2HY7VNaYcoVcQ";
+ //"; // Replace with the actual token
+ 
+    const requestBody = {
+        request_data: {
+            inputs: {
+                AccidentalDmgInput: fields.accdmg,
+                Country: localStorage.getItem('country'),
+                EarthquakeInput: fields.earthquake,
+                FireInput: fields.fire,
+                FloodInput: fields.flood,
+                PropertyVal: fields.tot_pd_asset_val,
+                TerrorismInput: fields.terrorism,
+                ZipCode: localStorage.getItem('zip')
+            }
         },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-      setRawResponse(data);
-
-      // Extract premium robustly (depends on API shape)
-      // Try common places: data.output.Premium, data.premium, data.result.premium
-      const extracted =
-        data?.output?.Premium ??
-        data?.premium ??
-        data?.result?.premium ??
-        data?.response?.premium ??
-        null;
-
-      setPremium(extracted ?? JSON.stringify(data).slice(0, 500)); // fallback show partial raw
-    } catch (err) {
-      setPremium("Error: " + err.message);
-    } finally {
-      setLoading(false);
+        request_meta: {
+            version_id: "b5100601-8d55-40f9-b7a2-02ce874c562c",
+            call_purpose: "Spark - API Tester",
+            source_system: "SPARK",
+            correlation_id: null,
+            requested_output: null,
+            service_category: ""
+        }
+    };
+ 
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Pass the token here
+            },
+            body: JSON.stringify(requestBody)
+        });
+ 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+ 
+        const data = await response.json();
+ 
+        setFields({
+          ...fields,
+          showBeneficiary:data
+      })
+        fields.accdmgPrem = data.response_data.outputs.AccidentalDamagePremium;
+        fields.terrorismPrem = data.response_data.outputs.TerrorismPremium;
+        fields.floodPrem = data.response_data.outputs.FloodPremium;
+        fields.firePrem = data.response_data.outputs.FirePremium;
+        fields.earthquakePrem = data.response_data.outputs.EarthquakePremium;
+ 
+        const premiumSumValue = fields.accdmgPrem + fields.terrorismPrem + fields.floodPrem + fields.firePrem + fields.earthquakePrem;
+        fields.totalPremiumVal = premiumSumValue;
+        localStorage.setItem('totalPremiumVal',fields.totalPremiumVal);
+ 
+        console.log(premiumSumValue);
+        console.log(data.response_data.outputs);
+        localStorage.setItem('accdmgPrem',fields.accdmgPrem);
+        localStorage.setItem('terrorismPrem',fields.terrorismPrem);
+        localStorage.setItem('floodPrem',fields.floodPrem);
+        localStorage.setItem('firePrem',fields.firePrem);
+        localStorage.setItem('earthquakePrem',fields.earthquakePrem);
+        return data;
+    } catch (error) {
+        console.error("Error fetching premium data:", error);
+        throw error;
     }
-  };
-
-  return (
-    <div style={{ maxWidth: 520, margin: "24px auto", padding: 12 }}>
-      <h2>Premium Calculation</h2>
-
-      <Button variant="contained" fullWidth onClick={getPremium} disabled={loading}>
-        {loading ? <CircularProgress size={20} /> : "Calculate Premium"}
-      </Button>
-
-      {premium && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Premium:</h3>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{String(premium)}</pre>
-        </div>
-      )}
-
-      {rawResponse && (
-        <details style={{ marginTop: 12 }}>
-          <summary>Show full raw response</summary>
-          <pre style={{ maxHeight: 300, overflow: "auto" }}>
-            {JSON.stringify(rawResponse, null, 2)}
-          </pre>
-        </details>
-      )}
-    </div>
-  );
-}
-
-
----
-
-🧾 5) src/App.js
-
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LifeAssuredDetails from "./pages/LifeAssuredDetails";
-import PlanAndCoverage from "./pages/PlanAndCoverage";
-import PremiumPage from "./pages/PremiumPage";
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LifeAssuredDetails />} />
-        <Route path="/plan" element={<PlanAndCoverage />} />
-        <Route path="/premium" element={<PremiumPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-
----
-
-🧾 6) src/index.js
-
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import { PremiumProvider } from "./context/PremiumContext";
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <PremiumProvider>
-      <App />
-    </PremiumProvider>
-  </React.StrictMode>
-);
-
-
----
-
-✅ Run the app
-
-1. Start dev server:
-
-
-
-npm start
-
-2. Open http://localhost:3000
-
-
-3. Fill Life Assured page → Next → Fill Plan & Coverage → Get Premium → Premium page → Click Calculate Premium
-
-
-
-
----
-
-📝 Important notes & tips
-
-Token: Use .env REACT_APP_COHERENT_TOKEN. Never commit token. If CORS blocks front-end direct calls, then you need a simple proxy/backend (CORS issue is browser-enforced). If CORS is allowed on the Coherent UAT endpoint, direct call will work.
-
-Date format: DOB and Policy Inception use YYYY-MM-DD (HTML date input does that).
-
-Field names: UI fields map directly to required _1a_DOB, _1d_Face_Amount, etc. Don’t change them unless API expects different keys.
-
-Extra validations: Add required checks for numeric fields (Face Amount, Policy Term). I included basic checks.
-
-API response shape: I added robust extraction logic in PremiumPage — adapt if your API returns premium in a different key (send me a sample response and I’ll map it precisely).
-
-Error handling: Shown basic error and raw response viewer for debugging.
-
-Hardcoded business fields: I included the hardcoded inputs you specified (PAV, per_mille ratings, riders, partial withdrawal).
-
-
-
----
-
-🔁 Next things I can do for you (pick any)
-
-Style UI beautifully (MUI themes, spacing).
-
-Add field-level validation messages.
-
-Add spinner + disabled states + retry logic.
-
-Auto token refresh / token input UI field (so you can paste token in runtime).
-
-Handle CORS via tiny Node proxy (if needed).
-
-Integrate with your existing repo and adapt variable names.
-
-
-
----
-
-भाऊ, हे सगळं copy–paste कर — आणि जर कोणताही runtime error आला (CORS / invalid token / response shape), तेव्हा raw response/text काढून दे — मी लगेच त्या response नुसार extract mapping आणि fixes देईन. Ready? 😊
+};
+ 
+ 
+refer this code
+ 
