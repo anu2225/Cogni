@@ -1,156 +1,733 @@
-ठीक आहे भाई 💯
-आता मी काहीही explain करणार नाही.
-काहीच extra नको. फक्त तुला लागणाऱ्या 3 फाइल्सच देतो — PREMIUM चालण्यासाठी.
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 
-📌 तुला फक्त हे 3 files हवेत:
-1️⃣ premiumService.ts
-2️⃣ PlanAndCoverage.tsx (तुझ्या file मध्ये फक्त premium चा एक function add करून दिला)
-3️⃣ .env
+import React, { useEffect, useState } from "react";
 
-बस्स! यापेक्षा काहीच नको.
+import { useTranslation } from "react-i18next";
 
-आता खाली तीनही FULL फाइल्स देतो — कॉपी पेस्ट करून टाक.
-काम 100% होईल.
-कुठलीही दुसरी फाईल, दुसरे code, दुसरे explanation नाही.
-
-
----
-
-✅ 1) .env — फक्त हे टाक (माझे काहीही बोलणे नको)
-
-VITE_COHERENT_EXECUTE=https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute
-VITE_COHERENT_TOKEN=PUT_YOUR_TOKEN_HERE
-
-
----
-
-✅ 2) src/services/premiumService.ts — FULL, PERFECT, FINAL
-
-const URL = import.meta.env.VITE_COHERENT_EXECUTE;
-const TOKEN = import.meta.env.VITE_COHERENT_TOKEN;
-
-export async function getPremiumCoherent(fields: any) {
-  const dob =
-    typeof fields.insuredDateOfBirth === "string"
-      ? fields.insuredDateOfBirth
-      : fields.insuredDateOfBirth?.toISOString?.()?.split("T")[0] ||
-        new Date().toISOString().split("T")[0];
-
-  const body = {
-    request_data: {
-      inputs: {
-        "_1a_DOB": dob,
-        "_1b_Product": fields.Product || "Option A",
-        "_1c_Gender": fields.insuredGender || "",
-        "_1d_Face_Amount": Number(fields.basicSumInsured || 0),
-        "_1e_Occupation": Number(fields.occupationCode || 0),
-        "_1h_Policy_Inception_Date": fields.Policy_Inception_Date || "",
-        "_1i_Smoker": fields.Smoker === "Yes" ? "Y" : "N",
-        "_1j_Pre_Existing_Disease":
-          fields.Pre_Existing_Disease === "Yes" ? "Y" : "N",
-        "_1k_Extra_mortality": Number(
-          (fields.Extra_mortality || "0").replace("%", "")
-        ) / 100,
-        "_1p_Policy_Term": Number(fields.Policy_Term || 0),
-        "_1r_Mandatory_Premium_Period":
-          fields.Mandatory_Premium_Period || "5",
-        "_1zb_PAV": 0,
-        "_1zc_per_mille_rating_death": 1,
-        "_1zd_per_mille_rating_TPD": 1,
-        "_1ze_per_mille_rating_SCI": 1,
-        "_2a_Death_Benefit": "Y",
-        "_2b_Total_and_Permanent_Disability_TPD": "Y",
-        "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
-        "_2d_Staged_Critical_Illness_SCI": "Y",
-        "_2e_Hospital_Cash_Benefit_HCB": "Y",
-        "_3a_Partial_Withdrawl": "Y",
-        "_3b_Partial_Withdrawl_Amount": 5000,
-      },
-    },
-    request_meta: {
-      version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-      call_purpose: "Spark - API Tester",
-      source_system: "SPARK",
-      correlation_id: null,
-      requested_output: null,
-      service_category: "",
-    },
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+    basicSumInsured: string;
+    basicPlanPremium: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+    Product: string;
+    Policy_Inception_Date: string;
+    Smoker: string;
+    Pre_Existing_Disease: string;
+    Extra_mortality: string;
+    Policy_Term: string;
+    Mandatory_Premium_Period: string;
+    PAV: string;
+    per_mille_rating_death: string;
+    per_mille_rating_TPD: string;
+    per_mille_rating_SCI: string;
+    Death_Benefit: string;
+    Total_and_Permanent_Disability_TPD: string;
+    Accidental_Death_and_Dismemberment_ADD: string;
+    Staged_Critical_Illness_SCI: string;
+    _2e_Hospital_Cash_Benefit_HCB: string;
+    Partial_Withdrawl: string;
+    Partial_Withdrawl_Amount: string;
+    // Note: these optional keys might exist in the global fields object at runtime:
+    // insuredDateOfBirth, insuredGender, insuredAge, insuredOccupationCode, etc.
+    [key: string]: any;
   };
 
-  const res = await fetch(URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
-    },
-    body: JSON.stringify(body),
-  });
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+      basicSumInsured: string;
+      basicPlanPremium: string;
+      typeOfDivident: string;
+      insuranceTerm: string;
+      ppt: string;
+      Product: string;
+      Policy_Inception_Date: string;
+      Smoker: string;
+      Pre_Existing_Disease: string;
+      Extra_mortality: string;
+      Policy_Term: string;
+      Mandatory_Premium_Period: string;
+      PAV: string;
+      per_mille_rating_death: string;
+      per_mille_rating_TPD: string;
+      per_mille_rating_SCI: string;
+      Death_Benefit: string;
+      Total_and_Permanent_Disability_TPD: string;
+      Accidental_Death_and_Dismemberment_ADD: string;
+      Staged_Critical_Illness_SCI: string;
+      _2e_Hospital_Cash_Benefit_HCB: string;
+      Partial_Withdrawl: string;
+      Partial_Withdrawl_Amount: string;
+      [key: string]: any;
+    }>
+  >;
 
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
+  savedQuotation: any;
 
-  return res.json();
+  savedTransaction: any;
 }
 
+const MAIN_PLANS = [
+  "Term Insurance",
+  "Whole Life Insurance",
+  "Universal Life Insurance",
+  "Endowment Plan",
+];
 
----
+const RIDERS = ["ADD", "CI", "WOP", "HCB", "DB"];
 
-✅ 3) PlanAndCoverage.tsx — ONLY PREMIUM PART ADDED
+const YES_NO = ["Yes", "No"];
 
-(बाकी तुझं सगळं code जसंच्या तसं)
+const PRODUCT_OPTIONS = ["a", "b"];
 
-👇 खाली फक्त तेवढाच भाग देतो जे तू जोडायचा आहेस.
+const EXTRA_MORTALITY_OPTIONS = [
+  "5%",
+  "10%",
+  "15%",
+  "20%",
+  "25%",
+  "30%",
+  "35%",
+  "40%",
+  "45%",
+  "50%",
+  "55%",
+  "60%",
+  "65%",
+  "70%",
+  "75%",
+  "80%",
+  "85%",
+  "90%",
+  "95%",
+  "100%",
+];
 
-(A) Import वर टाका:
-
-import { getPremiumCoherent } from "../services/premiumService";
-
-(B) हा function कोडमध्ये टाका (जिथे तुला हवा तिथे):
-
-const getPremium = async () => {
-  try {
-    setLoadingPremium(true);
-    const data = await getPremiumCoherent(fields);
-
-    console.log("COHERENT OUTPUT:", data);
-
-    const out = data?.response_data?.outputs || {};
-
-    setFields((p: any) => ({
-      ...p,
-      accdmgPrem: out.AccidentalDamagePremium || 0,
-      terrorismPrem: out.TerrorismPremium || 0,
-      floodPrem: out.FloodPremium || 0,
-      firePrem: out.FirePremium || 0,
-      earthquakePrem: out.EarthquakePremium || 0,
-      totalPremiumVal: out.TotalPremium || 0,
-    }));
-
-    setLoadingPremium(false);
-  } catch (e: any) {
-    setLoadingPremium(false);
-    alert("Premium Error: " + e.message);
-  }
+const camelToNormal = (text: string) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
 };
 
-(C) Button वर onClick बदला असे:
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedQuotation,
+  savedTransaction,
+}) => {
+  let jsonData;
+  let headers: any[] = [];
+  let OptRiderData;
+  let OptHeaders: any[] = [];
 
-<Button variant="contained" onClick={getPremium}>
-  {loadingPremium ? "Calculating..." : "Calculate Premium"}
-</Button>
+  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [snack, setSnack] = useState<{ open: boolean; msg: string; severity?: "success" | "error" | "info" }>({
+    open: false,
+    msg: "",
+    severity: "info",
+  });
 
+  const [premiumResponseRaw, setPremiumResponseRaw] = useState<any>(null);
 
----
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
 
-DONE ✔️
+  const handlePlanChange = (event: SelectChangeEvent<string>) => {
+    const selectedPlan = event.target.value;
+    handleFieldChange(selectedPlan, "basicPlan");
 
-🔥 आता तुझा frontend direct Coherent ला hit करेल कोणत्याही backend शिवाय.
+    // Set default values based on plan type
+    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
+    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
 
-तुला फक्त ही 3 फाईल्स replace करायच्या आहेत.
-काहीही विचार करू नकोस — काहीही extra नाही.
+    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
+    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
+  };
 
+  const getDefaultSumInsured = (planType: string): number => {
+    switch (planType) {
+      case "Term Insurance":
+        return 1000000;
+      case "Whole Life Insurance":
+        return 500000;
+      case "Universal Life Insurance":
+        return 750000;
+      case "Endowment Plan":
+        return 300000;
+      default:
+        return 500000;
+    }
+  };
 
----
+  const calculatePremium = (sumInsured: number, planType: string): number => {
+    const baseRate = {
+      "Term Insurance": 0.002,
+      "Whole Life Insurance": 0.015,
+      "Universal Life Insurance": 0.012,
+      "Endowment Plan": 0.025,
+    };
+    return Math.round(sumInsured * (baseRate[planType as keyof typeof baseRate] || 0.01));
+  };
 
-तुला हवं असेल तर मी तुला हे 3 फाईल्स ZIP करूनही देईन.
+  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedRiders(typeof value === "string" ? value.split(",") : value);
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+
+      setFields((prevFields) => ({
+        ...prevFields,
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]?.basePlan,
+        basicSumInsured: baseSA || "200000",
+        basicPlan: plan,
+        insuranceTerm: term,
+        ppt: ppt,
+        typeOfDivident: "Non - Participatory",
+        Product: "",
+        Policy_Inception_Date: new Date().toISOString().split("T")[0],
+        Smoker: "No",
+        Pre_Existing_Disease: "Yes",
+        Extra_mortality: "75%",
+        Policy_Term: "45",
+        Mandatory_Premium_Period: "ErrName",
+        PAV: "0",
+        per_mille_rating_death: "1",
+        per_mille_rating_TPD: "1",
+        per_mille_rating_SCI: "1",
+        Death_Benefit: "Yes",
+        Total_and_Permanent_Disability_TPD: "Yes",
+        Accidental_Death_and_Dismemberment_ADD: "Yes",
+        Staged_Critical_Illness_SCI: "Yes",
+        _2e_Hospital_Cash_Benefit_HCB: "Y",
+        Partial_Withdrawl: "Yes",
+        Partial_Withdrawl_Amount: "5000",
+      }));
+    } else {
+      // Set defaults when no savedTransaction
+      setFields((prevFields) => ({
+        ...prevFields,
+        basicSumInsured: "200000",
+        Product: "",
+        Policy_Inception_Date: new Date().toISOString().split("T")[0],
+        Smoker: "No",
+        Pre_Existing_Disease: "Yes",
+        Extra_mortality: "75%",
+        Policy_Term: "45",
+        Mandatory_Premium_Period: "ErrName",
+        PAV: "0",
+        per_mille_rating_death: "1",
+        per_mille_rating_TPD: "1",
+        per_mille_rating_SCI: "1",
+        Death_Benefit: "Yes",
+        Total_and_Permanent_Disability_TPD: "Yes",
+        Accidental_Death_and_Dismemberment_ADD: "Yes",
+        Staged_Critical_Illness_SCI: "Yes",
+        _2e_Hospital_Cash_Benefit_HCB: "Y",
+        Partial_Withdrawl: "Yes",
+        Partial_Withdrawl_Amount: "5000",
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedTransaction]);
+
+  if (savedTransaction && typeof savedTransaction === "object" && Object.keys(savedTransaction).length !== 0) {
+    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
+    if (jsonData?.length) {
+      headers = Object.keys(jsonData[0]);
+    }
+
+    OptRiderData = savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
+    if (OptRiderData?.length) {
+      OptHeaders = Object.keys(OptRiderData[0]);
+    }
+  }
+
+  // ---------- PREMIUM API CALL ----------
+  // fallback public/test URL you gave earlier (kept but not used unless proxy unavailable)
+  const COHERENT_FALLBACK =
+    "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
+
+  const buildRequestBody = () => {
+    // Build inputs using available fields; if missing, use sensible defaults from your sample.
+    const inputs: any = {
+      // Date of birth - try fields._1a_DOB or fields.insuredDateOfBirth; convert to yyyy-mm-dd
+      _1a_DOB:
+        fields._1a_DOB ||
+        (fields.insuredDateOfBirth instanceof Date
+          ? fields.insuredDateOfBirth.toISOString().split("T")[0]
+          : fields.insuredDateOfBirth || "1976-10-08"),
+      _1b_Product: fields.basicPlan || "Option A",
+      _1c_Gender: fields._1c_Gender || fields.gender || fields.insuredGender || "Male",
+      _1d_Face_Amount: Number(fields.basicSumInsured || fields._1d_Face_Amount || 200000),
+      _1e_Occupation: Number(fields.occupationCode || fields._1e_Occupation || 4),
+      _1h_Policy_Inception_Date: fields.Policy_Inception_Date || fields._1h_Policy_Inception_Date || new Date().toISOString().split("T")[0],
+      _1i_Smoker: (fields.Smoker && (fields.Smoker === "Yes" || fields.Smoker === "Y")) ? "Y" : "N",
+      _1j_Pre_Existing_Disease: (fields.Pre_Existing_Disease && (fields.Pre_Existing_Disease === "Yes" || fields.Pre_Existing_Disease === "Y")) ? "Y" : "N",
+      // Extra mortality: convert "75%" -> 0.75
+      _1k_Extra_mortality: (() => {
+        const v = fields.Extra_mortality || fields._1k_Extra_mortality || "75%";
+        if (typeof v === "string" && v.includes("%")) {
+          return Number(v.replace("%", "")) / 100;
+        }
+        return Number(v) || 0.75;
+      })(),
+      _1p_Policy_Term: Number(fields.Policy_Term || fields._1p_Policy_Term || 45),
+      _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period || "ErrName",
+      _1zb_PAV: 0,
+      _1zc_per_mille_rating_death: 1,
+      _1zd_per_mille_rating_TPD: 1,
+      _1ze_per_mille_rating_SCI: 1,
+      _2a_Death_Benefit: fields.Death_Benefit || "Y",
+      _2b_Total_and_Permanent_Disability_TPD: fields.Total_and_Permanent_Disability_TPD || "Y",
+      _2c_Accidental_Death_and_Dismemberment_ADD: fields.Accidental_Death_and_Dismemberment_ADD || "Y",
+      _2d_Staged_Critical_Illness_SCI: fields.Staged_Critical_Illness_SCI || "Y",
+      _2e_Hospital_Cash_Benefit_HCB: fields._2e_Hospital_Cash_Benefit_HCB || "Y",
+      _3a_Partial_Withdrawl: fields.Partial_Withdrawl || "Y",
+      _3b_Partial_Withdrawl_Amount: Number(fields.Partial_Withdrawl_Amount || 5000),
+    };
+
+    return {
+      request_data: {
+        inputs,
+      },
+      request_meta: {
+        version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+        call_purpose: "Spark - API Tester",
+        source_system: "SPARK",
+        correlation_id: null,
+        requested_output: null,
+        service_category: "",
+      },
+    };
+  };
+
+  const extractPremiumFromResponse = (data: any) => {
+    // Try a few heuristics to find the premium number(s) in the coherent response.
+    if (!data) return null;
+    const outputs = data.response_data?.outputs || data.outputs || data;
+    // 1) If PremiumSummary exists
+    if (outputs?.PremiumSummary) {
+      // try to find numeric values
+      try {
+        const ps = outputs.PremiumSummary;
+        if (Array.isArray(ps)) {
+          // look for object with numeric fields
+          for (const p of ps) {
+            for (const k in p) {
+              if (typeof p[k] === "number") return p[k];
+            }
+          }
+        } else if (typeof ps === "object") {
+          for (const k in ps) {
+            if (typeof ps[k] === "number") return ps[k];
+          }
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    // 2) Look for top-level numeric keys we know from earlier examples
+    const possibleKeys = [
+      "AccidentalDamagePremium",
+      "AccidentalDamagePremium", // old example
+      "TerrorismPremium",
+      "FloodPremium",
+      "FirePremium",
+      "EarthquakePremium",
+      "totalPremiumVal",
+      "TotalPremium",
+      "Premium",
+      "premium",
+      "basePlan",
+    ];
+    for (const k of possibleKeys) {
+      if (outputs?.[k] !== undefined && typeof outputs[k] === "number") return outputs[k];
+      if (data?.response_data?.outputs?.[k] !== undefined && typeof data.response_data.outputs[k] === "number")
+        return data.response_data.outputs[k];
+    }
+    // 3) Sum all numeric values under outputs
+    const numericSum = (obj: any) => {
+      let sum = 0;
+      const seen = new Set();
+      const walk = (o: any) => {
+        if (!o || typeof o !== "object") return;
+        if (seen.has(o)) return;
+        seen.add(o);
+        for (const key of Object.keys(o)) {
+          const val = o[key];
+          if (typeof val === "number") sum += val;
+          else if (typeof val === "object") walk(val);
+        }
+      };
+      walk(outputs);
+      return sum || null;
+    };
+    const sum = numericSum(outputs);
+    return sum;
+  };
+
+  const getPremium = async () => {
+    const url = import.meta.env.VITE_COHERENT.PROXY;
+    const token = localStorage.getItem("coherent_token") || ""; // if you store token in localStorage
+    const requestBody = buildRequestBody();
+
+    setLoading(true);
+    setSnack({ open: false, msg: "", severity: "info" });
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        // try fallback if local proxy failed and fallback is different:
+        if (url !== COHERENT_FALLBACK) {
+          // attempt fallback
+          const fallbackResp = await fetch(COHERENT_FALLBACK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify(requestBody),
+          });
+          if (!fallbackResp.ok) throw new Error(`HTTP error! status: ${fallbackResp.status}`);
+          const fallbackData = await fallbackResp.json();
+          setPremiumResponseRaw(fallbackData);
+          const prem = extractPremiumFromResponse(fallbackData) || 0;
+          setFields((f) => ({ ...f, basicPlanPremium: String(prem) }));
+          setSnack({ open: true, msg: "Premium calculated (from fallback).", severity: "success" });
+          setLoading(false);
+          return fallbackData;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setPremiumResponseRaw(data);
+
+      const prem = extractPremiumFromResponse(data) || 0;
+      // update UI fields: set basicPlanPremium and store raw response in fields.showBeneficiary (like example)
+      setFields((f) => ({ ...f, basicPlanPremium: String(prem), showBeneficiary: data }));
+
+      setSnack({ open: true, msg: "Premium calculated.", severity: "success" });
+      setLoading(false);
+      return data;
+    } catch (error: any) {
+      console.error("Error fetching premium data:", error);
+      setSnack({ open: true, msg: `Error: ${error?.message || error}`, severity: "error" });
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const handleSnackClose = () => setSnack({ ...snack, open: false });
+
+  // ---------- UI ----------
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation Summary */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("quotation_summaryh")}</Typography>
+        <Divider />
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              try {
+                const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], {
+                  type: "application/pdf",
+                });
+                const fileURL = URL.createObjectURL(file);
+                window.open(fileURL);
+              } catch (e) {
+                setSnack({ open: true, msg: "Quotation not available", severity: "info" });
+              }
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
+
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("main_plan")}</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }}>
+              <TableBody>
+                <TableRow sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>{t("basicPlan")}</InputLabel>
+                      <Select value={fields.basicPlan} onChange={handlePlanChange}>
+                        {MAIN_PLANS.map((plan) => (
+                          <MenuItem key={plan} value={plan}>
+                            {plan}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  {["basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
+                    <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                      <TextField
+                        size="small"
+                        label={t(field)}
+                        variant="standard"
+                        InputProps={{ readOnly: true }}
+                        value={fields[field as keyof typeof fields]}
+                        onChange={(e) => handleFieldChange(e.target.value, field)}
+                      />
+                    </TableCell>
+                  ))}
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Product</InputLabel>
+                      <Select value={fields.Product} onChange={(e) => handleFieldChange(e.target.value, "Product")}>
+                        {PRODUCT_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Inception Date"
+                      variant="standard"
+                      type="date"
+                      value={fields.Policy_Inception_Date}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Smoker</InputLabel>
+                      <Select value={fields.Smoker} onChange={(e) => handleFieldChange(e.target.value, "Smoker")}>
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Pre Existing Disease</InputLabel>
+                      <Select
+                        value={fields.Pre_Existing_Disease}
+                        onChange={(e) => handleFieldChange(e.target.value, "Pre_Existing_Disease")}
+                      >
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Extra Mortality</InputLabel>
+                      <Select
+                        value={fields.Extra_mortality}
+                        onChange={(e) => handleFieldChange(e.target.value, "Extra_mortality")}
+                      >
+                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Term"
+                      variant="standard"
+                      value={fields.Policy_Term}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Mandatory Premium Period"
+                      variant="standard"
+                      value={fields.Mandatory_Premium_Period}
+                      onChange={(e) => handleFieldChange(e.target.value, "Mandatory_Premium_Period")}
+                    />
+                  </TableCell>
+
+                  {/* Calculate / Show Premium Buttons */}
+                  <TableCell sx={{ flex: "1 1 100%", minWidth: "240px", display: "flex", gap: 1, alignItems: "center" }}>
+                    <Button variant="contained" onClick={getPremium} disabled={loading}>
+                      {loading ? <CircularProgress size={20} /> : "Calculate Premium"}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setFields((f) => ({ ...f, basicPlanPremium: "", showBeneficiary: null }));
+                        setPremiumResponseRaw(null);
+                        setSnack({ open: true, msg: "Cleared premium", severity: "info" });
+                      }}
+                      disabled={loading}
+                    >
+                      Clear
+                    </Button>
+                    <Box sx={{ ml: 2 }}>
+                      <Typography variant="caption">Calculated: {fields.basicPlanPremium || "-"}</Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Riders */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("riders")}</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <FormControl variant="standard" size="small" sx={{ minWidth: 200, marginBottom: 2 }}>
+            <InputLabel>Select Riders</InputLabel>
+            <Select multiple value={selectedRiders} onChange={handleRiderChange} renderValue={(selected) => selected.join(", ")}>
+              {RIDERS.map((rider) => (
+                <MenuItem key={rider} value={rider}>
+                  {rider}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {jsonData && (
+            <TableContainer sx={{ width: "100%" }}>
+              <Table sx={{ width: "100%" }}>
+                <TableHead>
+                  <TableRow>
+                    {headers?.map((header) => (
+                      <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {jsonData?.map((row: any, rowIndex: number) => (
+                    <TableRow key={rowIndex}>
+                      {headers?.map((header) => (
+                        <TableCell key={header}>{row[header]}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      </Paper>
+
+      {/* Optional Benefits */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("optional_benefits")}</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {OptHeaders?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {OptRiderData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {OptHeaders?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Raw response preview (optional) */}
+      {premiumResponseRaw && (
+        <Paper elevation={2} sx={{ padding: 2, mt: 2 }}>
+          <Typography variant="subtitle2">Premium response (raw)</Typography>
+          <pre style={{ maxHeight: 240, overflow: "auto", background: "#f7f7f7", padding: 8 }}>
+            {JSON.stringify(premiumResponseRaw, null, 2)}
+          </pre>
+        </Paper>
+      )}
+
+      <Snackbar open={snack.open} autoHideDuration={6000} onClose={handleSnackClose}>
+        <Alert onClose={handleSnackClose} severity={snack.severity || "info"} sx={{ width: "100%" }}>
+          {snack.msg}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+};
+
+export default PlanAndCoverage;
