@@ -1,0 +1,120 @@
+{
+
+    "request_data": {
+
+        "inputs": {
+
+            "_1a_DOB": "1976-10-08",
+
+            "_1b_Product": "Option A",
+
+            "_1c_Gender": "Male",
+
+            "_1d_Face_Amount": 200000,
+
+            "_1e_Occupation": 4,
+
+            "_1h_Policy_Inception_Date": "2018-05-11",
+
+            "_1i_Smoker": "N",
+
+            "_1j_Pre_Existing_Disease": "Y",
+
+            "_1k_Extra_mortality": 0.75,
+
+            "_1p_Policy_Term": 45,
+
+            "_1r_Mandatory_Premium_Period": "ErrName",
+
+            "_1zb_PAV": 0,
+
+            "_1zc_per_mille_rating_death": 1,
+
+            "_1zd_per_mille_rating_TPD": 1,
+
+            "_1ze_per_mille_rating_SCI": 1,
+
+            "_2a_Death_Benefit": "Y",
+
+            "_2b_Total_and_Permanent_Disability_TPD": "Y",
+
+            "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+
+            "_2d_Staged_Critical_Illness_SCI": "Y",
+
+            "_2e_Hospital_Cash_Benefit_HCB": "Y",
+
+            "_3a_Partial_Withdrawl": "Y",
+
+            "_3b_Partial_Withdrawl_Amount": 5000
+
+        }
+
+    },
+
+    "request_meta": {
+
+        "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+
+        "call_purpose": "Spark - API Tester",
+
+        "source_system": "SPARK",
+
+        "correlation_id": null,
+
+        "requested_output": null,
+
+        "service_category": ""
+
+    }
+
+}
+ 
+"inputs": {
+
+      "_1a_DOB": "1976-10-08", -- present
+
+      "_1b_Product": "Option A", --plan -- present
+
+      "_1c_Gender": "Male", -- present
+
+      "_1d_Face_Amount": 200000, -- present - basicSumAssured
+
+      "_1e_Occupation": 4, --present ?
+
+      "_1h_Policy_Inception_Date": "2018-05-11", --need to create a field - SYSDATE
+
+      "_1i_Smoker": "N", --need to create a field - dropdown Y/N
+
+      "_1j_Pre_Existing_Disease": "Y", --need to create a field - dropdown Y/N
+
+      "_1k_Extra_mortality": 0.75, --need to create a field - dropdown - % 5%, 10% - 100 %
+
+      "_1p_Policy_Term": 45, --need to create a field - text field
+
+      "_1r_Mandatory_Premium_Period": "ErrName", --need to create a field - textfield
+
+      "_1zb_PAV": 0, -- hard code
+
+      "_1zc_per_mille_rating_death": 1,  -- hard code
+
+      "_1zd_per_mille_rating_TPD": 1,  -- hard code
+
+      "_1ze_per_mille_rating_SCI": 1,  -- hard code
+
+      "_2a_Death_Benefit": "Y",
+
+      "_2b_Total_and_Permanent_Disability_TPD": "Y",
+
+      "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+
+      "_2d_Staged_Critical_Illness_SCI": "Y",
+
+      "_2e_Hospital_Cash_Benefit_HCB": "Y",
+
+      "_3a_Partial_Withdrawl": "Y", -- hard code
+
+      "_3b_Partial_Withdrawl_Amount": 5000  -- hard code
+
+    }
+ 
