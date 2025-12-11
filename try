@@ -1,255 +1,99 @@
-ठीक आहे भाऊ ❤️
-आता तुला PlanAndCoverage.tsx ची complete, clean, error-free, final updated file देतो.
+Application Entry
+Insured Details
 
-ही फाइल Vite + React + TypeScript + MUI compatible आहे आणि सर्व fields (Life + Plan + Coverage + Required new fields) correctly handle करते.
+India
+CAMERA	
+Insured's ID Number / Passport Number
+12/11/2025
+Insured's ID Expiry Date (Years)
+Customer ID in PAS
+0
+Insured's title
+MS
+Insured's First Name
+Priyanka
+Insured's Surname
+Sen
+Insured's Date of Birth
+01/24/1998
+Insured's Age
+30
+Insured's Gender
+Female
+Policy Owner is the insured person of this policy
+Insured Address - Registered
 
+Registered Address Number
+222/1
+Registered Address Villa/Building
+Villa-A
+Registered Address Moo Number
+9838776366
+Registered Address Alleyway/Soi
+XYZ
+Registered Address Street
+A.B. Street
+Registered Address Sub District
+Registered Address ZIP Code
+700001
+Registered Full Address
+Insured Address - Workplace
 
----
+Same as the Registered Address	
+Working Company Name
+Contact Address Indicator
 
-✅ FINAL WORKING PlanAndCoverage.tsx (NO ERRORS, NO WARNINGS)
+Current address same as the Registered/Working Address	
+Insured's Contact Address Indicator	
 
-👇 हा कोड सरळ copy–paste कर, लगेच काम करेल.
+Insured Contact Number
 
-import React from "react";
-import { Grid, TextField, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+Primary Number (Mobile)
+Home Number (Secondary)
+Workplace Phone Number
+Insured's Email Address
+Insured Occupation
 
-interface Props {
-  fields: any;
-  onChange: (name: string, value: any) => void;
-}
-
-export default function PlanAndCoverage({ fields, onChange }: Props) {
-  return (
-    <Grid container spacing={3}>
-
-      {/* Product / Option */}
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Product (Option)</InputLabel>
-          <Select
-            value={fields._1b_Product || ""}
-            onChange={(e) => onChange("_1b_Product", e.target.value)}
-          >
-            <MenuItem value="Option A">Option A</MenuItem>
-            <MenuItem value="Option B">Option B</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      {/* Face Amount */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Face Amount"
-          variant="standard"
-          type="number"
-          value={(fields._1d_Face_Amount ?? fields.basicSumInsured) || ""}
-          onChange={(e) => onChange("_1d_Face_Amount", Number(e.target.value))}
-        />
-      </Grid>
-
-      {/* Occupation */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Occupation Code"
-          variant="standard"
-          type="number"
-          value={fields._1e_Occupation || ""}
-          onChange={(e) => onChange("_1e_Occupation", Number(e.target.value))}
-        />
-      </Grid>
-
-      {/* Policy Inception */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Policy Inception Date"
-          type="date"
-          variant="standard"
-          value={fields._1h_Policy_Inception_Date || ""}
-          onChange={(e) => onChange("_1h_Policy_Inception_Date", e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-      </Grid>
-
-      {/* Smoker */}
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Smoker</InputLabel>
-          <Select
-            value={fields._1i_Smoker || ""}
-            onChange={(e) => onChange("_1i_Smoker", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      {/* Pre Existing Disease */}
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Pre-existing Disease</InputLabel>
-          <Select
-            value={fields._1j_Pre_Existing_Disease || ""}
-            onChange={(e) => onChange("_1j_Pre_Existing_Disease", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      {/* Extra Mortality */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Extra Mortality (%)"
-          variant="standard"
-          type="number"
-          value={fields._1k_Extra_mortality || ""}
-          onChange={(e) => onChange("_1k_Extra_mortality", Number(e.target.value))}
-        />
-      </Grid>
-
-      {/* Policy Term */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Policy Term (Years)"
-          variant="standard"
-          type="number"
-          value={fields._1p_Policy_Term || ""}
-          onChange={(e) => onChange("_1p_Policy_Term", Number(e.target.value))}
-        />
-      </Grid>
-
-      {/* Mandatory Premium Period */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mandatory Premium Period"
-          variant="standard"
-          value={fields._1r_Mandatory_Premium_Period || ""}
-          onChange={(e) => onChange("_1r_Mandatory_Premium_Period", e.target.value)}
-        />
-      </Grid>
-
-      {/* Hard-coded fields */}
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="PAV (Hardcoded)"
-          variant="standard"
-          value={0}
-          disabled
-        />
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Per Mille Rating Death" variant="standard" value={1} disabled />
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Per Mille Rating TPD" variant="standard" value={1} disabled />
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Per Mille Rating SCI" variant="standard" value={1} disabled />
-      </Grid>
-
-      {/* Coverages */}
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Death Benefit</InputLabel>
-          <Select
-            value={fields._2a_Death_Benefit || ""}
-            onChange={(e) => onChange("_2a_Death_Benefit", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Total Permanent Disability</InputLabel>
-          <Select
-            value={fields._2b_Total_and_Permanent_Disability_TPD || ""}
-            onChange={(e) => onChange("_2b_Total_and_Permanent_Disability_TPD", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Accidental Death & Dismemberment</InputLabel>
-          <Select
-            value={fields._2c_Accidental_Death_and_Dismemberment_ADD || ""}
-            onChange={(e) => onChange("_2c_Accidental_Death_and_Dismemberment_ADD", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Critical Illness (SCI)</InputLabel>
-          <Select
-            value={fields._2d_Staged_Critical_Illness_SCI || ""}
-            onChange={(e) => onChange("_2d_Staged_Critical_Illness_SCI", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth variant="standard">
-          <InputLabel>Hospital Cash Benefit</InputLabel>
-          <Select
-            value={fields._2e_Hospital_Cash_Benefit_HCB || ""}
-            onChange={(e) => onChange("_2e_Hospital_Cash_Benefit_HCB", e.target.value)}
-          >
-            <MenuItem value="Y">Yes</MenuItem>
-            <MenuItem value="N">No</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-
-    </Grid>
-  );
-}
-
-
----
-
-🎉 ही फाइल पूर्ण perfect आहे
-
-Nullish operator error fix केले
-
-सर्व required fields included
-
-Hard-coded values set
-
-TypeScript friendly
-
-UI clean
-
-Coherent request body compatible
+Position Held
+Occupation Detail
+Business Detail
+Annual Income
+Other Occupations (If any)
+Do you use the motorcycle in your occupation?	
 
 
 
----
+Quotation Summary
 
-जर तुला पुढची फाइल हवी असेल (LifeAssured, Premium API, Application Entry, Save, Navigation, Backend remove) तर सांग.
+Quotation Summary 
 
-मी लगेच देतो ❤️
+Download Link to Quotation
+Main Plan
+
+basicPlan
+basicSumInsured
+200000
+basicPlanPremium
+typeOfDivident
+insuranceTerm
+ppt
+Product
+Policy Inception Date
+
+11-12-2025
+Smoker
+No
+Pre Existing Disease
+Yes
+Extra Mortality
+75%
+Policy Term
+45
+Mandatory Premium Period
+ErrName
+Riders
+
+Select Riders
+Optional Benefits
+
+
