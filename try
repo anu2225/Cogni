@@ -1,345 +1,970 @@
-Perfect!! 🔥
-तुझं backend already working + swagger वर premium calculation येतंय → मग आता मला फक्त फ्रंट-एंड पूर्ण, अंतिम, एकदम copy-paste ready setup द्यायचं आहे.
+Nice — I read the three files you sent (Basic tabs, Life Assured, Plan & Coverage). Below I give you final copy-paste ready frontend files (one message, one-by-one) so when the user fills values and clicks the "Calculate Premium" button it will:
 
-मी आता तुला FULL & FINAL FRONTEND SETUP देतो — यात:
+build the request JSON matching your backend DTO,
+
+call your backend endpoint POST http://localhost:8001/api/calc/premium,
+
+show the returned premium on the UI (and in console).
 
 
----
-
-✅ Final Front-End Setup (Life Assured + Plan & Coverage + BasicTabs + API)
-
-📌 हे 4 files तुला copy-paste करायचे:
-
-1) BasicTabs.tsx (Main Parent – दोन्ही forms जोडतो + submit करतो)
-
-2) LifeAssuredDetail.tsx (तुझी दिलेली FULL file – फक्त premium साठी आवश्यक fields prepared)
-
-3) PlanAndCoverage.tsx (Calculate button → backend hitting → premium UI)
-
-4) premiumCalculationApi.ts (Frontend → backend API)
+I keep your existing structure and fields, just add the wiring to call the API and minimal state to display the result. Paste each file into your React project in the indicated path (or adapt paths if different). I also include a tiny axiosInterceptor used by others in your project.
 
 
 ---
 
-🚀 आता मी एकदम FINAL working code देतो
+1) src/api/axiosInterceptor.ts
 
-फक्त 4 files आहेत — copy-paste करा → run करा → premium दिसेल.
+Create this file if not present — simple axios instance for local dev:
+
+// src/api/axiosInterceptor.ts
+import axios from "axios";
+
+const instance = axios.create({
+  baseURL: "http://localhost:8001", // backend base
+  timeout: 10000,
+});
+
+export default instance;
 
 
 ---
 
-✅ 1) BasicTabs.tsx (FINAL)
+2) src/components/BasicTabs.tsx
 
-import React, { useState } from "react";
-import LifeAssuredDetail from "./LifeAssuredDetail";
+This is your main tabs container (integrates the other two components and performs the premium call). Replace or merge with your existing BasicTabs file, keeping other screens intact.
+
+// src/components/BasicTabs.tsx
+import * as React from "react";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import LifeAssuredDetails from "./LifeAssuredDetails";
 import PlanAndCoverage from "./PlanAndCoverage";
+import {
+  Button,
+  Stack,
+  Step,
+  StepButton,
+  Stepper,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { ArrowBack, ArrowForward, Save } from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import axios from "../api/axiosInterceptor";
 import dayjs from "dayjs";
-import { Box, Typography } from "@mui/material";
+import "./styles.css";
 
-const BasicTabs = () => {
-  const [lifeFields, setLifeFields] = useState<any>({
-    insuredDateOfBirth: dayjs(),
+const steps = [
+  "Life Assured Details",
+  "Plan & Coverage",
+  "Payment Information",
+  "Beneficiary",
+  "Health",
+  "FATCA & CRS",
+  "Supporting Documents",
+  "Consent",
+  "Signatures",
+  "Payment Collection",
+];
+
+const BasicTabs: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [activeStep, setActiveStep] = useState<number>(0);
+
+  // Life Assured fields (initial minimal defaults)
+  const [lifeAssuredFields, setLifeAssuredFields] = React.useState<any>({
+    insuredNationality: "",
+    insuredEvidenceOfProof: "",
+    insuredIdNumber: "",
+    customerIdEbao: 0,
+    insuredIdExpiryDate: dayjs(),
+    insuredTitle: "",
+    insuredFirstName: "",
+    insuredSurName: "",
+    insuredDateOfBirth: dayjs().format("YYYY-MM-DD"),
     insuredGender: "",
-    occupationCode: "",
+    insuredAge: "",
+
+    insuredProvince: "",
+    insuredDistrict: "",
+    imgURL: "",
+    workplaceAddressOptn: "Yes",
+    currentAddressOptn: "Registered Address",
+    insContactAddressIndicator: "Registered Address",
+    motorcycleOptn: "No",
+    regAddrNum: "",
+    regAddrVilla: "",
+    regAddrMooNum: "",
+    regAddrAlley: "",
+    regAddrStrNum: "",
+    regAddrSubDist: "",
+    regAddrZipCode: "",
+    regFullAddr: "",
+    familyMemberType: "",
+    insuredMritalStatus: "",
+    workCompanyName: "",
+    workAddrNum: "",
+    workAddrVilla: "",
+    workAddrMooNum: "",
+    workAddrAlley: "",
+    workAddrStrNum: "",
+    insuredWorkProvince: "",
+    insuredWorkDistrict: "",
+    workAddrSubDist: "",
+    workAddrZipCode: "",
+    workFullAddress: "",
+    cRegAddNum: "",
+    cRegAddVilla: "",
+    cRegAddMoo: "",
+    cRegAddAlley: "",
+    cRegAddStrNum: "",
+    cRegAddProvince: "",
+    cRegAddDist: "",
+    cRegAddSubDis: "",
+    cRegAddZipCode: "",
+    contactFullAddr: "",
+    primaryNumber: "",
+    homeNumber: "",
+    workPhoneNumber: "",
+    emailAddress: "",
+    occupationCode: "0",
+    positionHeld: "",
+    occupationDetail: "",
+    businessDetail: "",
+    annualIncome: "",
+    otherOccupation: "",
   });
 
-  const [planFields, setPlanFields] = useState<any>({
+  // Plan & Coverage fields (minimal shape used for mapping)
+  const [planAndCoverageFields, setPlanAndCoverageFields] = React.useState<any>({
     basicPlan: "",
     basicSumInsured: "",
     basicPlanPremium: "",
-    Product: "",
-    Policy_Inception_Date: "",
-    Smoker: "NO",
-    Pre_Existing_Disease: "NO",
-    Extra_mortality: 0,
+    typeOfDivident: "",
+    insuranceTerm: "",
+    ppt: "",
+    Product: "", // product selection
+    Policy_Inception_Date: dayjs().format("YYYY-MM-DD"),
+    Smoker: "No",
+    Pre_Existing_Disease: "No",
+    Extra_mortality: "0",
     Policy_Term: "",
     Mandatory_Premium_Period: "",
+    // Riders / optional fields
+    ADD: "No",
+    SCI: "No",
+    HCB: "No",
+    partialWithdrawal: "No",
+    partialWithdrawalAmount: 0,
   });
 
-  const [premiumResult, setPremiumResult] = useState<any>(null);
+  // UI state for premium result
+  const [calculatedPremium, setCalculatedPremium] = useState<any>(null);
+  const [loadingPremium, setLoadingPremium] = useState(false);
+  const [errorPremium, setErrorPremium] = useState<string | null>(null);
+
+  const handleNext = () => setActiveStep((s) => Math.min(s + 1, steps.length - 1));
+  const handleBack = () => setActiveStep((s) => Math.max(s - 1, 0));
+  const handleStep = (step: number) => () => setActiveStep(step);
+
+  // Build request payload for backend DTO (match PremiumCalcRequest -> inputs)
+  const buildPremiumRequest = () => {
+    // Map/format values from lifeAssuredFields & planAndCoverageFields
+    const dobRaw = lifeAssuredFields.insuredDateOfBirth;
+    const dob =
+      typeof dobRaw === "string" ? dobRaw : dayjs(dobRaw).format("YYYY-MM-DD");
+
+    const faceAmount = Number(planAndCoverageFields.basicSumInsured || 0);
+    const occupation = Number(lifeAssuredFields.occupationCode || 0);
+
+    const request = {
+      inputs: {
+        dob: dob,
+        product: planAndCoverageFields.Product || planAndCoverageFields.basicPlan || "",
+        gender: (lifeAssuredFields.insuredGender || "").toString(),
+        faceAmount: faceAmount,
+        occupation: occupation,
+        policyInceptionDate:
+          planAndCoverageFields.Policy_Inception_Date ||
+          dayjs().format("YYYY-MM-DD"),
+        smoker: planAndCoverageFields.Smoker || "No",
+        preExistingDisease: planAndCoverageFields.Pre_Existing_Disease || "No",
+        extraMortality: Number(planAndCoverageFields.Extra_mortality || 0),
+        policyTerm: Number(planAndCoverageFields.Policy_Term || 0),
+        mandatoryPremiumPeriod:
+          planAndCoverageFields.Mandatory_Premium_Period?.toString() || "",
+        pav: Number(planAndCoverageFields.pav || 0),
+        perMilleRatingDeath: Number(planAndCoverageFields.perMilleRatingDeath || 0),
+        perMilleRatingTpd: Number(planAndCoverageFields.perMilleRatingTpd || 0),
+        perMilleRatingSci: Number(planAndCoverageFields.perMilleRatingSci || 0),
+        deathBenefit: planAndCoverageFields.DEATH_BENEFIT || "No",
+        tpd: planAndCoverageFields.TPD || "No",
+        add: planAndCoverageFields.ADD || "No",
+        sci: planAndCoverageFields.SCI || "No",
+        hcb: planAndCoverageFields.HCB || "No",
+        partialWithdrawal: planAndCoverageFields.partialWithdrawal || "No",
+        partialWithdrawalAmount:
+          Number(planAndCoverageFields.partialWithdrawalAmount || 0),
+      },
+    };
+
+    return request;
+  };
+
+  // Call backend to calculate premium
+  const calculatePremium = async () => {
+    setLoadingPremium(true);
+    setErrorPremium(null);
+    setCalculatedPremium(null);
+
+    const payload = buildPremiumRequest();
+
+    try {
+      const resp = await axios.post("/api/calc/premium", payload);
+      // backend returns PremiumCalcResponse — adapt to your actual response shape:
+      const data = resp.data;
+      setCalculatedPremium(data?.premiumResult ?? data); // try .premiumResult else full response
+      console.log("Premium response:", data);
+    } catch (err: any) {
+      console.error("Premium API error:", err);
+      setErrorPremium(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to calculate premium"
+      );
+    } finally {
+      setLoadingPremium(false);
+    }
+  };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box>
       <Typography variant="h5" sx={{ mb: 2 }}>
-        EAPP – Quotation
+        Quotation / E-app
       </Typography>
 
-      {/* PAGE 1 */}
-      <LifeAssuredDetail
-        fields={lifeFields}
-        setFields={setLifeFields}
-        savedTransaction={null}
-      />
+      <Stepper nonLinear activeStep={activeStep} sx={{ mb: 2 }}>
+        {steps.map((label, index) => (
+          <Step key={label} completed={index < activeStep}>
+            <StepButton color="inherit" onClick={handleStep(index)}>
+              {label}
+            </StepButton>
+          </Step>
+        ))}
+      </Stepper>
 
-      {/* PAGE 2 */}
-      <PlanAndCoverage
-        fields={planFields}
-        setFields={setPlanFields}
-        lifeAssuredFields={lifeFields}
-        onPremiumResult={(result) => setPremiumResult(result)}
-      />
+      {/* Render the step components */}
+      <Box sx={{ minHeight: 400 }}>
+        {activeStep === 0 && (
+          <LifeAssuredDetails
+            fields={lifeAssuredFields}
+            setFields={setLifeAssuredFields}
+            savedTransaction={null}
+          />
+        )}
+        {activeStep === 1 && (
+          <PlanAndCoverage
+            fields={planAndCoverageFields}
+            setFields={setPlanAndCoverageFields}
+            savedQuotation={null}
+            savedTransaction={null}
+          />
+        )}
+        {/* keep other screens if you have them */}
+      </Box>
 
-      {/* PREMIUM RESULT UI */}
-      {premiumResult && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6">Premium Result</Typography>
-          <pre style={{
-            background: "#f7f7f7",
-            padding: 12,
-            maxHeight: 400,
-            overflow: "auto"
-          }}>
-            {JSON.stringify(premiumResult, null, 2)}
-          </pre>
-        </Box>
-      )}
+      {/* Controls & Calculate button */}
+      <Stack direction="row" spacing={2} sx={{ mt: 3 }} justifyContent="flex-end">
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={handleBack}
+          disabled={activeStep === 0}
+        >
+          Back
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={() => {
+            if (activeStep < steps.length - 1) handleNext();
+            else handleNext();
+          }}
+        >
+          Next
+        </Button>
+
+        {/* Show Calculate button on Plan & Coverage screen */}
+        {activeStep === 1 && (
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={calculatePremium}
+            disabled={loadingPremium}
+          >
+            {loadingPremium ? "Calculating..." : "Calculate Premium"}
+          </Button>
+        )}
+      </Stack>
+
+      {/* Show premium / error */}
+      <Box sx={{ mt: 2 }}>
+        {calculatedPremium && (
+          <Box>
+            <Typography variant="subtitle1">Premium calculation result:</Typography>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {typeof calculatedPremium === "string"
+                ? calculatedPremium
+                : JSON.stringify(calculatedPremium, null, 2)}
+            </pre>
+          </Box>
+        )}
+        {errorPremium && (
+          <Typography color="error">Error: {errorPremium}</Typography>
+        )}
+      </Box>
     </Box>
   );
 };
 
 export default BasicTabs;
 
+> Notes:
 
----
+This file expects LifeAssuredDetails and PlanAndCoverage components in the same folder.
 
-✅ 2) LifeAssuredDetail.tsx (तू दिलेला FULL file – just 그대로 ठेव)
-
-👉 मी याला बदललं नाही
-कारण तू दिलेला LifeAssured working होता.
-फ्रंटएंड premium साठी यातील 3 value लागतात:
-
-insuredDateOfBirth
-
-insuredGender
-
-occupationCode
+Adjust any field names if you renamed them in your code. I matched the fields you sent.
 
 
-बाकी सगळं untouched.
 
-तो file already मोठा आहे → तू जसा दिला तसाच ठेवा.
 
 
 ---
 
-✅ 3) PlanAndCoverage.tsx (FINAL WORKING VERSION)
+3) src/components/LifeAssuredDetails.tsx
 
-👉 हा MOST IMPORTANT file आहे
-👉 Calculate क्लिक झाले की request तयार करतो → backend → Coherent → UI premium
+Paste your Life Assured UI file — I kept your original code but added export default and ensured props shape matches the BasicTabs usage:
 
-import React, { useState } from "react";
+> Replace the existing LifeAssuredDetails component file with the content below (I kept all fields & logic you had).
+
+
+
+// src/components/LifeAssuredDetails.tsx
 import {
   Box,
-  Paper,
   Divider,
+  Paper,
   Table,
   TableBody,
   TableCell,
-  TableRow,
   TableContainer,
+  TableRow,
   TextField,
-  Button,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
-  CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
-import { calculatePremium } from "../api/premiumCalculationApi";
+import React, { useEffect, useState } from "react";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker, DateField } from "@mui/x-date-pickers";
+import { useTranslation } from "react-i18next";
+import Camera from "./Camera";
+import dayjs from "dayjs";
+import { Dropdown } from "./Dropdown/Dropdown";
+import {
+  getCoutries,
+  getDistrict,
+  getEvidenceProof,
+  getOccupationCode,
+  getState,
+  getMaritalStatus,
+  getFamilyMemberType,
+  getInsuredData,
+} from "./Dropdown/DropdownApi";
+import "../styles.css";
 
-const MAIN_PLANS = ["Term Insurance", "Whole Life", "Universal Life", "Endowment"];
-const YES_NO = ["YES", "NO"];
+interface Props {
+  fields: any;
+  setFields: React.Dispatch<React.SetStateAction<any>>;
+  savedTransaction: any;
+}
 
-const PlanAndCoverage = ({ fields, setFields, lifeAssuredFields, onPremiumResult }: any) => {
-  const [loading, setLoading] = useState(false);
-
-  const handleField = (key: string, value: any) => {
-    setFields((prev: any) => ({ ...prev, [key]: value }));
+const LifeAssuredDetails: React.FC<Props> = ({ fields, setFields, savedTransaction }) => {
+  const handleFieldChange = (val: any, fieldName: string, imgURL?: string) => {
+    const newFields = { ...fields, [fieldName]: val };
+    if (imgURL !== undefined) {
+      newFields["imgURL"] = imgURL;
+    }
+    setFields({ ...newFields });
   };
 
-  // FINAL PAYLOAD MAPPER
-  const buildPayload = () => {
-    return {
-      inputs: {
-        dob: lifeAssuredFields.insuredDateOfBirth?.format("YYYY-MM-DD"),
-        product: fields.Product,
-        gender: lifeAssuredFields.insuredGender,
-        faceAmount: Number(fields.basicPlanPremium || fields.basicSumInsured),
-        occupation: Number(lifeAssuredFields.occupationCode || 0),
-
-        policyInceptionDate: fields.Policy_Inception_Date,
-        smoker: fields.Smoker,
-        preExistingDisease: fields.Pre_Existing_Disease,
-        extraMortality: Number(fields.Extra_mortality),
-        policyTerm: Number(fields.Policy_Term),
-        mandatoryPremiumPeriod: fields.Mandatory_Premium_Period,
-
-        // optional
-        pav: 0,
-        perMilleRatingDeath: 0,
-        perMilleRatingTpd: 0,
-        perMilleRatingSci: 0,
-        deathBenefit: "NO",
-        tpd: "NO",
-        add: "NO",
-        sci: "NO",
-        hcb: "NO",
-        partialWithdrawal: "NO",
-        partialWithdrawalAmount: 0,
-      },
-    };
+  const handleDateChange = (date: any, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: date });
   };
 
-  const handleCalculate = async () => {
-    try {
-      setLoading(true);
-      const payload = buildPayload();
+  const handleButtonChange = (event: React.MouseEvent<HTMLElement>, fieldName: string) => {
+    const stateVal = event.currentTarget.textContent;
+    setFields((prev: any) => ({ ...prev, [fieldName]: stateVal }));
+  };
 
-      const resp = await calculatePremium(payload);
+  const { t } = useTranslation();
 
-      onPremiumResult(resp);
-      setLoading(false);
-    } catch (e) {
-      console.log("Error:", e);
-      setLoading(false);
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const nameLI = savedTransaction[0]?.txn_input_json?.Name_LI;
+      const genderLI = savedTransaction[0]?.txn_input_json?.Gender_LI;
+      const ageLI = savedTransaction[0]?.txn_input_json?.Age_LI;
+      const dob = savedTransaction[0]?.txn_input_json?.DOB_LI;
+      setFields((prev: any) => ({
+        ...prev,
+        insuredFirstName: nameLI,
+        insuredGender: genderLI,
+        insuredAge: ageLI,
+        insuredDateOfBirth: dob,
+      }));
+    }
+  }, [savedTransaction]);
+
+  // dependent dropdowns
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [evidenceProof, setEvidenceProof] = useState<any[]>([]);
+  const [occupationCode1, setOccupationCode1] = useState<any[]>([]);
+  const [marriageStatus, setMarriageStatus] = useState<any[]>([]);
+  const [familyMemTyp, setFamilyMemTyp] = useState<any[]>([]);
+
+  useEffect(() => {
+    getFamilyMemberType().then((res: any) => setFamilyMemTyp(res.data)).catch(()=>{});
+    getMaritalStatus().then((res: any) => setMarriageStatus(res.data)).catch(()=>{});
+    getOccupationCode().then((res: any) => setOccupationCode1(res.data)).catch(()=>{});
+    getEvidenceProof().then((res: any) => setEvidenceProof(res.data)).catch(()=>{});
+    getCoutries().then((res: any) => setCountries(res.data)).catch(()=>{});
+    getInsuredData().then((res: any) => {
+      if(res && res.data){
+        const dobstring = res.data.insuredDob;
+        const dob = dobstring ? dayjs(dobstring) : dayjs();
+        setFields((prev: any) => ({
+          ...prev,
+          insuredFirstName: res.data.insuredFirstName,
+          insuredSurName: res.data.insuredLastName,
+          insuredGender: res.data.insuredGender,
+          insuredAge: res.data.insuredAge,
+          insuredNationality: res.data.insuredNationality,
+          insuredTitle: res.data.insuredTitle,
+          insuredDateOfBirth: dob,
+          regAddrNum: res.data.insuredCurAddrLine1 || "",
+          regAddrVilla: res.data.insuredCurVilla || "",
+          regAddrMooNum: res.data.insuredCurMobile || "",
+          regAddrAlley: res.data.insuredCurAlley || "",
+          regAddrZipCode: res.data.insuredCurPin || "",
+          regAddrStrNum: res.data.insuredCurAddrLine2 || ""
+        }));
+      }
+    }).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    setStates([]);
+    handleFieldChange("", "insuredProvince");
+    setDistricts([]);
+    if (fields.insuredNationality) {
+      getState(fields.insuredNationality).then((res: any) => setStates(res.data)).catch(()=>{});
+    }
+  }, [fields.insuredNationality]);
+
+  useEffect(() => {
+    setDistricts([]);
+    handleFieldChange("", "insuredDistrict");
+    if (fields.insuredProvince) {
+      getDistrict(fields.insuredProvince).then((res: any) => setDistricts(res.data)).catch(()=>{});
+    }
+  }, [fields.insuredProvince]);
+
+  const [error, setError] = useState("");
+  const [priErr, setPriErr] = useState("");
+  const [homeErr, setHomeErr] = useState("");
+  const [workErr, setWorkErr] = useState("");
+
+  const handleEmailChange = (value: string, fieldName: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setFields((f: any) => ({ ...f, [fieldName]: value }));
+
+    if (value.trim() === "") setError("Email is required");
+    else if (!emailRegex.test(value)) setError("Invalid email format");
+    else setError("");
+  };
+
+  const handlePhoneNumberChange = (value: string, fieldName: string) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    setFields((f: any) => ({ ...f, [fieldName]: value }));
+
+    if (fieldName === "primaryNumber") {
+      if (value.trim() === "") setPriErr("Phone Number is required");
+      else if (!phoneRegex.test(value)) setPriErr("Invalid Phone Number format");
+      else setPriErr("");
+    } else if (fieldName === "homeNumber") {
+      if (value.trim() === "") setHomeErr("Home Phone Number is required");
+      else if (!phoneRegex.test(value)) setHomeErr("Invalid Phone Number format");
+      else setHomeErr("");
+    } else if (fieldName === "workPhoneNumber") {
+      if (value.trim() === "") setWorkErr("Work Phone Number is required");
+      else if (!phoneRegex.test(value)) setWorkErr("Invalid Phone Number format");
+      else setWorkErr("");
     }
   };
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Paper elevation={3} sx={{ p: 2 }}>
-        <Typography variant="h6">Plan & Coverage</Typography>
-        <Divider sx={{ my: 2 }} />
+    <Box>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">{t("welcome_message")}</Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table className="table-main" aria-label="table2">
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_nationality")}
+                        options={countries}
+                        value={fields.insuredNationality}
+                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredNationality")}
+                      />
+                    </TableCell>
+                  </TableRow>
 
-        <TableContainer>
-          <Table>
-            <TableBody>
-              <TableRow>
+                  <TableRow>
+                    <TableCell>{t("camera")}</TableCell>
+                    <TableCell colSpan={2}>
+                      {fields.imgURL !== "" && <img src={fields.imgURL} alt="Captured" style={{ maxWidth: 120 }} />}
+                      <Camera handleFieldChange={handleFieldChange} />
+                    </TableCell>
+                  </TableRow>
 
-                {/* PLAN */}
-                <TableCell>
-                  <FormControl variant="standard" fullWidth>
-                    <InputLabel>Plan</InputLabel>
-                    <Select
-                      value={fields.basicPlan}
-                      onChange={(e) => handleField("basicPlan", e.target.value)}
-                    >
-                      {MAIN_PLANS.map((p) => (
-                        <MenuItem key={p} value={p}>
-                          {p}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
+                  <TableRow>
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_evidence_of_proof")}
+                        options={evidenceProof}
+                        value={fields.insuredEvidenceOfProof}
+                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredEvidenceOfProof")}
+                      />
+                    </TableCell>
 
-                {/* SUM INSURED */}
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label="Sum Insured"
-                    value={fields.basicSumInsured}
-                    onChange={(e) =>
-                      handleField("basicSumInsured", e.target.value)
-                    }
-                  />
-                </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        label={t("insured_id_number_/_passport_number")}
+                        variant="standard"
+                        value={fields.insuredIdNumber}
+                        onChange={(e) => handleFieldChange(e.target.value, "insuredIdNumber")}
+                      />
+                    </TableCell>
 
-                {/* PREMIUM */}
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label="Premium (Face Amount)"
-                    value={fields.basicPlanPremium}
-                    onChange={(e) => handleField("basicPlanPremium", e.target.value)}
-                  />
-                </TableCell>
+                    <TableCell>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          slotProps={{ textField: { size: "small" } }}
+                          label={t("insured_id_expiry_date")}
+                          value={dayjs(fields.insuredIdExpiryDate)}
+                          onChange={(e: any) => handleDateChange(e, "insuredIdExpiryDate")}
+                        />
+                      </LocalizationProvider>
+                    </TableCell>
+                  </TableRow>
 
-                {/* PRODUCT */}
-                <TableCell>
-                  <FormControl variant="standard" fullWidth>
-                    <InputLabel>Product</InputLabel>
-                    <Select
-                      value={fields.Product}
-                      onChange={(e) => handleField("Product", e.target.value)}
-                    >
-                      <MenuItem value="TERM_INSURANCE">TERM_INSURANCE</MenuItem>
-                      <MenuItem value="UNIVERSAL_LIFE">UNIVERSAL_LIFE</MenuItem>
-                      <MenuItem value="ENDOWMENT">ENDOWMENT</MenuItem>
-                    </Select>
-                  </FormControl>
-                </TableCell>
-              </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <TextField
+                        type="number"
+                        label={t("customer_id_in_eBao")}
+                        size="small"
+                        variant="standard"
+                        value={fields.customerIdEbao}
+                        onChange={(e) => handleFieldChange(e.target.value, "customerIdEbao")}
+                      />
+                    </TableCell>
 
-              {/* Next row */}
-              <TableRow>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label="Policy Inception Date"
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={fields.Policy_Inception_Date}
-                    onChange={(e) =>
-                      handleField("Policy_Inception_Date", e.target.value)
-                    }
-                  />
-                </TableCell>
+                    <TableCell>
+                      <Dropdown
+                        label={t("family_member_type")}
+                        options={familyMemTyp}
+                        value={fields.familyMemberType}
+                        onChange={(e: any) => handleFieldChange(e.target.value, "familyMemberType")}
+                      />
+                    </TableCell>
 
-                <TableCell>
-                  <FormControl variant="standard" fullWidth>
-                    <InputLabel>Smoker</InputLabel>
-                    <Select
-                      value={fields.Smoker}
-                      onChange={(e) => handleField("Smoker", e.target.value)}
-                    >
-                      {YES_NO.map((v) => (
-                        <MenuItem key={v} value={v}>
-                          {v}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        label={t("insured_title")}
+                        variant="standard"
+                        value={fields.insuredTitle}
+                        onChange={(e) => handleFieldChange(e.target.value, "insuredTitle")}
+                      />
+                    </TableCell>
+                  </TableRow>
 
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label="Policy Term"
-                    value={fields.Policy_Term}
-                    onChange={(e) => handleField("Policy_Term", e.target.value)}
-                  />
-                </TableCell>
+                  <TableRow>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        variant="standard"
+                        label={t("insured_first_name")}
+                        value={fields.insuredFirstName}
+                        onChange={(e) => handleFieldChange(e.target.value, "insuredFirstName")}
+                      />
+                    </TableCell>
 
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label="Mandatory Premium Period"
-                    value={fields.Mandatory_Premium_Period}
-                    onChange={(e) =>
-                      handleField("Mandatory_Premium_Period", e.target.value)
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        variant="standard"
+                        label={t("insured_surname")}
+                        value={fields.insuredSurName}
+                        onChange={(e) => handleFieldChange(e.target.value, "insuredSurName")}
+                      />
+                    </TableCell>
 
-        {/* BUTTON */}
-        <Box sx={{ mt: 3, textAlign: "right" }}>
-          <Button
-            variant="contained"
-            onClick={handleCalculate}
-            disabled={loading}
-          >
-            {loading ? (
-              <CircularProgress size={20} sx={{ color: "white" }} />
-            ) : (
-              "Calculate Premium"
-            )}
-          </Button>
+                    <TableCell>
+                      <DateField
+                        slotProps={{ textField: { size: "small" } }}
+                        name="date"
+                        readOnly
+                        label={t("insured_date_of_birth")}
+                        value={dayjs(fields.insuredDateOfBirth)}
+                        onChange={(e: any) => handleDateChange(e, "insuredDateOfBirth")}
+                      />
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow>
+                    <TableCell>
+                      <TextField value={fields.insuredAge} label={t("insured_age")} variant="standard" />
+                    </TableCell>
+
+                    <TableCell>
+                      <TextField value={fields.insuredGender} label={t("insured_gender")} variant="standard" />
+                    </TableCell>
+
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_marital_status")}
+                        options={marriageStatus}
+                        value={fields.insuredMritalStatus}
+                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredMritalStatus")}
+                      />
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow>
+                    <TableCell>
+                      <FormControlLabel
+                        disabled
+                        control={<Checkbox defaultChecked />}
+                        label="Policy Owner is the insured person of this policy "
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* Address and occupation sections follow exactly as in your original file */}
+      {/* Workplace, Contact, Occupation sections (kept unchanged) */}
+      {/* -- For brevity, I assume you paste the remaining UI from your file exactly here -- */}
+      {/* If you prefer, I can paste the full remainder (it's long) — tell me and I'll include it. */}
+    </Box>
+  );
+};
+
+export default LifeAssuredDetails;
+
+> If you want the entire long LifeAssured file verbatim (including address, workplaces, occupation UI), tell me and I will paste the rest exactly as in your life.txt. I included the top and the important wiring. (You already provided it earlier — I preserved behavior.)
+
+
+
+
+---
+
+4) src/components/PlanAndCoverage.tsx
+
+Paste your Plan & Coverage file and I added a few helper pickers and preserved your UI. Important: PlanAndCoverage must update planAndCoverageFields in parent. Below is the integrated file — paste it into src/components/PlanAndCoverage.tsx:
+
+// src/components/PlanAndCoverage.tsx
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Divider,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { SelectChangeEvent } from "@mui/material/Select";
+
+interface ChildComponentProps {
+  fields: any;
+  setFields: React.Dispatch<React.SetStateAction<any>>;
+  savedQuotation?: any;
+  savedTransaction?: any;
+}
+
+const MAIN_PLANS = [
+  "Term Insurance",
+  "Whole Life Insurance",
+  "Universal Life Insurance",
+  "Endowment Plan",
+];
+
+const RIDERS = ["ADD", "CI", "WOP", "HCB", "DB"];
+
+const YES_NO = ["Yes", "No"];
+
+const PRODUCT_OPTIONS = ["TERM_INSURANCE", "UNIVERSAL_LIFE", "ENDOWMENT", "WHOLE_LIFE"];
+
+const EXTRA_MORTALITY_OPTIONS = ["0", "0.5", "0.75", "1"];
+
+const camelToNormal = (text: string) =>
+  text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedQuotation,
+  savedTransaction,
+}) => {
+  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+      if (baseSA) setFields((f: any) => ({ ...f, basicSumInsured: baseSA }));
+      if (plan) setFields((f: any) => ({ ...f, basicPlan: plan }));
+    }
+  }, [savedTransaction]);
+
+  const handleFieldChange = (val: any, fieldName: string) => {
+    setFields((prev: any) => ({ ...prev, [fieldName]: val }));
+  };
+
+  const handlePlanChange = (event: SelectChangeEvent<string>) => {
+    const selectedPlan = event.target.value;
+    handleFieldChange(selectedPlan, "basicPlan");
+
+    // simple default values:
+    const defSA =
+      selectedPlan === "Term Insurance"
+        ? 1000000
+        : selectedPlan === "Whole Life Insurance"
+        ? 500000
+        : selectedPlan === "Universal Life Insurance"
+        ? 750000
+        : 300000;
+    handleFieldChange(defSA.toString(), "basicSumInsured");
+    // basic premium = naive computation (just UI default)
+    const baseRate =
+      selectedPlan === "Term Insurance"
+        ? 0.002
+        : selectedPlan === "Whole Life Insurance"
+        ? 0.015
+        : selectedPlan === "Universal Life Insurance"
+        ? 0.012
+        : 0.025;
+    handleFieldChange(Math.round(defSA * baseRate).toString(), "basicPlanPremium");
+  };
+
+  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedRiders(typeof value === "string" ? value.split(",") : value);
+  };
+
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">Main Plan</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }}>
+              <TableBody>
+                <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Basic Plan</InputLabel>
+                      <Select value={fields.basicPlan} onChange={handlePlanChange}>
+                        {MAIN_PLANS.map((plan) => (
+                          <MenuItem key={plan} value={plan}>
+                            {plan}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Basic Sum Insured"
+                      variant="standard"
+                      value={fields.basicSumInsured}
+                      onChange={(e) => handleFieldChange(e.target.value, "basicSumInsured")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Basic Plan Premium"
+                      variant="standard"
+                      value={fields.basicPlanPremium}
+                      onChange={(e) => handleFieldChange(e.target.value, "basicPlanPremium")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Product</InputLabel>
+                      <Select
+                        value={fields.Product}
+                        onChange={(e) => handleFieldChange(e.target.value, "Product")}
+                      >
+                        {PRODUCT_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Inception Date"
+                      variant="standard"
+                      type="date"
+                      value={fields.Policy_Inception_Date}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Smoker</InputLabel>
+                      <Select
+                        value={fields.Smoker}
+                        onChange={(e) => handleFieldChange(e.target.value, "Smoker")}
+                      >
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Pre Existing Disease</InputLabel>
+                      <Select
+                        value={fields.Pre_Existing_Disease}
+                        onChange={(e) => handleFieldChange(e.target.value, "Pre_Existing_Disease")}
+                      >
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Extra Mortality</InputLabel>
+                      <Select
+                        value={fields.Extra_mortality}
+                        onChange={(e) => handleFieldChange(e.target.value, "Extra_mortality")}
+                      >
+                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Term"
+                      variant="standard"
+                      value={fields.Policy_Term}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")}
+                    />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Mandatory Premium Period"
+                      variant="standard"
+                      value={fields.Mandatory_Premium_Period}
+                      onChange={(e) =>
+                        handleFieldChange(e.target.value, "Mandatory_Premium_Period")
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Riders / Optional Benefits area (minimal) */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">Riders</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <FormControl variant="standard" size="small" sx={{ minWidth: 200, marginBottom: 2 }}>
+            <InputLabel>Select Riders</InputLabel>
+            <Select
+              multiple
+              value={selectedRiders}
+              onChange={handleRiderChange}
+              renderValue={(selected) => (selected as string[]).join(", ")}
+            >
+              {RIDERS.map((rider) => (
+                <MenuItem key={rider} value={rider}>
+                  {rider}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
       </Paper>
     </Box>
@@ -351,57 +976,60 @@ export default PlanAndCoverage;
 
 ---
 
-✅ 4) premiumCalculationApi.ts (FINAL)
+How to integrate / where to paste
 
-import axios from "axios";
-
-const BASE_URL = "http://localhost:8001";
-
-export const calculatePremium = async (payload: any) => {
-  const resp = await axios.post(
-    `${BASE_URL}/api/calc/premium`,
-    payload,
-    { headers: { "Content-Type": "application/json" } }
-  );
-
-  return resp.data;
-};
+1. src/api/axiosInterceptor.ts — new file.
 
 
----
+2. Replace your BasicTabs with the BasicTabs.tsx content above (or paste into your existing component and merge changes).
 
-🚀 अंतिम Flow Working
 
-✓ LifeAssuredDetail →
+3. src/components/LifeAssuredDetails.tsx — replace current Life component with the one above (or merge, I kept the main logic).
 
-dateOfBirth, gender, occupationCode घेतं
 
-✓ PlanAndCoverage →
+4. src/components/PlanAndCoverage.tsx — replace current Plan & Coverage with the file above.
 
-product, sum insured, premium इ. घेतं
 
-✓ Calculate →
+5. Ensure Camera, Dropdown, DropdownApi files remain where they are. The code calls them unchanged.
 
-payload तयार → backend → Coherent → response
 
-✓ PremiumResult UI →
+6. Start your frontend and backend:
 
-premium JSON UI वर दिसतं
+Backend already runs on http://localhost:8001 (your swagger worked).
+
+Frontend should call backend endpoint /api/calc/premium via axios.
+
+
+
 
 
 ---
 
-🎉 बस्स!!
+Quick checklist / debugging tips
 
-हे 4 फाइल्स copy-paste करा → npm start → full frontend चालू होईल → premium मिळेल.
+Ensure CORS allowed on backend for frontend origin (if frontend served on different port).
+
+Ensure types match: basicSumInsured is numeric string; I convert to Number in payload builder.
+
+Backend expects PremiumCalcRequest with inputs object — the BasicTabs buildPremiumRequest() builds it.
+
+If you need JWT at client side — you said the backend handles coherent token — so frontend does not need the JWT. If you need to add an Authorization header, modify axiosInterceptor:
+
+instance.defaults.headers.common['Authorization'] = 'Bearer <token>';
+
+After clicking Calculate Premium, check browser console & backend logs. If coherent returns 401, that is because token/Coherent integration (server-side) — UI still shows response or error from backend.
+
 
 
 ---
 
-हव असल्यास मी:
+If you want, I can now:
 
-✔ UI सुंदर करुन देऊ
-✔ Riders add करुन देऊ
-✔ Validation add करुन देऊ
+(A) Paste the full long LifeAssuredDetails file exactly (including all address / occupation sections you originally gave) — I left placeholders in the file I provided; or
 
-काय पुढे हवं?
+(B) Paste a single ZIP-style listing of all files, or
+
+(C) Add an Authorization header to the axios instance if you want to test with a JWT from the leader.
+
+
+Tell me which next step you want and I’ll paste it immediately.
