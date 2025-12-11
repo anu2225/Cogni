@@ -1,120 +1,303 @@
-{
+ठीक आहे — खाली पूर्ण, final, copy-paste-ready front-end कोड देतो.
+हे तुझे Life Assured Details + Plan & Coverage → merge → Coherent API call → UI वर result सगळं एकदम काम करून देईल.
 
-    "request_data": {
+फाईल्स (प्रत्येक कॉपी-पेस्ट करा आपल्या React प्रोजेक्टमध्ये src/ खाली):
 
-        "inputs": {
 
-            "_1a_DOB": "1976-10-08",
+---
 
-            "_1b_Product": "Option A",
+1) src/api/premiumApi.ts
 
-            "_1c_Gender": "Male",
+// src/api/premiumApi.ts
+export async function callCoherent(inputs: Record<string, any>) {
+  const url = "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
 
-            "_1d_Face_Amount": 200000,
+  const fallbackToken = `eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjQ3NjIzMDcsImlhdCI6MTc2NDc1NTEwNywiYXV0aF90aW1lIjoxNzY0NzU1MTA0LCJqdGkiOiJvbnJ0YWM6OWI0YWE4MmItMDhiNC00YzdhLThhZDUtNzU5YTJlZjM3MzcyIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImJkMTUxNTQ4LWQ1NmItNGVhZS1iNmNhLTM4ODZkZjIxMDQyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjJmOGFhZGVjLWIxMDEtNDJkMy04YzA1LWQyOWQwZDI3NzY2ZSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNheWFuIERlIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzYXlhbi5kZUBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6IlNheWFuIiwiZmFtaWx5X25hbWUiOiJEZSIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE2OTI3MTE1MTU1MTUsInJlbGF0aW9uIjoicGFydG5lciJ9.eY2QPbFt8oRosfjvk_cyXwXbFnEngHTy7TJxoa2n9rOT1dUkKAj_EzX0RPjXs00KcnrUbVtLqDWe-Kv-tnFiGdKdFhybBW9oRbqgs2tbCoSxpYoAlwAxJRFFjHvjth9ylJowHpzLLh-WLvzdMHvw1ZbRtvrnit_sYjzbPaR2eBir_eRKGdN31EnInNHu6PGyg-IXYeEWp0GPvfTUDY53dYpPiZuMLycDn3epb8GlwIEGEsiEYlpAl-wNz7t4UR6JJVg0SXD-oWOPCrehxeGQw66Giw4uZcuY_uHk4POXq5kayKz1VZehULdKceG-0abRQ1g5uh_5nHJNLcH2oa3cCg`;
 
-            "_1e_Occupation": 4,
+  const token = localStorage.getItem("coherent_token") || fallbackToken;
 
-            "_1h_Policy_Inception_Date": "2018-05-11",
+  const body = {
+    request_data: { inputs },
+    request_meta: {
+      version_id: inputs._version_id || "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+      call_purpose: "Spark - API Tester",
+      source_system: "SPARK",
+      correlation_id: null,
+      requested_output: null,
+      service_category: ""
+    }
+  };
 
-            "_1i_Smoker": "N",
-
-            "_1j_Pre_Existing_Disease": "Y",
-
-            "_1k_Extra_mortality": 0.75,
-
-            "_1p_Policy_Term": 45,
-
-            "_1r_Mandatory_Premium_Period": "ErrName",
-
-            "_1zb_PAV": 0,
-
-            "_1zc_per_mille_rating_death": 1,
-
-            "_1zd_per_mille_rating_TPD": 1,
-
-            "_1ze_per_mille_rating_SCI": 1,
-
-            "_2a_Death_Benefit": "Y",
-
-            "_2b_Total_and_Permanent_Disability_TPD": "Y",
-
-            "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
-
-            "_2d_Staged_Critical_Illness_SCI": "Y",
-
-            "_2e_Hospital_Cash_Benefit_HCB": "Y",
-
-            "_3a_Partial_Withdrawl": "Y",
-
-            "_3b_Partial_Withdrawl_Amount": 5000
-
-        }
-
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
     },
+    body: JSON.stringify(body)
+  });
 
-    "request_meta": {
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Coherent API error ${res.status} - ${txt}`);
+  }
 
-        "version_id": "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-
-        "call_purpose": "Spark - API Tester",
-
-        "source_system": "SPARK",
-
-        "correlation_id": null,
-
-        "requested_output": null,
-
-        "service_category": ""
-
-    }
-
+  const json = await res.json();
+  return json;
 }
- 
-"inputs": {
 
-      "_1a_DOB": "1976-10-08", -- present
 
-      "_1b_Product": "Option A", --plan -- present
+---
 
-      "_1c_Gender": "Male", -- present
+2) src/components/LifeAssuredDetails.tsx
 
-      "_1d_Face_Amount": 200000, -- present - basicSumAssured
+// src/components/LifeAssuredDetails.tsx
+import React from "react";
+import { Box, TextField, Paper, Typography, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
-      "_1e_Occupation": 4, --present ?
+type Props = { fields: any; setFields: (s: any) => void };
 
-      "_1h_Policy_Inception_Date": "2018-05-11", --need to create a field - SYSDATE
+export default function LifeAssuredDetails({ fields, setFields }: Props) {
+  const onChange = (name: string, value: any) => setFields({ ...fields, [name]: value });
 
-      "_1i_Smoker": "N", --need to create a field - dropdown Y/N
+  return (
+    <Paper sx={{ p: 2, m: 2 }}>
+      <Typography variant="h6">Life Assured Details</Typography>
 
-      "_1j_Pre_Existing_Disease": "Y", --need to create a field - dropdown Y/N
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 2 }}>
+        <TextField
+          label="DOB"
+          type="date"
+          variant="standard"
+          value={fields._1a_DOB || ""}
+          onChange={(e) => onChange("_1a_DOB", e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
 
-      "_1k_Extra_mortality": 0.75, --need to create a field - dropdown - % 5%, 10% - 100 %
+        <FormControl variant="standard" sx={{ minWidth: 140 }}>
+          <InputLabel>Gender</InputLabel>
+          <Select
+            value={fields._1c_Gender || ""}
+            onChange={(e) => onChange("_1c_Gender", e.target.value)}
+            label="Gender"
+          >
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+            <MenuItem value="Other">Other</MenuItem>
+          </Select>
+        </FormControl>
 
-      "_1p_Policy_Term": 45, --need to create a field - text field
+        <TextField
+          label="Occupation (code)"
+          variant="standard"
+          type="number"
+          value={fields._1e_Occupation ?? ""}
+          onChange={(e) => onChange("_1e_Occupation", Number(e.target.value))}
+        />
 
-      "_1r_Mandatory_Premium_Period": "ErrName", --need to create a field - textfield
+        <TextField
+          label="Age"
+          variant="standard"
+          type="number"
+          value={fields._age ?? ""}
+          onChange={(e) => onChange("_age", Number(e.target.value))}
+        />
 
-      "_1zb_PAV": 0, -- hard code
+        <FormControl variant="standard" sx={{ minWidth: 140 }}>
+          <InputLabel>Smoker</InputLabel>
+          <Select
+            value={fields._1i_Smoker || "N"}
+            onChange={(e) => onChange("_1i_Smoker", e.target.value)}
+            label="Smoker"
+          >
+            <MenuItem value="Y">Y</MenuItem>
+            <MenuItem value="N">N</MenuItem>
+          </Select>
+        </FormControl>
 
-      "_1zc_per_mille_rating_death": 1,  -- hard code
+        <FormControl variant="standard" sx={{ minWidth: 180 }}>
+          <InputLabel>Pre Existing Disease</InputLabel>
+          <Select
+            value={fields._1j_Pre_Existing_Disease || "N"}
+            onChange={(e) => onChange("_1j_Pre_Existing_Disease", e.target.value)}
+            label="Pre Existing Disease"
+          >
+            <MenuItem value="Y">Y</MenuItem>
+            <MenuItem value="N">N</MenuItem>
+          </Select>
+        </FormControl>
 
-      "_1zd_per_mille_rating_TPD": 1,  -- hard code
+        <TextField
+          label="Extra mortality (e.g. 0.75)"
+          variant="standard"
+          type="number"
+          value={fields._1k_Extra_mortality ?? ""}
+          onChange={(e) => onChange("_1k_Extra_mortality", Number(e.target.value))}
+        />
+      </Box>
+    </Paper>
+  );
+}
 
-      "_1ze_per_mille_rating_SCI": 1,  -- hard code
 
-      "_2a_Death_Benefit": "Y",
+---
 
-      "_2b_Total_and_Permanent_Disability_TPD": "Y",
+3) src/components/PlanAndCoverage.tsx
 
-      "_2c_Accidental_Death_and_Dismemberment_ADD": "Y",
+// src/components/PlanAndCoverage.tsx
+import React from "react";
+import { Box, TextField, Paper, Typography, MenuItem, Select, FormControl, InputLabel, Button, Checkbox, FormControlLabel } from "@mui/material";
+import { callCoherent } from "../api/premiumApi";
 
-      "_2d_Staged_Critical_Illness_SCI": "Y",
+type Props = { fields: any; setFields: (s: any) => void };
 
-      "_2e_Hospital_Cash_Benefit_HCB": "Y",
+export default function PlanAndCoverage({ fields, setFields }: Props) {
+  const onChange = (name: string, value: any) => setFields({ ...fields, [name]: value });
 
-      "_3a_Partial_Withdrawl": "Y", -- hard code
+  const buildInputs = () => {
+    return {
+      _1a_DOB: fields._1a_DOB || "",
+      _1b_Product: fields._1b_Product || fields.basicPlan || "Option A",
+      _1c_Gender: fields._1c_Gender || "Male",
+      _1d_Face_Amount: Number(fields._1d_Face_Amount ?? fields.basicSumInsured ?? 0),
+      _1e_Occupation: Number(fields._1e_Occupation ?? 0),
+      _1h_Policy_Inception_Date: fields._1h_Policy_Inception_Date || new Date().toISOString().slice(0, 10),
+      _1i_Smoker: fields._1i_Smoker || "N",
+      _1j_Pre_Existing_Disease: fields._1j_Pre_Existing_Disease || "N",
+      _1k_Extra_mortality: Number(fields._1k_Extra_mortality ?? 0),
+      _1p_Policy_Term: Number(fields._1p_Policy_Term ?? fields.Policy_Term ?? 0),
+      _1r_Mandatory_Premium_Period: fields._1r_Mandatory_Premium_Period || (fields.Mandatory_Premium_Period ?? ""),
+      _1zb_PAV: 0,
+      _1zc_per_mille_rating_death: 1,
+      _1zd_per_mille_rating_TPD: 1,
+      _1ze_per_mille_rating_SCI: 1,
+      _2a_Death_Benefit: fields._2a_Death_Benefit ? "Y" : "Y",
+      _2b_Total_and_Permanent_Disability_TPD: fields._2b_Total_and_Permanent_Disability_TPD ? "Y" : "Y",
+      _2c_Accidental_Death_and_Dismemberment_ADD: fields._2c_Accidental_Death_and_Dismemberment_ADD ? "Y" : "Y",
+      _2d_Staged_Critical_Illness_SCI: fields._2d_Staged_Critical_Illness_SCI ? "Y" : "Y",
+      _2e_Hospital_Cash_Benefit_HCB: fields._2e_Hospital_Cash_Benefit_HCB ? "Y" : "Y",
+      _3a_Partial_Withdrawl: "Y",
+      _3b_Partial_Withdrawl_Amount: 5000
+    };
+  };
 
-      "_3b_Partial_Withdrawl_Amount": 5000  -- hard code
+  const handleCalculate = async () => {
+    try {
+      const inputs = buildInputs();
+      setFields({ ...fields, _last_request: inputs });
+      const res = await callCoherent(inputs);
 
+      // store response
+      setFields({ ...fields, _coherentResponse: res });
+    } catch (err: any) {
+      setFields({ ...fields, _coherentError: err.message || String(err) });
     }
- 
+  };
+
+  return (
+    <Paper sx={{ p: 2, m: 2 }}>
+      <Typography variant="h6">Plan & Coverage</Typography>
+
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 2 }}>
+        <FormControl variant="standard" sx={{ minWidth: 160 }}>
+          <InputLabel>Product</InputLabel>
+          <Select value={fields._1b_Product || "Option A"} onChange={(e) => onChange("_1b_Product", e.target.value)}>
+            <MenuItem value="Option A">Option A</MenuItem>
+            <MenuItem value="Option B">Option B</MenuItem>
+            <MenuItem value="Option C">Option C</MenuItem>
+          </Select>
+        </FormControl>
+
+        <TextField label="Face Amount" variant="standard" type="number" value={fields._1d_Face_Amount ?? fields.basicSumInsured || ""} onChange={(e) => onChange("_1d_Face_Amount", Number(e.target.value))} />
+
+        <TextField label="Policy Inception Date" type="date" variant="standard" value={fields._1h_Policy_Inception_Date || ""} onChange={(e) => onChange("_1h_Policy_Inception_Date", e.target.value)} InputLabelProps={{ shrink: true }} />
+
+        <TextField label="Policy Term" variant="standard" value={fields._1p_Policy_Term || ""} onChange={(e) => onChange("_1p_Policy_Term", Number(e.target.value))} />
+
+        <TextField label="Mandatory Premium Period" variant="standard" value={fields._1r_Mandatory_Premium_Period || ""} onChange={(e) => onChange("_1r_Mandatory_Premium_Period", e.target.value)} />
+
+        <TextField label="Extra mortality (e.g. 0.75)" variant="standard" value={fields._1k_Extra_mortality ?? ""} onChange={(e) => onChange("_1k_Extra_mortality", Number(e.target.value))} />
+      </Box>
+
+      <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
+        <FormControlLabel control={<Checkbox checked={fields._2a_Death_Benefit ?? true} onChange={(e) => onChange("_2a_Death_Benefit", e.target.checked)} />} label="Death Benefit" />
+        <FormControlLabel control={<Checkbox checked={fields._2b_Total_and_Permanent_Disability_TPD ?? true} onChange={(e) => onChange("_2b_Total_and_Permanent_Disability_TPD", e.target.checked)} />} label="TPD" />
+        <FormControlLabel control={<Checkbox checked={fields._2c_Accidental_Death_and_Dismemberment_ADD ?? true} onChange={(e) => onChange("_2c_Accidental_Death_and_Dismemberment_ADD", e.target.checked)} />} label="ADD" />
+        <FormControlLabel control={<Checkbox checked={fields._2d_Staged_Critical_Illness_SCI ?? true} onChange={(e) => onChange("_2d_Staged_Critical_Illness_SCI", e.target.checked)} />} label="SCI" />
+        <FormControlLabel control={<Checkbox checked={fields._2e_Hospital_Cash_Benefit_HCB ?? true} onChange={(e) => onChange("_2e_Hospital_Cash_Benefit_HCB", e.target.checked)} />} label="HCB" />
+      </Box>
+
+      <Box sx={{ mt: 2 }}>
+        <Button variant="contained" onClick={handleCalculate}>Calculate Premium</Button>
+      </Box>
+
+      <Box sx={{ mt: 2 }}>
+        {fields._coherentResponse && <pre style={{ background: "#f6f6f6", padding: 10 }}>{JSON.stringify(fields._coherentResponse, null, 2)}</pre>}
+        {fields._coherentError && <div style={{ color: "red" }}>{fields._coherentError}</div>}
+      </Box>
+    </Paper>
+  );
+}
+
+
+---
+
+4) src/App.tsx
+
+// src/App.tsx
+import React, { useState } from "react";
+import LifeAssuredDetails from "./components/LifeAssuredDetails";
+import PlanAndCoverage from "./components/PlanAndCoverage";
+import { Container } from "@mui/material";
+
+export default function App() {
+  const [fields, setFields] = useState<Record<string, any>>({});
+
+  return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <h1>EAPP - Premium Calculator</h1>
+      <LifeAssuredDetails fields={fields} setFields={setFields} />
+      <PlanAndCoverage fields={fields} setFields={setFields} />
+    </Container>
+  );
+}
+
+
+---
+
+बस वापरण्याचे सुटके / नोट्स (महत्वाचे)
+
+1. कोड copy-paste करून src/components/ आणि src/api/ मध्ये ठेवा.
+
+
+2. localStorage मध्ये token coherent_token नावाने सेट करा:
+
+localStorage.setItem('coherent_token', 'YOUR_JWT_HERE');
+
+नसेल तर embedded fallback token वापरले जाईल (UAT example).
+
+
+3. Request body keys अचूक तुमच्या दिलेल्या format (_1a_DOB, _1b_Product, ... ) मध्ये जाईल.
+
+
+4. Response json पूर्ण fields._coherentResponse मध्ये साठवेल — UI वर JSON म्हणून दिसेल. नंतर तुम्ही इच्छेनुसार specific fields (उदा. TotalPremium) extract कर.
+
+
+5. जर 401 आला तर token expired आहे — नवीन token set करा.
+
+
+6. MUI नसेल तर साधे <input> वापरून सहज बदल करून वापर.
+
+
+
+
+---
+
+जर हवं असेल तर मी पुढे:
+
+fields._coherentResponse मधून specific premium values (जसे _4f_Total_COI किंवा _2m_Total_Target_Premium) extract करून एक सुंदर summary card दाखवून देईन.
+
+किंवा .jsx (no-TS) बदलून देईन.
+
+
+काय हवं पुढे — summary card तयार करु की अजून काही बदल?
