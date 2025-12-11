@@ -1,723 +1,328 @@
-<Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("insured_address_workplace")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    <TableCell>{t("same_as_the_registered_address")}</TableCell>
-                    <TableCell colSpan={2}>
-                      <ToggleButtonGroup
-                        color="primary"
-                        value={fields.workplaceAddressOptn}
-                        exclusive
-                        fullWidth
-                        onChange={(event) =>
-                          handleButtonChange(event, "workplaceAddressOptn")
-                        }
-                        aria-label="Platform"
-                      >
-                        <ToggleButton value="Yes">Yes</ToggleButton>
-                        <ToggleButton value="No">No</ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    {/* <TableCell>{t("working_company_name")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        id="standard-basic"
-                        label={t("working_company_name")}
-                        size="small"
-                        variant="standard"
-                        value={fields.workCompanyName}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "workCompanyName")
-                            }
-                      />
-                    </TableCell>
-                  </TableRow>
-                  {fields.workplaceAddressOptn === "No" && (
-                    <>
-                      <TableRow>
-                        {/* <TableCell>{t("workplace_address_number")}</TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_address_number")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrNum}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "workAddrNum")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>
-                          {t("workplace_address_villa/building")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_address_villa/building")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrVilla}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "workAddrVilla")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>
-                          {t("workplace_address_moo_number")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_address_moo_number")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrMooNum}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "workAddrMooNum"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>
-                          {t("workplace_address_alleyway/soi")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_address_alleyway/soi")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrAlley}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "workAddrAlley")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>{t("workplace_address_street")} </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            size="small"
-                            label={t("workplace_address_street")}
-                            variant="standard"
-                            value={fields.workAddrStrNum}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "workAddrStrNum"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>
-                          {t("workplace_address_province")}{" "}
-                        </TableCell> */}
-                        <TableCell>
-                          <Dropdown
-                            label={t("workplace_address_province")}
-                            options={states}
-                            value={fields.insuredWorkProvince}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "insuredWorkProvince"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>{t("workplace_address_district")}</TableCell> */}
-                        <TableCell>
-                          <Dropdown
-                            label={t("workplace_address_district")}
-                            options={districts}
-                            value={fields.insuredWorkDistrict}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "insuredWorkDistrict"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          {t("workplace_address_sub_district")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                           label={t("workplace_address_sub_district")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrSubDist}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "workAddrSubDist"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>
-                          {t("workplace_address_zip_code")}{" "}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_address_zip_code")}
-                            size="small"
-                            variant="standard"
-                            value={fields.workAddrZipCode}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "workAddrZipCode"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>{t("workplace_full_address")}</TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("workplace_full_address")}
-                            size="small"
-                            multiline
-                            value={fields.workFullAddress}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "workFullAddress"
-                              )
-                            }
-                            variant="standard"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("contact_address_indicator")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      {t(
-                        "current_address_same_as_the_registered/working_address"
-                      )}
-                    </TableCell>
-                    <TableCell colSpan={2}>
-                      <ToggleButtonGroup
-                        color="primary"
-                        value={fields.currentAddressOptn}
-                        exclusive
-                        fullWidth
-                        onChange={(event) =>
-                          handleButtonChange(event, "currentAddressOptn")
-                        }
-                        aria-label="Platform"
-                      >
-                        <ToggleButton value="Registered Address">
-                          Registered Address
-                        </ToggleButton>
-                        <ToggleButton value="Work Address">
-                          Work Address
-                        </ToggleButton>
-                        <ToggleButton value="Different Address">
-                          Different Address
-                        </ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                  {/* 3rd set */}
-                  {fields.currentAddressOptn === "Different Address" && (
-                    <>
-                      <TableRow>
-                        {/* <TableCell>{t("contact_address_number")}</TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_number")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddNum}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddNum")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          {t("contact_address_villa/building")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_villa/building")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddVilla}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddVilla")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>{t("contact_address_moo_number")}</TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_moo_number")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddMoo}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddMoo")
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>
-                          {t("contact_address_alleyway/soi")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_alleyway/soi")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddAlley}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddAlley")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>{t("contact_address_street")} </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_street")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddStrNum}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddStrNum")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>{t("contact_address_province")} </TableCell> */}
-                        <TableCell>
-                          <Dropdown
-                            label={t("contact_address_province")}
-                            options={states}
-                            value={fields.cRegAddProvince}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "cRegAddProvince"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>{t("contact_address_district")}</TableCell> */}
-                        <TableCell>
-                          <Dropdown
-                            label={t("contact_address_district")}
-                            options={districts}
-                            value={fields.cRegAddDist}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddDist")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>
-                          {t("contact_address_sub_district")}
-                        </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_sub_district")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddSubDis}
-                            onChange={(e) =>
-                              handleFieldChange(e.target.value, "cRegAddSubDis")
-                            }
-                          />
-                        </TableCell>
-                      {/* </TableRow>
-                      <TableRow> */}
-                        {/* <TableCell>{t("contact_address_zip_code")} </TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_address_zip_code")}
-                            size="small"
-                            variant="standard"
-                            value={fields.cRegAddZipCode}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "cRegAddZipCode"
-                              )
-                            }
-                          />
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        {/* <TableCell>{t("contact_full_address")}</TableCell> */}
-                        <TableCell>
-                          <TextField
-                            id="outlined-basic"
-                            label={t("contact_full_address")}
-                            size="small"
-                            multiline
-                            value={fields.contactFullAddr}
-                            onChange={(e) =>
-                              handleFieldChange(
-                                e.target.value,
-                                "contactFullAddr"
-                              )
-                            }
-                            // value={fields.cRegAddAlley + " , " + fields.cRegAddNum}
-                            // InputProps={{ readOnly: true }}
-                            variant="standard"
-                          />
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  )}
-                  <TableRow>
-                    <TableCell>
-                      {t("insured_contact_address_indicator")}
-                    </TableCell>
-                    <TableCell>
-                      <ToggleButtonGroup
-                        color="primary"
-                        value={fields.insContactAddressIndicator}
-                        fullWidth
-                        exclusive
-                        onChange={(event) =>
-                          handleButtonChange(
-                            event,
-                            "insContactAddressIndicator"
-                          )
-                        }
-                        aria-label="Platform"
-                      >
-                        <ToggleButton value="Registered Address">
-                          Registered Address
-                        </ToggleButton>
-                        <ToggleButton value="Work Address">
-                          Work Address
-                        </ToggleButton>
-                        <ToggleButton value="Current Address">
-                          Current Address
-                        </ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("insured_contact_number")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table
-                className="table-main"
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    {/* <TableCell> {t("primary_number")}</TableCell> */}
-                    <TableCell>
-                    {/* <Stack
-            // spacing={2}
-            direction={"row"}
-            justifyContent={"flex-end"}
-            paddingRight={5}
-            paddingBottom={3}
-          >
-                      <CountrySelect/> */}
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("primary_number")}
-                        // k  onChange={handlePhoneNumberChange_primary}/>
-                        //{isValid?(<p style={{color:'green'}}>valid mobile number</p>):(<p style={{color:'red'}}>please enter valid 10 digits mobile number</p>)}
-                        value={fields.primaryNumber}
-                        onChange={(e) =>
-                          handlePhoneNumberChange(
-                            e.target.value,
-                            "primaryNumber"
-                          )
-                        }
-                        error={Boolean(priErr)}
-                        helperText={priErr}
-                      ></TextField>
-                      {/* </Stack> */}
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell> {t("home_number")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("home_number")}
-                        value={fields.homeNumber}
-                        onChange={(e) =>
-                          handlePhoneNumberChange(e.target.value, "homeNumber")
-                        }
-                        error={Boolean(homeErr)}
-                        helperText={homeErr}
-                      ></TextField>
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell> {t("workplace_phone_number")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("workplace_phone_number")}
-                        value={fields.workPhoneNumber}
-                        onChange={(e) =>
-                          handlePhoneNumberChange(
-                            e.target.value,
-                            "workPhoneNumber"
-                          )
-                        }
-                        error={Boolean(workErr)}
-                        helperText={workErr}
-                      ></TextField>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    {/* <TableCell> {t("insured_email_address")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("insured_email_address")}
-                        value={fields.emailAddress}
-                        onChange={(e) =>
-                          handleEmailChange(e.target.value, "emailAddress")
-                        }
-                        error={Boolean(error)}
-                        helperText={error}
-                      ></TextField>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">
-            {t("insured_occupation")}
-          </Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table
-                sx={{
-                  [`& .${tableCellClasses.root}`]: { borderBottom: "none" },
-                }}
-                aria-label="simple table"
-              >
-                <TableBody>
-                  <TableRow>
-                    {/* <TableCell>{t("occupation_code")}</TableCell> */}
-                    <TableCell>
-                    <Dropdown
-                        label={t("occupation_code")}
-                        options={occupationCode1}
-                        value={fields.occupationCode}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            e.target.value,
-                            "occupationCode"
-                          )
-                        }
-                      />
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell>{t("position_held")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("position_held")}
-                        value={fields.positionHeld}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "positionHeld")
-                        }
-                      ></TextField>
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell>{t("occupation_detail")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("occupation_detail")}
-                        value={fields.occupationDetail}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "occupationDetail")
-                        }
-                      ></TextField>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    {/* <TableCell>{t("business_detail")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("business_detail")}
-                        value={fields.businessDetail}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "businessDetail")
-                        }
-                      ></TextField>
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell> {t("annual_income")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("annual_income")}
-                        type="number"
-                        value={fields.annualIncome}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "annualIncome")
-                        }
-                      ></TextField>
-                    </TableCell>
-                  {/* </TableRow>
-                  <TableRow> */}
-                    {/* <TableCell>{t("other_occupations")}</TableCell> */}
-                    <TableCell>
-                      <TextField
-                        variant="standard"
-                        size="small"
-                        label={t("other_occupations")}
-                        multiline
-                        value={fields.otherOccupation}
-                        onChange={(e) =>
-                          handleFieldChange(e.target.value, "otherOccupation")
-                        }
-                      ></TextField>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell
-                      sx={{
-                        whiteSpace: "normal",
-                        wordWrap: "break-word",
-                      }}
-                    >
-                      {t("do_you_use_the_motorcycle_in_your_occupation")}
-                    </TableCell>
-                    <TableCell>
-                      <ToggleButtonGroup
-                        color="primary"
-                        value={fields.motorcycleOptn}
-                        exclusive
-                        fullWidth
-                        size="small"
-                        onChange={(event) =>
-                          handleButtonChange(event, "motorcycleOptn")
-                        }
-                        aria-label="Platform"
-                      >
-                        <ToggleButton value="Yes">Yes</ToggleButton>
-                        <ToggleButton value="No">No</ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-    </Box>
-  );
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
+
+import React, { useEffect, useState } from "react";
+
+import { useTranslation } from "react-i18next";
+
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+
+    basicSumInsured: string;
+
+    basicPlanPremium: string;
+
+    typeOfDivident: string;
+
+    insuranceTerm: string;
+
+    ppt: string;
+
+    Product: string;
+
+    Policy_Inception_Date: string;
+
+    Smoker: string;
+
+    Pre_Existing_Disease: string;
+
+    Extra_mortality: string;
+
+    Policy_Term: string;
+
+    Mandatory_Premium_Period: string;
+
+    PAV: string;
+
+    per_mille_rating_death: string;
+
+    per_mille_rating_TPD: string;
+
+    per_mille_rating_SCI: string;
+
+    Death_Benefit: string;
+
+    Total_and_Permanent_Disability_TPD: string;
+
+    Accidental_Death_and_Dismemberment_ADD: string;
+
+    Staged_Critical_Illness_SCI: string;
+
+    _2e_Hospital_Cash_Benefit_HCB: string;
+
+    Partial_Withdrawl: string;
+
+    Partial_Withdrawl_Amount: string;
+  };
+
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+
+      basicSumInsured: string;
+
+      basicPlanPremium: string;
+
+      typeOfDivident: string;
+
+      insuranceTerm: string;
+
+      ppt: string;
+
+      Product: string;
+
+      Policy_Inception_Date: string;
+
+      Smoker: string;
+
+      Pre_Existing_Disease: string;
+
+      Extra_mortality: string;
+
+      Policy_Term: string;
+
+      Mandatory_Premium_Period: string;
+
+      PAV: string;
+
+      per_mille_rating_death: string;
+
+      per_mille_rating_TPD: string;
+
+      per_mille_rating_SCI: string;
+
+      Death_Benefit: string;
+
+      Total_and_Permanent_Disability_TPD: string;
+
+      Accidental_Death_and_Dismemberment_ADD: string;
+
+      Staged_Critical_Illness_SCI: string;
+
+      _2e_Hospital_Cash_Benefit_HCB: string;
+
+      Partial_Withdrawl: string;
+
+      Partial_Withdrawl_Amount: string;
+    }>
+  >;
+
+  savedQuotation: any;
+
+  savedTransaction: any;
+}
+
+const MAIN_PLANS = [
+  "Term Insurance",
+  "Whole Life Insurance", 
+  "Universal Life Insurance",
+  "Endowment Plan"
+];
+
+const RIDERS = [
+  "ADD",
+  "CI",
+  "WOP",
+  "HCB",
+  "DB"
+];
+
+const YES_NO = ["Yes", "No"];
+
+const PRODUCT_OPTIONS = ["a", "b"];
+
+const EXTRA_MORTALITY_OPTIONS = ["5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"];
+
+const camelToNormal = (text: string) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
 };
 
-export default LifeAssuredDetail;
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+
+  setFields,
+
+  savedQuotation,
+
+  savedTransaction,
+}) => {
+  let jsonData;
+
+  let headers: any[] = [];
+
+  let OptRiderData;
+
+  let OptHeaders: any[] = [];
+
+  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
+
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
+
+  const handlePlanChange = (event: SelectChangeEvent<string>) => {
+    const selectedPlan = event.target.value;
+    handleFieldChange(selectedPlan, "basicPlan");
+    
+    // Set default values based on plan type
+    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
+    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
+    
+    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
+    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
+  };
+
+  const getDefaultSumInsured = (planType: string): number => {
+    switch (planType) {
+      case "Term Insurance": return 1000000;
+      case "Whole Life Insurance": return 500000;
+      case "Universal Life Insurance": return 750000;
+      case "Endowment Plan": return 300000;
+      default: return 500000;
+    }
+  };
+
+  const calculatePremium = (sumInsured: number, planType: string): number => {
+    const baseRate = {
+      "Term Insurance": 0.002,
+      "Whole Life Insurance": 0.015,
+      "Universal Life Insurance": 0.012,
+      "Endowment Plan": 0.025
+    };
+    return Math.round(sumInsured * (baseRate[planType as keyof typeof baseRate] || 0.01));
+  };
+
+  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedRiders(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
+
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+
+      setFields((prevFields) => ({
+        ...prevFields,
+
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]
+            ?.basePlan,
+
+        basicSumInsured: baseSA || '200000',
+
+        basicPlan: plan,
+
+        insuranceTerm: term,
+
+        ppt: ppt,
+
+        typeOfDivident: "Non - Participatory",
+
+        Product: '',
+
+        Policy_Inception_Date: new Date().toISOString().split('T')[0],
+
+        Smoker: 'No',
+
+        Pre_Existing_Disease: 'Yes',
+
+        Extra_mortality: '75%',
+
+        Policy_Term: '45',
+
+        Mandatory_Premium_Period: 'ErrName',
+
+        PAV: '0',
+
+        per_mille_rating_death: '1',
+
+        per_mille_rating_TPD: '1',
+
+        per_mille_rating_SCI: '1',
+
+        Death_Benefit: 'Yes',
+
+        Total_and_Permanent_Disability_TPD: 'Yes',
+
+        Accidental_Death_and_Dismemberment_ADD: 'Yes',
+
+        Staged_Critical_Illness_SCI: 'Yes',
+
+        _2e_Hospital_Cash_Benefit_HCB: 'Y',
+
+        Partial_Withdrawl: 'Yes',
+
+        Partial_Withdrawl_Amount: '5000',
+      }));
+    } else {
+      // Set defaults when no savedTransaction
+      setFields((prevFields) => ({
+        ...prevFields,
+
+        basicSumInsured: '200000',
+
+        Product: '',
+
+        Policy_Inception_Date: new Date().toISOString().split('T')[0],
+
+        Smoker: 'No',
+
+        Pre_Existing_Disease: 'Yes',
+
+        Extra_mortality: '75%',
+
+        Policy_Term: '45',
+
+        Mandatory_Premium_Period: 'ErrName',
+
+        PAV: '0',
+
+        per_mille_rating_death: '1',
+
+        per_mille_rating_TPD: '1',
+
+        per_mille_rating_SCI: '1',
+
+        Death_Benefit: 'Yes',
+
+        Total_and_Permanent_Disability_TPD: 'Yes',
+
+        Accidental_Death_and_Dismemberment_ADD: 'Yes',
+
+        Staged_Critical_Illness_SCI: 'Yes',
+
+        _2e_Hospital_Cash_Benefit_HCB: 'Y',
+
+        Partial_Withdrawl: 'Yes',
+
+        Partial_Withdrawl_Amount: '5000',
+      }));
+    }
