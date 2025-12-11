@@ -1,0 +1,610 @@
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
+
+import React, { useEffect, useState } from "react";
+
+import { useTranslation } from "react-i18next";
+
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+
+    basicSumInsured: string;
+
+    basicPlanPremium: string;
+
+    typeOfDivident: string;
+
+    insuranceTerm: string;
+
+    ppt: string;
+
+    Product: string;
+
+    Policy_Inception_Date: string;
+
+    Smoker: string;
+
+    Pre_Existing_Disease: string;
+
+    Extra_mortality: string;
+
+    Policy_Term: string;
+
+    Mandatory_Premium_Period: string;
+
+    PAV: string;
+
+    per_mille_rating_death: string;
+
+    per_mille_rating_TPD: string;
+
+    per_mille_rating_SCI: string;
+
+    Death_Benefit: string;
+
+    Total_and_Permanent_Disability_TPD: string;
+
+    Accidental_Death_and_Dismemberment_ADD: string;
+
+    Staged_Critical_Illness_SCI: string;
+
+    _2e_Hospital_Cash_Benefit_HCB: string;
+
+    Partial_Withdrawl: string;
+
+    Partial_Withdrawl_Amount: string;
+  };
+
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+
+      basicSumInsured: string;
+
+      basicPlanPremium: string;
+
+      typeOfDivident: string;
+
+      insuranceTerm: string;
+
+      ppt: string;
+
+      Product: string;
+
+      Policy_Inception_Date: string;
+
+      Smoker: string;
+
+      Pre_Existing_Disease: string;
+
+      Extra_mortality: string;
+
+      Policy_Term: string;
+
+      Mandatory_Premium_Period: string;
+
+      PAV: string;
+
+      per_mille_rating_death: string;
+
+      per_mille_rating_TPD: string;
+
+      per_mille_rating_SCI: string;
+
+      Death_Benefit: string;
+
+      Total_and_Permanent_Disability_TPD: string;
+
+      Accidental_Death_and_Dismemberment_ADD: string;
+
+      Staged_Critical_Illness_SCI: string;
+
+      _2e_Hospital_Cash_Benefit_HCB: string;
+
+      Partial_Withdrawl: string;
+
+      Partial_Withdrawl_Amount: string;
+    }>
+  >;
+
+  savedQuotation: any;
+
+  savedTransaction: any;
+}
+
+const MAIN_PLANS = [
+  "Term Insurance",
+  "Whole Life Insurance", 
+  "Universal Life Insurance",
+  "Endowment Plan"
+];
+
+const RIDERS = [
+  "ADD",
+  "CI",
+  "WOP",
+  "HCB",
+  "DB"
+];
+
+const YES_NO = ["Yes", "No"];
+
+const PRODUCT_OPTIONS = ["a", "b"];
+
+const EXTRA_MORTALITY_OPTIONS = ["5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"];
+
+const camelToNormal = (text: string) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+
+  setFields,
+
+  savedQuotation,
+
+  savedTransaction,
+}) => {
+  let jsonData;
+
+  let headers: any[] = [];
+
+  let OptRiderData;
+
+  let OptHeaders: any[] = [];
+
+  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
+
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
+
+  const handlePlanChange = (event: SelectChangeEvent<string>) => {
+    const selectedPlan = event.target.value;
+    handleFieldChange(selectedPlan, "basicPlan");
+    
+    // Set default values based on plan type
+    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
+    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
+    
+    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
+    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
+  };
+
+  const getDefaultSumInsured = (planType: string): number => {
+    switch (planType) {
+      case "Term Insurance": return 1000000;
+      case "Whole Life Insurance": return 500000;
+      case "Universal Life Insurance": return 750000;
+      case "Endowment Plan": return 300000;
+      default: return 500000;
+    }
+  };
+
+  const calculatePremium = (sumInsured: number, planType: string): number => {
+    const baseRate = {
+      "Term Insurance": 0.002,
+      "Whole Life Insurance": 0.015,
+      "Universal Life Insurance": 0.012,
+      "Endowment Plan": 0.025
+    };
+    return Math.round(sumInsured * (baseRate[planType as keyof typeof baseRate] || 0.01));
+  };
+
+  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedRiders(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
+
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+
+      setFields((prevFields) => ({
+        ...prevFields,
+
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary[1]
+            ?.basePlan,
+
+        basicSumInsured: baseSA || '200000',
+
+        basicPlan: plan,
+
+        insuranceTerm: term,
+
+        ppt: ppt,
+
+        typeOfDivident: "Non - Participatory",
+
+        Product: '',
+
+        Policy_Inception_Date: new Date().toISOString().split('T')[0],
+
+        Smoker: 'No',
+
+        Pre_Existing_Disease: 'Yes',
+
+        Extra_mortality: '75%',
+
+        Policy_Term: '45',
+
+        Mandatory_Premium_Period: 'ErrName',
+
+        PAV: '0',
+
+        per_mille_rating_death: '1',
+
+        per_mille_rating_TPD: '1',
+
+        per_mille_rating_SCI: '1',
+
+        Death_Benefit: 'Yes',
+
+        Total_and_Permanent_Disability_TPD: 'Yes',
+
+        Accidental_Death_and_Dismemberment_ADD: 'Yes',
+
+        Staged_Critical_Illness_SCI: 'Yes',
+
+        _2e_Hospital_Cash_Benefit_HCB: 'Y',
+
+        Partial_Withdrawl: 'Yes',
+
+        Partial_Withdrawl_Amount: '5000',
+      }));
+    } else {
+      // Set defaults when no savedTransaction
+      setFields((prevFields) => ({
+        ...prevFields,
+
+        basicSumInsured: '200000',
+
+        Product: '',
+
+        Policy_Inception_Date: new Date().toISOString().split('T')[0],
+
+        Smoker: 'No',
+
+        Pre_Existing_Disease: 'Yes',
+
+        Extra_mortality: '75%',
+
+        Policy_Term: '45',
+
+        Mandatory_Premium_Period: 'ErrName',
+
+        PAV: '0',
+
+        per_mille_rating_death: '1',
+
+        per_mille_rating_TPD: '1',
+
+        per_mille_rating_SCI: '1',
+
+        Death_Benefit: 'Yes',
+
+        Total_and_Permanent_Disability_TPD: 'Yes',
+
+        Accidental_Death_and_Dismemberment_ADD: 'Yes',
+
+        Staged_Critical_Illness_SCI: 'Yes',
+
+        _2e_Hospital_Cash_Benefit_HCB: 'Y',
+
+        Partial_Withdrawl: 'Yes',
+
+        Partial_Withdrawl_Amount: '5000',
+      }));
+    }
+  }, [savedTransaction]);
+
+  if (
+    savedTransaction &&
+    typeof savedTransaction === "object" &&
+    Object.keys(savedTransaction).length !== 0
+  ) {
+    jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
+
+    if (jsonData?.length) {
+      headers = Object.keys(jsonData[0]);
+    }
+
+    OptRiderData =
+      savedTransaction[0]?.txn_output_json?.outputs?.OptionalBenefitDetails;
+
+    if (OptRiderData?.length) {
+      OptHeaders = Object.keys(OptRiderData[0]);
+    }
+  }
+
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation Summary */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("quotation_summaryh")}
+        </Typography>
+        <Divider />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            marginTop: 2,
+          }}
+        >
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              const file = new Blob(
+                [
+                  Uint8Array.from(atob(savedQuotation.txn_pdf), (c) =>
+                    c.charCodeAt(0)
+                  ),
+                ],
+                {
+                  type: "application/pdf",
+                }
+              );
+
+              const fileURL = URL.createObjectURL(file);
+
+              window.open(fileURL);
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
+
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("main_plan")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }} >
+              <TableBody>
+                <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>{t("basicPlan")}</InputLabel>
+                      <Select
+                        value={fields.basicPlan}
+                        onChange={handlePlanChange}
+                      >
+                        {MAIN_PLANS.map((plan) => (
+                          <MenuItem key={plan} value={plan}>
+                            {plan}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  {["basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
+                    <TableCell
+                      key={field}
+                      sx={{ flex: "1 1 30%", minWidth: "120px" }}
+                    >
+                      <TextField
+                        size="small"
+                        label={t(field)}
+                        variant="standard"
+                        InputProps={{ readOnly: true }}
+                        value={fields[field as keyof typeof fields]}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, field)
+                        }
+                      />
+                    </TableCell>
+                  ))}
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Product</InputLabel>
+                      <Select
+                        value={fields.Product}
+                        onChange={(e) => handleFieldChange(e.target.value, "Product")}
+                      >
+                        {PRODUCT_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Inception Date"
+                      variant="standard"
+                      type="date"
+                      value={fields.Policy_Inception_Date}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Smoker</InputLabel>
+                      <Select
+                        value={fields.Smoker}
+                        onChange={(e) => handleFieldChange(e.target.value, "Smoker")}
+                      >
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Pre Existing Disease</InputLabel>
+                      <Select
+                        value={fields.Pre_Existing_Disease}
+                        onChange={(e) => handleFieldChange(e.target.value, "Pre_Existing_Disease")}
+                      >
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Extra Mortality</InputLabel>
+                      <Select
+                        value={fields.Extra_mortality}
+                        onChange={(e) => handleFieldChange(e.target.value, "Extra_mortality")}
+                      >
+                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Policy Term"
+                      variant="standard"
+                      value={fields.Policy_Term}
+                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField
+                      size="small"
+                      label="Mandatory Premium Period"
+                      variant="standard"
+                      value={fields.Mandatory_Premium_Period}
+                      onChange={(e) => handleFieldChange(e.target.value, "Mandatory_Premium_Period")}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+
+      {/* Riders */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("riders")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <FormControl variant="standard" size="small" sx={{ minWidth: 200, marginBottom: 2 }}>
+            <InputLabel>Select Riders</InputLabel>
+            <Select
+              multiple
+              value={selectedRiders}
+              onChange={handleRiderChange}
+              renderValue={(selected) => selected.join(', ')}
+            >
+              {RIDERS.map((rider) => (
+                <MenuItem key={rider} value={rider}>
+                  {rider}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {jsonData && (
+            <TableContainer sx={{ width: "100%" }}>
+              <Table sx={{ width: "100%" }}>
+                <TableHead>
+                  <TableRow>
+                    {headers?.map((header) => (
+                      <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {jsonData?.map((row: any, rowIndex: number) => (
+                    <TableRow key={rowIndex}>
+                      {headers?.map((header) => (
+                        <TableCell key={header}>{row[header]}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      </Paper>
+
+      {/* Optional Benefits */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("optional_benefits")}
+        </Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table sx={{ width: "100%" }}>
+              <TableHead>
+                <TableRow>
+                  {OptHeaders?.map((header) => (
+                    <TableCell key={header}>{camelToNormal(header)}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {OptRiderData?.map((row: any, rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {OptHeaders?.map((header) => (
+                      <TableCell key={header}>{row[header]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Paper>
+    </Box>
+  );
+};
+
+export default PlanAndCoverage;
