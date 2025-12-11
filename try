@@ -2,70 +2,74 @@ import React, { useEffect, useState } from "react";
 import {
   AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem,
   Grid, useMediaQuery, useTheme, Drawer, List, ListItem,
-  ListItemButton, ListItemIcon, ListItemText, Divider,
+  ListItemButton, ListItemIcon, ListItemText
 } from "@mui/material";
-import { Outlet, useNavigate, useLocation, useParams, matchPath } from "react-router-dom";
+
+import { Outlet, useNavigate, useLocation, useParams } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PaymentIcon from "@mui/icons-material/Payment";
 import BentoIcon from "@mui/icons-material/Bento";
 import { Translate } from "@mui/icons-material";
+
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import cookies from "js-cookie";
 import styled from "@emotion/styled";
 
-// Custom Styled AppBar
+// AppBar fully white
 const CustomAppBar = styled(AppBar)({
   backgroundColor: "rgba(255, 255, 255, 1)",
 });
 
-// Language setup code 
+// MULTI LANGUAGE CONFIG
 interface Language {
   code: string;
   name: string;
   country_code: string;
   dir: string;
 }
+
 const languages: Language[] = [
   { code: "en", name: "English", country_code: "gb", dir: "ltr" },
   { code: "th", name: "แบบไทย", country_code: "th", dir: "ltr" },
 ];
 
 export default function App() {
+
+  // Current language
   const currentLanguageCode = cookies.get("i18next") || "en";
   const currentLanguage = languages.find((l) => l.code === currentLanguageCode);
+
   const { t } = useTranslation();
-  
-  // 1. HOOKS FOR ROUTING
+
+  // Router Helpers
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const currentTxnId = params.txnTypeId; 
+  const currentTxnId = params.txnTypeId;
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // Set language + title
   useEffect(() => {
     document.body.dir = currentLanguage?.dir || "ltr";
     document.title = t("app_title");
   }, [currentLanguage, t]);
 
+  // MENU LANGUAGE TOGGLER
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
+  // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (event.type === "keydown" && ((event as React.KeyboardEvent).key === "Tab" || (event as React.KeyboardEvent).key === "Shift")) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
+  const toggleDrawer = (open: boolean) => () => setDrawerOpen(open);
 
-
-  // DEFINE MENU ITEMS (Use root path names)
+  // SIDE MENU ITEMS
   const menuItems = [
     { text: "Application Entry", icon: <DashboardIcon />, path: "application" },
     { text: "Proofing", icon: <DescriptionIcon />, path: "proofing" },
@@ -74,47 +78,37 @@ export default function App() {
     { text: "Claims", icon: <BentoIcon />, path: "claims" },
   ];
 
-  //  NAVIGATION FUNCTION
+  // NEW CLEAN NAVIGATION HANDLER
   const handleNavigation = (path: string) => {
     if (path === "application") {
-      // Application page usually REQUIRES an ID. 
-      // If we have one, go to it. If not, maybe go to a 'Search' page or stay put?
+      // A - IF TXN EXISTS → DIRECT PAGE
       if (currentTxnId) {
         navigate(`/application/${currentTxnId}`);
       } else {
-        navigate('/application/new');
-        // navigate('/dashboard'); 
+        // NEW PREMIUM ENTRY
+        navigate("/application/new");
       }
     } else {
-      // For Underwriting, Proofing, etc.
-      // If we have an ID, append it. If not, just go to the list view.
-      if (currentTxnId) {
-        navigate(`/${path}/${currentTxnId}`);
-      } else {
-        navigate(`/${path}`);
-      }
+      // For other menu pages
+      if (currentTxnId) navigate(`/${path}/${currentTxnId}`);
+      else navigate(`/${path}`);
     }
   };
 
-  // 3. DETERMINE TITLE BASED ON URL
-  // We look at the current URL path to decide which title to show
+  // ACTIVE PAGE TITLE
   const getCurrentTitle = () => {
-     const activeItem = menuItems.find((item) => 
-      location.pathname.includes(item.path)
-    );
-    
-    return activeItem ? activeItem.text : "Application Entry";
+    const active = menuItems.find((m) => location.pathname.includes(m.path));
+    return active ? active.text : "Application Entry";
   };
 
-  const list = () => (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
-      {/* ... Headers ... */}
+  // Drawer List
+  const drawerList = (
+    <Box sx={{ width: 250 }} onClick={toggleDrawer(false)}>
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
-              // USE THE NEW NAVIGATION FUNCTION
-              onClick={() => handleNavigation(item.path)} 
+              onClick={() => handleNavigation(item.path)}
               selected={location.pathname.includes(item.path)}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -128,9 +122,15 @@ export default function App() {
 
   return (
     <Box sx={{ flexGrow: 1, backgroundColor: "#C9E9EA", minHeight: "100vh" }}>
+      
+      {/* TOP BAR */}
       <CustomAppBar position="static">
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }} variant="dense">
+        <Toolbar
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          variant="dense"
+        >
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+            {/* Drawer Button */}
             <IconButton
               edge="start"
               color="inherit"
@@ -141,27 +141,30 @@ export default function App() {
               <MenuIcon />
             </IconButton>
 
+            {/* DYNAMIC TITLE */}
             <Typography
               variant={isMobile ? "h6" : "h5"}
               sx={{ color: "black", fontWeight: "bold" }}
             >
-               {/* Display Dynamic Title */}
-              {getCurrentTitle()} 
+              {getCurrentTitle()}
             </Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton color="inherit" sx={{ color: "black" }} onClick={handleMenuOpen}>
+          {/* LANGUAGE CHANGE BUTTON */}
+          <Box>
+            <IconButton sx={{ color: "black" }} onClick={handleMenuOpen}>
               <Translate />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-               {/* Language Menu Items (Same as before) */}
-               {languages.map(({ code, name }) => (
-                <MenuItem key={code} onClick={() => { i18next.changeLanguage(code); handleMenuClose(); }}>
+
+            <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={handleMenuClose}>
+              {languages.map(({ code, name }) => (
+                <MenuItem
+                  key={code}
+                  onClick={() => {
+                    i18next.changeLanguage(code);
+                    handleMenuClose();
+                  }}
+                >
                   {name}
                 </MenuItem>
               ))}
@@ -170,14 +173,20 @@ export default function App() {
         </Toolbar>
       </CustomAppBar>
 
+      {/* LEFT SIDE DRAWER */}
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        {list()}
+        {drawerList}
       </Drawer>
 
-      <Grid container justifyContent="center" sx={{ maxWidth: 1280, margin: "auto", padding: { xs: "1rem", sm: "2rem" } }}>
+      {/* MIDDLE CONTENT */}
+      <Grid
+        container
+        justifyContent="center"
+        sx={{ maxWidth: 1280, margin: "auto", padding: { xs: "1rem", sm: "2rem" } }}
+      >
         <Grid item xs={12}>
-          {/* 5. THIS IS WHERE THE CHILD COMPONENTS RENDER */}
-          <Outlet /> 
+          {/* CHILD pages from routes (Life Assured + Plan Coverage) */}
+          <Outlet />
         </Grid>
       </Grid>
     </Box>
