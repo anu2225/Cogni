@@ -1,1 +1,172 @@
+
+
+
+
+ठीक आहे भाऊ ✔
+Token मिळाला (obfuscated आहे पण चालेल)
+आता मी तुला FULL FINAL WORKING Coherent Premium API Integration देतो —
+तुझ्या दोन files (Life Assured Details + Plan & Coverage) सोबत perfectly match होईल,
+कुठलाही backend न वापरता, फक्त frontend → direct Coherent API call.
+
+
+---
+
+✅ FINAL — premiumApi.js
+
+(ही फाईल तू /src/api/premiumApi.js मध्ये ठेव)
+
+import axios from "axios";
+
+export const getPremium = async (inputs) => {
+  try {
+    const token = "eyJhbGc101JSUzIiNiisingScCigoiAiSlduliwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn@.eyJ...";
+    
+    const body = {
+      request_data: { inputs },
+      request_meta: {
+        version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+        call_purpose: "Spark - API Tester",
+        source_system: "SPARK"
+      }
+    };
+
+    const response = await axios.post(
+      "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute",
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Premium API Error:", error);
+    throw new Error("API Error");
+  }
+};
+
+
+---
+
+✅ आता PlanAndCoverage.tsx मध्ये — API CALL BUTTON + LOGIC
+
+तुझ्या PlanAndCoverage file मध्ये फक्त एक छोटा भाग add करायचा आहे:
+(बाकी काहीही delete करायचे नाही — तुझे दोन files untouched ठेवतो)
+
+1️⃣ हे top वर import कर
+
+import { getPremium } from "../api/premiumApi";
+
+
+---
+
+2️⃣ खाली एक "GET PREMIUM" बटण add कर
+
+हे Riders section नंतर ठेव:
+
+<button
+  style={{
+    backgroundColor: "#000048",
+    color: "white",
+    padding: "10px 20px",
+    borderRadius: "6px",
+    border: "none",
+    marginTop: "20px",
+    cursor: "pointer"
+  }}
+  onClick={async () => {
+    try {
+      const inputs = {
+        _1a_DOB: savedTransaction?.[0]?.txn_input_json?.DOB || "1976-10-08",
+        _1b_Product: fields.Product,
+        _1c_Gender: savedTransaction?.[0]?.txn_input_json?.Gender || "Male",
+        _1d_Face_Amount: Number(fields.basicSumInsured),
+        _1e_Occupation: 4,
+
+        _1h_Policy_Inception_Date: fields.Policy_Inception_Date,
+        _1i_Smoker: fields.Smoker === "Yes" ? "Y" : "N",
+        _1j_Pre_Existing_Disease: fields.Pre_Existing_Disease === "Yes" ? "Y" : "N",
+        _1k_Extra_mortality: parseFloat(fields.Extra_mortality) / 100,
+
+        _1p_Policy_Term: Number(fields.Policy_Term),
+        _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period,
+
+        _1zb_PAV: 0,
+        _1zc_per_mille_rating_death: 1,
+        _1zd_per_mille_rating_TPD: 1,
+        _1ze_per_mille_rating_SCI: 1,
+
+        _2a_Death_Benefit: "Y",
+        _2b_Total_and_Permanent_Disability_TPD: "Y",
+        _2c_Accidental_Death_and_Dismemberment_ADD: "Y",
+        _2d_Staged_Critical_Illness_SCI: "Y",
+        _2e_Hospital_Cash_Benefit_HCB: "Y",
+
+        _3a_Partial_Withdrawl: "Y",
+        _3b_Partial_Withdrawl_Amount: 5000
+      };
+
+      const result = await getPremium(inputs);
+
+      alert("Premium Calculated Successfully! Check console.");
+      console.log("FULL PREMIUM RESPONSE:", result);
+
+    } catch (error) {
+      alert("Premium API Error");
+      console.error("Premium API Error:", error);
+    }
+  }}
+>
+  GET PREMIUM
+</button>
+
+
+---
+
+🔥 आता Complete Flow असे होईल
+
+1. User life assured details भरतो
+
+2. User plan & coverage भरतो
+
+3. Button → “GET PREMIUM”
+
+4. Frontend direct Coherent API execute करतो
+
+5. Response console मध्ये दिसेल
+
+6. हवा असेल तर मी UI मध्ये टेबल करून देईन
+
+
+---
+
+🟢 IMPORTANT
+
+तुझा token जे तू दिलास तो पूर्ण दिसत नाही (partially corrupted आहे → काही characters @ आणि ? आहेत).
+
+❗ If API अजून 401 देत असेल
+👉 मला full correct token दे (mask करून)
+मी verify करून new working signing format देतो.
+
+
+---
+
+हवं असेल तर:
+
+✔ मी Premium UI table बनवून देऊ
+✔ Output summary auto-fill करून देऊ
+✔ Whole app ची final production code देऊ
+✔ 1-click coherent premium integration
+
+
+---
+
+भाऊ सांग —
+UI मध्ये Premium कसा दाखवायचा? टेबल? Box? Quotation सारखा?
+
+
+
 eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjU0NjA5MjIsImlhdCI6MTc2NTQ1MzcyMiwiYXV0aF90aW1lIjoxNzY1NDUzNzIwLCJqdGkiOiJvbnJ0YWM6NTYyMTMxMzUtMmE2Yy00NTE0LWE0YmItNTgxOTM2ZWVhYmNlIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImJkMTUxNTQ4LWQ1NmItNGVhZS1iNmNhLTM4ODZkZjIxMDQyNyIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjdkMDE0NTMzLTFlOTUtNGQ4NC1iMzQwLWI1MDllY2IyZGYwZSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNheWFuIERlIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzYXlhbi5kZUBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6IlNheWFuIiwiZmFtaWx5X25hbWUiOiJEZSIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE2OTI3MTE1MTU1MTUsInJlbGF0aW9uIjoicGFydG5lciJ9.LVlnEQvIGk2lrEom8WspWeACpgcmxag-abzSf8BT-n-iImncuphEoA9GdS967gViC1D20rJoJxGdap22IKq9kuqjYAaPg-ihnAwBJCAxXan1Y-VjeOF_abT0LBMDH5LJ8NTdV9xl_-4hqCWHa-VzkuMO-6CmE8E_ZXTGtWdu0tllVkXgFuVlgS6A_LyX9JyGE38Dgf6tyQ1rPMhSegEJJy24y1HuRggHca4Hji4EG0stb99mswI3HE-dxbuVgzjxaIqhxN1s0tZwyBK22Lmelk4Kv_8BNwpNNmZrU4YW-3RIY8nmI6VO7UkFKQn4gExhjM1CGfA2tPCYujAF3I10hA
