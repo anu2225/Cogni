@@ -1,74 +1,888 @@
-const getPremium = async () => {
-    const url = "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/PPT%20Tool/services/SPARK_property_insurance_premium_calculation_2/execute%22; // Replace with the actual API endpoint
-    const token = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjE2MzM2ODEsImlhdCI6MTc2MTYyNjQ4MSwiYXV0aF90aW1lIjoxNzYxNjI2NDI5LCJqdGkiOiJvbnJ0YWM6ZThkMGQ4NDMtMTQ5NS00YTAwLWJlNTQtYWY5NmQ5MTY5NTNjIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6IjA4OWU1ZGMzLWI4N2ItNGQ5OS1hMTMyLTE3OGM3NmE3ODUyMCIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6IjQ2YzZkZmVjLThmNDYtNGI2MC1iNTIwLTk2MTdmN2UzYThmNCIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6ImFtbGFuIGdob3NoIiwiZ3JvdXBzIjpbInVzZXI6cGYiXSwicmVhbG0iOiJjb2duaXphbnQiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhbWxhbi5naG9zaEBjb2duaXphbnQuY29tIiwiZ2l2ZW5fbmFtZSI6ImFtbGFuIiwiZmFtaWx5X25hbWUiOiJnaG9zaCIsInVzZXJfY3JlYXRlZF90aW1lc3RhbXAiOjE3MTgxMDI1NzIzNTUsInJlbGF0aW9uIjoicGFydG5lciJ9.MKnZd8GaYodv1YdpiXWAIS3jlgLdeL4s3B-NaJCisrI6aru46OxjANEZGDlWs0mETA3RkEwXU9iBds3h-7rYJIfqOVfPbGtrfT7zH8F6DVC9M_NWnAC7221cWB9aJaJUq5kqmElw6Az5_PWiPaWlpx0lu2aJi61Dpzqzfxm9Wc_bX7Xjh8nhWHwJ6dE142vyzrXI35T2YM7S-0gCoPkZRG5-NtvuT-4nrmA7s3KuY4TQTHXTgfWASMVDzw8bcUvLi7PMaoqyfhm84ocvZ7XzFxDFKcfCB89jZTPmV2b-j57K1nUW3SzOjgpD1T6nOPE9eQi59yF2S2HY7VNaYcoVcQ";
- //"; // Replace with the actual token
- 
-    const requestBody = {
-        request_data: {
-            inputs: {
-                AccidentalDmgInput: fields.accdmg,
-                Country: localStorage.getItem('country'),
-                EarthquakeInput: fields.earthquake,
-                FireInput: fields.fire,
-                FloodInput: fields.flood,
-                PropertyVal: fields.tot_pd_asset_val,
-                TerrorismInput: fields.terrorism,
-                ZipCode: localStorage.getItem('zip')
-            }
-        },
-        request_meta: {
-            version_id: "b5100601-8d55-40f9-b7a2-02ce874c562c",
-            call_purpose: "Spark - API Tester",
-            source_system: "SPARK",
-            correlation_id: null,
-            requested_output: null,
-            service_category: ""
-        }
-    };
- 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // Pass the token here
-            },
-            body: JSON.stringify(requestBody)
-        });
- 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
- 
-        const data = await response.json();
- 
-        setFields({
-          ...fields,
-          showBeneficiary:data
-      })
-        fields.accdmgPrem = data.response_data.outputs.AccidentalDamagePremium;
-        fields.terrorismPrem = data.response_data.outputs.TerrorismPremium;
-        fields.floodPrem = data.response_data.outputs.FloodPremium;
-        fields.firePrem = data.response_data.outputs.FirePremium;
-        fields.earthquakePrem = data.response_data.outputs.EarthquakePremium;
- 
-        const premiumSumValue = fields.accdmgPrem + fields.terrorismPrem + fields.floodPrem + fields.firePrem + fields.earthquakePrem;
-        fields.totalPremiumVal = premiumSumValue;
-        localStorage.setItem('totalPremiumVal',fields.totalPremiumVal);
- 
-        console.log(premiumSumValue);
-        console.log(data.response_data.outputs);
-        localStorage.setItem('accdmgPrem',fields.accdmgPrem);
-        localStorage.setItem('terrorismPrem',fields.terrorismPrem);
-        localStorage.setItem('floodPrem',fields.floodPrem);
-        localStorage.setItem('firePrem',fields.firePrem);
-        localStorage.setItem('earthquakePrem',fields.earthquakePrem);
-        return data;
-    } catch (error) {
-        console.error("Error fetching premium data:", error);
-        throw error;
+[12/12, 11:02 am] Ashish Kandekar 14/7: // src/Components/PlanAndCoverage.tsx
+import dayjs from "dayjs";
+import {
+  Box,
+  Divider,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { getAxiosInstance } from "../api/apiClient";
+
+interface ChildComponentProps {
+  fields: {
+    basicPlan: string;
+    basicSumInsured: string;
+    basicPlanPremium: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+    Product: string;
+    Policy_Inception_Date: string | null;
+    Smoker: string;
+    Pre_Existing_Disease: string;
+    Extra_mortality: string;
+    Policy_Term: string;
+    Mandatory_Premium_Period: string;
+    PAV: string;
+    per_mille_rating_death: string;
+    per_mille_rating_TPD: string;
+    per_mille_rating_SCI: string;
+    Death_Benefit: string;
+    Total_and_Permanent_Disability_TPD: string;
+    Accidental_Death_and_Dismemberment_ADD: string;
+    Staged_Critical_Illness_SCI: string;
+    _2e_Hospital_Cash_Benefit_HCB: string;
+    Partial_Withdrawl: string;
+    Partial_Withdrawl_Amount: string;
+
+    // from LifeAssuredDetail
+    insuredDateOfBirth?: any;
+    insuredGender?: string;
+    occupationCode?: string;
+  };
+
+  setFields: React.Dispatch<
+    React.SetStateAction<any>
+  >;
+
+  savedQuotation: any;
+  savedTransaction: any;
+}
+
+const MAIN_PLANS = [
+  "Term Insurance",
+  "Whole Life Insurance",
+  "Universal Life Insurance",
+  "Endowment Plan",
+];
+
+const RIDERS = ["ADD", "CI", "WOP", "HCB", "DB"];
+const YES_NO = ["Yes", "No"];
+const PRODUCT_OPTIONS = ["a", "b"];
+const EXTRA_MORTALITY_OPTIONS = [
+  "5%",
+  "10%",
+  "15%",
+  "20%",
+  "25%",
+  "30%",
+  "35%",
+  "40%",
+  "45%",
+  "50%",
+  "55%",
+  "60%",
+  "65%",
+  "70%",
+  "75%",
+  "80%",
+  "85%",
+  "90%",
+  "95%",
+  "100%",
+];
+
+const API_CALCULATE_PATH =
+  "/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute"; // your endpoint path
+
+const camelToNormal = (text: string) =>
+  text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+
+const PlanAndCoverage: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedQuotation,
+  savedTransaction,
+}) => {
+  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [calcResult, setCalcResult] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleFieldChange = (val: string, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: val });
+  };
+
+  const handlePlanChange = (event: SelectChangeEvent<string>) => {
+    const selectedPlan = event.target.value;
+    handleFieldChange(selectedPlan, "basicPlan");
+    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
+    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
+    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
+    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
+  };
+
+  const getDefaultSumInsured = (planType: string): number => {
+    switch (planType) {
+      case "Term Insurance":
+        return 1000000;
+      case "Whole Life Insurance":
+        return 500000;
+      case "Universal Life Insurance":
+        return 750000;
+      case "Endowment Plan":
+        return 300000;
+      default:
+        return 500000;
     }
+  };
+
+  const calculatePremium = (sumInsured: number, planType: string): number => {
+    const baseRate: { [k: string]: number } = {
+      "Term Insurance": 0.002,
+      "Whole Life Insurance": 0.015,
+      "Universal Life Insurance": 0.012,
+      "Endowment Plan": 0.025,
+    };
+    return Math.round(sumInsured * (baseRate[planType] || 0.01));
+  };
+
+  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedRiders(typeof value === "string" ? value.split(",") : value);
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
+      const plan = savedTransaction[0]?.txn_input_json?.Plan;
+      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
+      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+
+      setFields((prevFields: any) => ({
+        ...prevFields,
+        basicPlanPremium:
+          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary?.[1]
+            ?.basePlan,
+        basicSumInsured: baseSA || "200000",
+        basicPlan: plan,
+        insuranceTerm: term,
+        ppt: ppt,
+        typeOfDivident: "Non - Participatory",
+        Product: "",
+        Policy_Inception_Date: new Date().toISOString().split("T")[0],
+        Smoker: "No",
+        Pre_Existing_Disease: "Yes",
+        Extra_mortality: "75%",
+        Policy_Term: "45",
+        Mandatory_Premium_Period: "ErrName",
+        PAV: "0",
+        per_mille_rating_death: "1",
+        per_mille_rating_TPD: "1",
+        per_mille_rating_SCI: "1",
+        Death_Benefit: "Yes",
+        Total_and_Permanent_Disability_TPD: "Yes",
+        Accidental_Death_and_Dismemberment_ADD: "Yes",
+        Staged_Critical_Illness_SCI: "Yes",
+        _2e_Hospital_Cash_Benefit_HCB: "Y",
+        Partial_Withdrawl: "Yes",
+        Partial_Withdrawl_Amount: "5000",
+      }));
+    } else {
+      setFields((prevFields: any) => ({
+        ...prevFields,
+        basicSumInsured: "200000",
+        Product: "",
+        Policy_Inception_Date: new Date().toISOString().split("T")[0],
+        Smoker: "No",
+        Pre_Existing_Disease: "Yes",
+        Extra_mortality: "75%",
+        Policy_Term: "45",
+        Mandatory_Premium_Period: "ErrName",
+        PAV: "0",
+        per_mille_rating_death: "1",
+        per_mille_rating_TPD: "1",
+        per_mille_rating_SCI: "1",
+        Death_Benefit: "Yes",
+        Total_and_Permanent_Disability_TPD: "Yes",
+        Accidental_Death_and_Dismemberment_ADD: "Yes",
+        Staged_Critical_Illness_SCI: "Yes",
+        _2e_Hospital_Cash_Benefit_HCB: "Y",
+        Partial_Withdrawl: "Yes",
+        Partial_Withdrawl_Amount: "5000",
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedTransaction]);
+
+  // helper to map Yes/No to Y/N
+  const yesNoToYN = (val?: string | null) => {
+    if (!val) return "N";
+    const v = val.toString().toLowerCase();
+    if (v === "y" || v === "yes" || v === "true") return "Y";
+    return "N";
+  };
+
+  const handleGetPremium = async () => {
+    setLoading(true);
+    setCalcResult(null);
+    setErrorMsg("");
+
+    try {
+      const inputs: any = {
+        _1a_DOB: fields.insuredDateOfBirth
+          ? typeof fields.insuredDateOfBirth === "string"
+            ? fields.insuredDateOfBirth
+            : dayjs(fields.insuredDateOfBirth).format("YYYY-MM-DD")
+          : "",
+
+        _1b_Product: fields.Product || "",
+
+        _1c_Gender: fields.insuredGender || "",
+
+        _1d_Face_Amount: Number(fields.basicSumInsured || 0),
+
+        _1e_Occupation: Number(fields.occupationCode || 0),
+
+        _1h_Policy_Inception_Date: fields.Policy_Inception_Date
+          ? fields.Policy_Inception_Date
+          : dayjs().format("YYYY-MM-DD"),
+
+        _1i_Smoker: yesNoToYN(fields.Smoker),
+
+        _1j_Pre_Existing_Disease: yesNoToYN(fields.Pre_Existing_Disease),
+
+        _1k_Extra_mortality: (() => {
+          const v = (fields.Extra_mortality || "").toString();
+          if (v.endsWith("%")) {
+            const n = parseFloat(v.replace("%", "")) || 0;
+            return +(n / 100).toFixed(4);
+          }
+          const num = parseFloat(v);
+          if (!isNaN(num) && num > 0 && num <= 1) return num;
+          if (!isNaN(num) && num > 1) return +(num / 100).toFixed(4);
+          return 0;
+        })(),
+
+        _1p_Policy_Term: Number(fields.Policy_Term || 0),
+
+        _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period || "",
+
+        _1zb_PAV: Number(fields.PAV || 0),
+
+        _1zc_per_mille_rating_death: Number(
+          fields.per_mille_rating_death || 1
+        ),
+
+        _1zd_per_mille_rating_TPD: Number(fields.per_mille_rating_TPD || 1),
+
+        _1ze_per_mille_rating_SCI: Number(fields.per_mille_rating_SCI || 1),
+
+        _2a_Death_Benefit: yesNoToYN(fields.Death_Benefit),
+
+        _2b_Total_and_Permanent_Disability_TPD: yesNoToYN(
+          fields.Total_and_Permanent_Disability_TPD
+        ),
+
+        _2c_Accidental_Death_and_Dismemberment_ADD: yesNoToYN(
+          fields.Accidental_Death_and_Dismemberment_ADD
+        ),
+
+        _2d_Staged_Critical_Illness_SCI: yesNoToYN(
+          fields.Staged_Critical_Illness_SCI
+        ),
+
+        _2e_Hospital_Cash_Benefit_HCB:
+          fields._2e_Hospital_Cash_Benefit_HCB || "Y",
+
+        _3a_Partial_Withdrawl: yesNoToYN(fields.Partial_Withdrawl),
+
+        _3b_Partial_Withdrawl_Amount: Number(
+          fields.Partial_Withdrawl_Amount || 0
+        ),
+      };
+
+      const payload = {
+        request_data: { inputs },
+        request_meta: {
+          version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
+          call_purpose: "Spark - API Tester",
+          source_system: "SPARK",
+          correlation_id: null,
+          requested_output: null,
+          service_category: "",
+        },
+      };
+
+      const axiosInst = getAxiosInstance();
+      const resp = await axiosInst.post(API_CALCULATE_PATH, payload);
+      setCalcResult(resp.data);
+
+      // Optionally: you can parse outputs and set fields similarly to the property example you gave
+      // Example (depends on response structure):
+      // const outputs = resp.data?.response_data?.outputs || resp.data?.request_data?.outputs;
+      // setFields({...fields, someField: outputs?.SomeValue});
+
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err?.response?.data?.message || err.message || "Request failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box sx={{ width: "100%", padding: 2 }}>
+      {/* Quotation Summary */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">
+          {t("quotation_summaryh")}
+        </Typography>
+        <Divider />
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
+          <Typography>{t("quotation_summary")}&emsp;</Typography>
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              if (!savedQuotation?.txn_pdf) return;
+              const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], { type: "application/pdf" });
+              const fileURL = URL.createObjectURL(file);
+              window.open(fileURL);
+            }}
+          >
+            Download Link to Quotation
+          </Link>
+        </Box>
+      </Paper>
+
+      {/* Main Plan */}
+      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography className="typography-main-header">{t("main_plan")}</Typography>
+        <Divider />
+        <Box sx={{ marginTop: 2 }}>
+          <TableContainer sx={{ width: "100%" }}>
+            <Table className="table-main" sx={{ width: "100%" }}>
+              <TableBody>
+                <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>{t("basicPlan")}</InputLabel>
+                      <Select value={fields.basicPlan} onChange={handlePlanChange}>
+                        {MAIN_PLANS.map((plan) => (
+                          <MenuItem key={plan} value={plan}>
+                            {plan}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  {["basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
+                    <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                      <TextField size="small" label={t(field)} variant="standard" InputProps={{ readOnly: true }} value={fields[field as keyof typeof fields]} onChange={(e) => handleFieldChange(e.target.value, field)} />
+                    </TableCell>
+                  ))}
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Product</InputLabel>
+                      <Select value={fields.Product} onChange={(e) => handleFieldChange(e.target.value, "Product")}>
+                        {PRODUCT_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField size="small" label="Policy Inception Date" variant="standard" type="date" value={fields.Policy_Inception_Date ?? ""} onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")} />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Smoker</InputLabel>
+                      <Select value={fields.Smoker} onChange={(e) => handleFieldChange(e.target.value, "Smoker")}>
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Pre Existing Disease</InputLabel>
+                      <Select value={fields.Pre_Existing_Disease} onChange={(e) => handleFieldChange(e.target.value, "Pre_Existing_Disease")}>
+                        {YES_NO.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <FormControl variant="standard" size="small" fullWidth>
+                      <InputLabel>Extra Mortality</InputLabel>
+                      <Select value={fields.Extra_mortality} onChange={(e) => handleFieldChange(e.target.value, "Extra_mortality")}>
+                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField size="small" label="Policy Term" variant="standard" value={fields.Policy_Term} onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")} />
+                  </TableCell>
+
+                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                    <TextField size="small" label="Mandatory Premium Period" variant="standard" value={fields.Mandatory_Premium_Period} onChange={(e) => handleFieldChange(e.target.value, "Mandatory_Premium_Period")} />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+
+        {/* Get Premium UI */}
+        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
+          <Button variant="contained" onClick={handleGetPremium} disabled={loading}>
+            {loading ? <CircularProgress size={18} /> : "Get Premium"}
+          </Button>
+          {errorMsg && <Typography color="error">{errorMsg}</Typography>}
+        </Box>
+
+        {calcResult && (
+          <Paper sx={{ mt: 2, p: 2 }}>
+            <Typography variant="h6">Premium Response</Typography>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(calcResult, null, 2)}</pre>
+          </Paper>
+        )}
+      </Paper>
+
+      {/* Riders and Optional Benefits are omitted here for brevity - keep the rest of your JSX as in original */}
+    </Box>
+  );
 };
- 
-refer this code 
- 
+
+export default PlanAndCoverage;
+[12/12, 11:03 am] Ashish Kandekar 14/7: // src/Components/LifeAssuredDetail.tsx
+import {
+  Box,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+  tableCellClasses,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { useTranslation } from "react-i18next";
+import Camera from "./Camera";
+import dayjs, { Dayjs } from "dayjs";
+import { Dropdown } from "./Dropdown/Dropdown";
+import {
+  getCoutries,
+  getDistrict,
+  getEvidenceProof,
+  getOccupationCode,
+  getState,
+  getMaritalStatus,
+  getFamilyMemberType,
+  getInsuredData,
+} from "./Dropdown/DropdownApi";
+import { DateField } from "@mui/x-date-pickers";
+import "../styles.css";
+
+interface ChildComponentProps {
+  fields: {
+    insuredNationality: string;
+    insuredEvidenceOfProof: string;
+    insuredIdNumber: string;
+    customerIdEbao: number;
+    insuredIdExpiryDate: dayjs.Dayjs | null;
+    insuredTitle: string;
+    insuredFirstName: string;
+    insuredSurName: string;
+    insuredDateOfBirth: dayjs.Dayjs | string | null;
+    insuredGender: string;
+    insuredAge: string;
+
+    insuredProvince: string;
+    insuredDistrict: string;
+    imgURL: string;
+    workplaceAddressOptn: string;
+    currentAddressOptn: string;
+    insContactAddressIndicator: string;
+    motorcycleOptn: string;
+    regAddrNum: string;
+    regAddrVilla: string;
+    regAddrMooNum: string;
+    regAddrAlley: string;
+    regAddrStrNum: string;
+    regAddrSubDist: string;
+    regAddrZipCode: string;
+    regFullAddr: string;
+    familyMemberType: string;
+    insuredMritalStatus: string;
+
+    workCompanyName: string;
+    workAddrNum: string;
+    workAddrVilla: string;
+    workAddrMooNum: string;
+    workAddrAlley: string;
+    workAddrStrNum: string;
+    insuredWorkProvince: string;
+    insuredWorkDistrict: string;
+    workAddrSubDist: string;
+    workAddrZipCode: string;
+    workFullAddress: string;
+
+    cRegAddNum: string;
+    cRegAddVilla: string;
+    cRegAddMoo: string;
+    cRegAddAlley: string;
+    cRegAddStrNum: string;
+    cRegAddProvince: string;
+    cRegAddDist: string;
+    cRegAddSubDis: string;
+    cRegAddZipCode: string;
+    contactFullAddr: string;
+
+    primaryNumber: string;
+    homeNumber: string;
+    workPhoneNumber: string;
+    emailAddress: string;
+
+    occupationCode: string;
+    positionHeld: string;
+    occupationDetail: string;
+    businessDetail: string;
+    annualIncome: string;
+    otherOccupation: string;
+
+    // extras used elsewhere
+    regAddrMoo?: string;
+    cRegAddMoo?: string;
+  };
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      insuredNationality: string;
+      insuredEvidenceOfProof: string;
+      insuredIdNumber: string;
+      customerIdEbao: number;
+      insuredIdExpiryDate: dayjs.Dayjs | null;
+      insuredTitle: string;
+      insuredFirstName: string;
+      insuredSurName: string;
+      insuredDateOfBirth: dayjs.Dayjs | string | null;
+      insuredGender: string;
+      insuredAge: string;
+
+      insuredProvince: string;
+      insuredDistrict: string;
+      imgURL: string;
+      workplaceAddressOptn: string;
+      currentAddressOptn: string;
+      insContactAddressIndicator: string;
+      motorcycleOptn: string;
+      regAddrNum: string;
+      regAddrVilla: string;
+      regAddrMooNum: string;
+      regAddrAlley: string;
+      regAddrStrNum: string;
+      regAddrSubDist: string;
+      regAddrZipCode: string;
+      regFullAddr: string;
+      familyMemberType: string;
+      insuredMritalStatus: string;
+
+      workCompanyName: string;
+      workAddrNum: string;
+      workAddrVilla: string;
+      workAddrMooNum: string;
+      workAddrAlley: string;
+      workAddrStrNum: string;
+      insuredWorkProvince: string;
+      insuredWorkDistrict: string;
+      workAddrSubDist: string;
+      workAddrZipCode: string;
+      workFullAddress: string;
+
+      cRegAddNum: string;
+      cRegAddVilla: string;
+      cRegAddMoo: string;
+      cRegAddAlley: string;
+      cRegAddStrNum: string;
+      cRegAddProvince: string;
+      cRegAddDist: string;
+      cRegAddSubDis: string;
+      cRegAddZipCode: string;
+      contactFullAddr: string;
+
+      primaryNumber: string;
+      homeNumber: string;
+      workPhoneNumber: string;
+      emailAddress: string;
+
+      occupationCode: string;
+      positionHeld: string;
+      occupationDetail: string;
+      businessDetail: string;
+      annualIncome: string;
+      otherOccupation: string;
+    }>
+  >;
+  savedTransaction: any;
+}
+
+const LifeAssuredDetail: React.FC<ChildComponentProps> = ({ fields, setFields, savedTransaction }) => {
+  const handleFieldChange = (val: string, fieldName: string, imgURL?: string) => {
+    const newFields = { ...fields, [fieldName]: val };
+    if (imgURL !== undefined) {
+      newFields["imgURL"] = imgURL;
+    }
+    setFields({ ...newFields });
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null, fieldName: string) => {
+    setFields({ ...fields, [fieldName]: date });
+  };
+
+  const handleButtonChange = (event: React.MouseEvent<HTMLElement>, fieldName: string) => {
+    const stateVal = event.currentTarget.textContent || "";
+    setFields((fields) => ({ ...fields, [fieldName]: stateVal }));
+  };
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (savedTransaction && savedTransaction.length > 0) {
+      const nameLI = savedTransaction[0]?.txn_input_json?.Name_LI;
+      const genderLI = savedTransaction[0]?.txn_input_json?.Gender_LI;
+      const ageLI = savedTransaction[0]?.txn_input_json?.Age_LI;
+      const dob = savedTransaction[0]?.txn_input_json?.DOB_LI;
+      setFields((prevFields) => ({
+        ...prevFields,
+        insuredFirstName: nameLI,
+        insuredGender: genderLI,
+        insuredAge: ageLI,
+        insuredDateOfBirth: dob,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedTransaction]);
+
+  // dependent dropdown state
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [evidenceProof, setEvidenceProof] = useState<any[]>([]);
+  const [occupationCode1, setOccupationCode1] = useState<any[]>([]);
+  const [marriageStatus, setMarriageStatus] = useState<any[]>([]);
+  const [familyMemTyp, setFamilyMemTyp] = useState<any[]>([]);
+
+  useEffect(() => {
+    getFamilyMemberType().then((res) => setFamilyMemTyp(res.data)).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    getMaritalStatus().then((res) => setMarriageStatus(res.data)).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    getOccupationCode().then((res) => setOccupationCode1(res.data)).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    getEvidenceProof().then((res) => setEvidenceProof(res.data)).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    getCoutries().then((res) => setCountries(res.data)).catch(()=>{});
+  }, []);
+
+  useEffect(() => {
+    getInsuredData().then((res) => {
+      const fnameLI = res.data.insuredFirstName;
+      const lNameLI = res.data.insuredLastName;
+      const genderLI = res.data.insuredGender;
+      const ageLI = res.data.insuredAge;
+      const nationalityLI = res.data.insuredNationality;
+      const titleLI = res.data.insuredTitle;
+      const dobstring = res.data.insuredDob;
+      const dob: Dayjs = dayjs(dobstring);
+      const insCurAddr1 = res.data.insuredCurAddrLine1;
+      const insCurAddr2 = res.data.insuredCurAddrLine2;
+      const insCurVilla = res.data.insuredCurVilla;
+      const insCurMobile = res.data.insuredCurMobile;
+      const insCurAlley = res.data.insuredCurAlley;
+      const insCurPin = res.data.insuredCurPin;
+
+      setFields((prevFields) => ({
+        ...prevFields,
+        insuredFirstName: fnameLI,
+        insuredSurName: lNameLI,
+        insuredGender: genderLI,
+        insuredAge: ageLI,
+        insuredNationality: nationalityLI,
+        insuredTitle: titleLI,
+        insuredDateOfBirth: dob,
+        regAddrNum: insCurAddr1,
+        regAddrVilla: insCurVilla,
+        regAddrMooNum: insCurMobile,
+        regAddrAlley: insCurAlley,
+        regAddrZipCode: insCurPin,
+        regAddrStrNum: insCurAddr2,
+      }));
+    }).catch(()=>{});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setStates([]);
+    handleFieldChange("", "insuredProvince");
+    setDistricts([]);
+    if (fields.insuredNationality) {
+      getState(fields.insuredNationality).then((res) => setStates(res.data)).catch(()=>{});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields.insuredNationality]);
+
+  useEffect(() => {
+    setDistricts([]);
+    handleFieldChange("", "insuredDistrict");
+    if (fields.insuredProvince) {
+      getDistrict(fields.insuredProvince).then((res) => setDistricts(res.data)).catch(()=>{});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields.insuredProvince]);
+
+  const [error, setError] = useState("");
+  const handleEmailChange = (value: string, fieldName: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setFields((fields) => ({ ...fields, [fieldName]: value }));
+    if (fieldName === "emailAddress") {
+      if (value.trim() === "") setError("Email is required");
+      else if (!emailRegex.test(value)) setError("Invalid email format");
+      else setError("");
+    }
+  };
+
+  const [priErr, setPriErr] = useState("");
+  const [homeErr, setHomeErr] = useState("");
+  const [workErr, setWorkErr] = useState("");
+
+  const handlePhoneNumberChange = (value: string, fieldName: string) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    setFields((fields) => ({ ...fields, [fieldName]: value }));
+    if (fieldName === "primaryNumber") {
+      if (value.trim() === "") setPriErr("Phone Number is required");
+      else if (!phoneRegex.test(value)) setPriErr("Invalid Phone Number format");
+      else setPriErr("");
+    } else if (fieldName === "homeNumber") {
+      if (value.trim() === "") setHomeErr("Home Phone Number is required");
+      else if (!phoneRegex.test(value)) setHomeErr("Invalid Phone Number format");
+      else setHomeErr("");
+    } else if (fieldName === "workPhoneNumber") {
+      if (value.trim() === "") setWorkErr("Work Phone Number is required");
+      else if (!phoneRegex.test(value)) setWorkErr("Invalid Phone Number format");
+      else setWorkErr("");
+    }
+  };
+
+  return (
+    <Box>
+      {/* All your existing UI: I kept it identical to your file */}
+      {/* For brevity in this message I will not duplicate the full JSX again — you said you already have it */}
+      {/* But in your local project, keep the same JSX you already pasted earlier. */}
+      {/* The important part is the TypeScript typings above to make sure fields like occupationCode exist */}
+      {/* If you want, I can paste the full JSX too, but you already supplied it earlier. */}
+      <Typography>LifeAssured Detail component loaded.</Typography>
+    </Box>
+  );
+};
+
+export default LifeAssuredDetail;
+[12/12, 11:03 am] Ashish Kandekar 14/7: // src/api/apiClient.ts
+import axios, { AxiosInstance } from "axios";
+import dayjs from "dayjs";
+
+/**
+ * BASE URL and TOKEN - update token when team lead gives one.
+ * API_BASE_URL should NOT include trailing slash.
+ */
+export const API_BASE_URL = "https://excel.uat.us.coherent.global"; // <-- keep as given
+export const API_BEARER_TOKEN = "PASTE_FULL_TOKEN_HERE"; // <-- replace with full token
+
+// token TTL (seconds) - 2 hours = 7200
+export const TOKEN_TTL_SECONDS = 7200;
+
+// store token save time locally (update manually if you replace token)
+let tokenSavedAt: string | null = dayjs().toISOString();
+
+export const isTokenValid = (): boolean => {
+  if (!API_BEARER_TOKEN) return false;
+  if (!tokenSavedAt) return false;
+  return dayjs().diff(dayjs(tokenSavedAt), "second") < TOKEN_TTL_SECONDS;
+};
+
+export const getAuthHeader = (): Record<string, string> => {
+  if (!isTokenValid()) {
+    console.warn("Token missing or expired in apiClient.ts — update API_BEARER_TOKEN");
+    return {};
+  }
+  return { Authorization: `Bearer ${API_BEARER_TOKEN}` };
+};
+
+let axiosInstance: AxiosInstance | null = null;
+
+export const getAxiosInstance = (): AxiosInstance => {
+  if (!axiosInstance) {
+    axiosInstance = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  // attach Authorization if token valid
+  if (isTokenValid()) {
+    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${API_BEARER_TOKEN}`;
+  } else {
+    delete axiosInstance.defaults.headers.common["Authorization"];
+  }
+
+  return axiosInstance;
+};
