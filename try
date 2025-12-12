@@ -14,6 +14,42 @@
 
 1) src/api/apiClient.ts
 
+
+// src/api/apiClient.ts
+import axios, { AxiosInstance } from "axios";
+
+/**
+ * KEEP THESE TWO VALUES ONLY:
+ * - Base URL
+ * - Bearer Token
+ */
+export const API_BASE_URL = "https://excel.uat.us.coherent.global"; 
+export const API_BEARER_TOKEN = "PASTE_YOUR_FULL_TOKEN_HERE"; // <-- फुल token टाका
+
+let axiosInstance: AxiosInstance | null = null;
+
+/**
+ * Simple axios instance creator for testing
+ */
+export const getAxiosInstance = (): AxiosInstance => {
+  if (!axiosInstance) {
+    axiosInstance = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_BEARER_TOKEN}`,
+      },
+    });
+  }
+
+  return axiosInstance;
+};
+
+
+
+
+
+
 // src/api/apiClient.ts
 import axios, { AxiosInstance } from "axios";
 import dayjs from "dayjs";
