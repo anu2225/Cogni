@@ -1,562 +1,425 @@
-खाली PlanAndCoverage.tsx ची पूर्ण, अपडेटेड आणि paste-ready फाईल आहे — यामध्ये तुम्ही मागितलेले fixes (safe value access, onChange handlers that pass event.target.value, displayEmpty placeholders, safer API call handling, error message, and updating fields from response) सगळे आहेत. ओव्हरराइट करा आणि run करून पाहा.
-
-// src/Components/PlanAndCoverage.tsx
-import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Divider,
-  Link,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TextField,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  Button,
-  CircularProgress,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { getAxiosInstance } from "../api/apiClient";
-
-interface ChildComponentProps {
-  fields: any;
-  setFields: React.Dispatch<React.SetStateAction<any>>;
-  savedQuotation: any;
-  savedTransaction: any;
-}
-
-const MAIN_PLANS = [
-  "Term Insurance",
-  "Whole Life Insurance",
-  "Universal Life Insurance",
-  "Endowment Plan",
-];
-
-const RIDERS = ["ADD", "CI", "WOP", "HCB", "DB"];
-const YES_NO = ["Yes", "No"];
-const PRODUCT_OPTIONS = ["Option A", "Option B"]; // ensure not empty
-const EXTRA_MORTALITY_OPTIONS = Array.from({ length: 20 }, (_, i) => `${(i + 1) * 5}%`); // 5% to 100%
-
-// Use relative path; axios instance has baseURL configured in apiClient.ts
-const API_CALCULATE_PATH =
-  "/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute";
-
-const PlanAndCoverage: React.FC<ChildComponentProps> = ({
-  fields,
-  setFields,
-  savedQuotation,
-  savedTransaction,
-}) => {
-  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [calcResult, setCalcResult] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const { t } = useTranslation();
-
-  // safe updater for a single field
-  const handleFieldChange = (val: any, fieldName: string) => {
-    setFields((prev: any) => ({ ...(prev || {}), [fieldName]: val }));
-  };
-
-  const handlePlanChange = (event: SelectChangeEvent<string>) => {
-    const selectedPlan = event.target.value;
-    handleFieldChange(selectedPlan, "basicPlan");
-    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
-    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
-    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
-    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
-  };
-
-  const getDefaultSumInsured = (planType: string): number => {
-    switch (planType) {
-      case "Term Insurance":
-        return 1000000;
-      case "Whole Life Insurance":
-        return 500000;
-      case "Universal Life Insurance":
-        return 750000;
-      case "Endowment Plan":
-        return 300000;
-      default:
-        return 500000;
-    }
-  };
-
-  const calculatePremium = (sumInsured: number, planType: string): number => {
-    const baseRate: { [k: string]: number } = {
-      "Term Insurance": 0.002,
-      "Whole Life Insurance": 0.015,
-      "Universal Life Insurance": 0.012,
-      "Endowment Plan": 0.025,
-    };
-    return Math.round(sumInsured * (baseRate[planType] || 0.01));
-  };
-
-  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value;
-    setSelectedRiders(typeof value === "string" ? value.split(",") : value);
-  };
-
-  useEffect(() => {
-    // initialize defaults from savedTransaction if present
-    if (savedTransaction && savedTransaction.length > 0) {
-      const txn = savedTransaction[0];
-      const baseSA = txn?.txn_input_json?.Base_SA;
-      const plan = txn?.txn_input_json?.Plan;
-      const term = txn?.txn_input_json?.["SSPP.Policy_Term"];
-      const ppt = txn?.txn_input_json?.PPT;
-      const premiumFromOutput =
-        txn?.txn_output_json?.outputs?.PremiumSummary?.[1]?.basePlan;
-
-      setFields((prevFields: any) => ({
-        ...(prevFields || {}),
-        basicPlanPremium: premiumFromOutput ?? prevFields?.basicPlanPremium,
-        basicSumInsured: baseSA ?? prevFields?.basicSumInsured ?? "200000",
-        basicPlan: plan ?? prevFields?.basicPlan ?? "",
-        insuranceTerm: term ?? prevFields?.insuranceTerm ?? "",
-        ppt: ppt ?? prevFields?.ppt ?? "",
-        typeOfDivident: prevFields?.typeOfDivident ?? "Non - Participatory",
-        Product: prevFields?.Product ?? "",
-        Policy_Inception_Date:
-          prevFields?.Policy_Inception_Date ?? new Date().toISOString().split("T")[0],
-        Smoker: prevFields?.Smoker ?? "No",
-        Pre_Existing_Disease: prevFields?.Pre_Existing_Disease ?? "Yes",
-        Extra_mortality: prevFields?.Extra_mortality ?? "75%",
-        Policy_Term: prevFields?.Policy_Term ?? "45",
-        Mandatory_Premium_Period: prevFields?.Mandatory_Premium_Period ?? "ErrName",
-        PAV: prevFields?.PAV ?? "0",
-        per_mille_rating_death: prevFields?.per_mille_rating_death ?? "1",
-        per_mille_rating_TPD: prevFields?.per_mille_rating_TPD ?? "1",
-        per_mille_rating_SCI: prevFields?.per_mille_rating_SCI ?? "1",
-        Death_Benefit: prevFields?.Death_Benefit ?? "Yes",
-        Total_and_Permanent_Disability_TPD:
-          prevFields?.Total_and_Permanent_Disability_TPD ?? "Yes",
-        Accidental_Death_and_Dismemberment_ADD:
-          prevFields?.Accidental_Death_and_Dismemberment_ADD ?? "Yes",
-        Staged_Critical_Illness_SCI: prevFields?.Staged_Critical_Illness_SCI ?? "Yes",
-        _2e_Hospital_Cash_Benefit_HCB: prevFields?._2e_Hospital_Cash_Benefit_HCB ?? "Y",
-        Partial_Withdrawl: prevFields?.Partial_Withdrawl ?? "Yes",
-        Partial_Withdrawl_Amount: prevFields?.Partial_Withdrawl_Amount ?? "5000",
-      }));
-    } else {
-      // set sensible defaults
-      setFields((prevFields: any) => ({
-        ...(prevFields || {}),
-        basicSumInsured: prevFields?.basicSumInsured ?? "200000",
-        Product: prevFields?.Product ?? "",
-        Policy_Inception_Date:
-          prevFields?.Policy_Inception_Date ?? new Date().toISOString().split("T")[0],
-        Smoker: prevFields?.Smoker ?? "No",
-        Pre_Existing_Disease: prevFields?.Pre_Existing_Disease ?? "Yes",
-        Extra_mortality: prevFields?.Extra_mortality ?? "75%",
-        Policy_Term: prevFields?.Policy_Term ?? "45",
-        Mandatory_Premium_Period: prevFields?.Mandatory_Premium_Period ?? "ErrName",
-        PAV: prevFields?.PAV ?? "0",
-        per_mille_rating_death: prevFields?.per_mille_rating_death ?? "1",
-        per_mille_rating_TPD: prevFields?.per_mille_rating_TPD ?? "1",
-        per_mille_rating_SCI: prevFields?.per_mille_rating_SCI ?? "1",
-        Death_Benefit: prevFields?.Death_Benefit ?? "Yes",
-        Total_and_Permanent_Disability_TPD:
-          prevFields?.Total_and_Permanent_Disability_TPD ?? "Yes",
-        Accidental_Death_and_Dismemberment_ADD:
-          prevFields?.Accidental_Death_and_Dismemberment_ADD ?? "Yes",
-        Staged_Critical_Illness_SCI: prevFields?.Staged_Critical_Illness_SCI ?? "Yes",
-        _2e_Hospital_Cash_Benefit_HCB: prevFields?._2e_Hospital_Cash_Benefit_HCB ?? "Y",
-        Partial_Withdrawl: prevFields?.Partial_Withdrawl ?? "Yes",
-        Partial_Withdrawl_Amount: prevFields?.Partial_Withdrawl_Amount ?? "5000",
-      }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savedTransaction]);
-
-  useEffect(() => {
-    // quick debug to observe fields changes while developing
-    // remove in production or wrap in env check
-    // console.log("PlanAndCoverage fields:", fields);
-  }, [fields]);
-
-  // helper to map Yes/No to Y/N
-  const yesNoToYN = (val?: string | null) => {
-    if (!val) return "N";
-    const v = val.toString().toLowerCase();
-    if (v === "y" || v === "yes" || v === "true") return "Y";
-    return "N";
-  };
-
-  const handleGetPremium = async () => {
-    setLoading(true);
-    setCalcResult(null);
-    setErrorMsg("");
-
-    try {
-      const inputs: any = {
-        _1a_DOB: fields.insuredDateOfBirth
-          ? typeof fields.insuredDateOfBirth === "string"
-            ? fields.insuredDateOfBirth
-            : dayjs(fields.insuredDateOfBirth).format("YYYY-MM-DD")
-          : "",
-
-        _1b_Product: fields.Product || "",
-
-        _1c_Gender: fields.insuredGender || "",
-
-        _1d_Face_Amount: Number(fields.basicSumInsured || 0),
-
-        _1e_Occupation: Number(fields.occupationCode || 0),
-
-        _1h_Policy_Inception_Date: fields.Policy_Inception_Date
-          ? fields.Policy_Inception_Date
-          : dayjs().format("YYYY-MM-DD"),
-
-        _1i_Smoker: yesNoToYN(fields.Smoker),
-
-        _1j_Pre_Existing_Disease: yesNoToYN(fields.Pre_Existing_Disease),
-
-        _1k_Extra_mortality: (() => {
-          const v = (fields.Extra_mortality || "").toString();
-          if (v.endsWith("%")) {
-            const n = parseFloat(v.replace("%", "")) || 0;
-            return +(n / 100).toFixed(4);
-          }
-          const num = parseFloat(v);
-          if (!isNaN(num) && num > 0 && num <= 1) return num;
-          if (!isNaN(num) && num > 1) return +(num / 100).toFixed(4);
-          return 0;
-        })(),
-
-        _1p_Policy_Term: Number(fields.Policy_Term || 0),
-
-        _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period || "",
-
-        _1zb_PAV: Number(fields.PAV || 0),
-
-        _1zc_per_mille_rating_death: Number(fields.per_mille_rating_death || 1),
-
-        _1zd_per_mille_rating_TPD: Number(fields.per_mille_rating_TPD || 1),
-
-        _1ze_per_mille_rating_SCI: Number(fields.per_mille_rating_SCI || 1),
-
-        _2a_Death_Benefit: yesNoToYN(fields.Death_Benefit),
-
-        _2b_Total_and_Permanent_Disability_TPD: yesNoToYN(
-          fields.Total_and_Permanent_Disability_TPD
-        ),
-
-        _2c_Accidental_Death_and_Dismemberment_ADD: yesNoToYN(
-          fields.Accidental_Death_and_Dismemberment_ADD
-        ),
-
-        _2d_Staged_Critical_Illness_SCI: yesNoToYN(
-          fields.Staged_Critical_Illness_SCI
-        ),
-
-        _2e_Hospital_Cash_Benefit_HCB:
-          fields._2e_Hospital_Cash_Benefit_HCB || "Y",
-
-        _3a_Partial_Withdrawl: yesNoToYN(fields.Partial_Withdrawl),
-
-        _3b_Partial_Withdrawl_Amount: Number(
-          fields.Partial_Withdrawl_Amount || 0
-        ),
-      };
-
-      const payload = {
-        request_data: { inputs },
-        request_meta: {
-          version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-          call_purpose: "Spark - API Tester",
-          source_system: "SPARK",
-          correlation_id: null,
-          requested_output: null,
-          service_category: "",
-        },
-      };
-
-      const axiosInst = getAxiosInstance();
-      const resp = await axiosInst.post(API_CALCULATE_PATH, payload);
-
-      setCalcResult(resp.data);
-
-      // try to parse outputs and set premiums back into fields (safe)
-      const outputs =
-        resp?.data?.response_data?.outputs ?? resp?.data?.request_data?.outputs ?? null;
-
-      if (outputs) {
-        // these keys depend on the API response structure; adjust if needed
-        const accd = outputs.AccidentalDamagePremium ?? outputs?.accidentalDamagePremium;
-        const ter = outputs.TerrorismPremium ?? outputs?.terrorismPremium;
-        const fld = outputs.FloodPremium ?? outputs?.floodPremium;
-        const fir = outputs.FirePremium ?? outputs?.firePremium;
-        const eqk = outputs.EarthquakePremium ?? outputs?.earthquakePremium;
-
-        setFields((prev: any) => ({
-          ...(prev || {}),
-          accdmgPrem: accd ?? prev?.accdmgPrem,
-          terrorismPrem: ter ?? prev?.terrorismPrem,
-          floodPrem: fld ?? prev?.floodPrem,
-          firePrem: fir ?? prev?.firePrem,
-          earthquakePrem: eqk ?? prev?.earthquakePrem,
-          basicPlanPremium: outputs.BasePlanPremium ?? prev?.basicPlanPremium,
-        }));
-
-        const p1 = Number(accd ?? 0);
-        const p2 = Number(ter ?? 0);
-        const p3 = Number(fld ?? 0);
-        const p4 = Number(fir ?? 0);
-        const p5 = Number(eqk ?? 0);
-        const premiumSumValue = p1 + p2 + p3 + p4 + p5;
-        setFields((prev: any) => ({ ...(prev || {}), totalPremiumVal: premiumSumValue }));
-        localStorage.setItem("totalPremiumVal", `${premiumSumValue}`);
-      }
-
-      return resp.data;
-    } catch (err: any) {
-      console.error("Premium calc error:", err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.statusText ||
-        err.message ||
-        "Request failed";
-      setErrorMsg(msg);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Box sx={{ width: "100%", padding: 2 }}>
-      {/* Quotation Summary */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("quotation_summaryh")}
-        </Typography>
-        <Divider />
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
-          <Typography>{t("quotation_summary")}&emsp;</Typography>
-          <Link
-            underline="always"
-            color="inherit"
-            sx={{ color: "#000048" }}
-            onClick={() => {
-              if (!savedQuotation?.txn_pdf) return;
-              const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], { type: "application/pdf" });
-              const fileURL = URL.createObjectURL(file);
-              window.open(fileURL);
-            }}
-          >
-            Download Link to Quotation
-          </Link>
-        </Box>
-      </Paper>
-
-      {/* Main Plan */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">{t("main_plan")}</Typography>
-        <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table className="table-main" sx={{ width: "100%" }}>
-              <TableBody>
-                <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>{t("basicPlan")}</InputLabel>
-                      <Select
-                        value={fields?.basicPlan ?? ""}
-                        onChange={handlePlanChange}
-                        displayEmpty
-                      >
-                        <MenuItem value="" disabled>
-                          Select plan
-                        </MenuItem>
-                        {MAIN_PLANS.map((plan) => (
-                          <MenuItem key={plan} value={plan}>
-                            {plan}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  {["basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
-                    <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                      <TextField
-                        size="small"
-                        label={t(field)}
-                        variant="standard"
-                        value={fields?.[field] ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, field)}
-                        InputProps={field === "basicSumInsured" || field === "basicPlanPremium" ? {} : undefined}
-                      />
-                    </TableCell>
-                  ))}
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Product</InputLabel>
-                      <Select
-                        value={fields?.Product ?? ""}
-                        onChange={(e) => handleFieldChange((e.target as HTMLInputElement).value, "Product")}
-                        displayEmpty
-                      >
-                        <MenuItem value="" disabled>
-                          Select product
-                        </MenuItem>
-                        {PRODUCT_OPTIONS.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField
-                      size="small"
-                      label="Policy Inception Date"
-                      variant="standard"
-                      type="date"
-                      value={fields?.Policy_Inception_Date ?? ""}
-                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Smoker</InputLabel>
-                      <Select
-                        value={fields?.Smoker ?? ""}
-                        onChange={(e) => handleFieldChange((e.target as HTMLInputElement).value, "Smoker")}
-                        displayEmpty
-                      >
-                        <MenuItem value="" disabled>
-                          Select
-                        </MenuItem>
-                        {YES_NO.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Pre Existing Disease</InputLabel>
-                      <Select
-                        value={fields?.Pre_Existing_Disease ?? ""}
-                        onChange={(e) => handleFieldChange((e.target as HTMLInputElement).value, "Pre_Existing_Disease")}
-                        displayEmpty
-                      >
-                        <MenuItem value="" disabled>
-                          Select
-                        </MenuItem>
-                        {YES_NO.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Extra Mortality</InputLabel>
-                      <Select
-                        value={fields?.Extra_mortality ?? ""}
-                        onChange={(e) => handleFieldChange((e.target as HTMLInputElement).value, "Extra_mortality")}
-                        displayEmpty
-                      >
-                        <MenuItem value="" disabled>
-                          Select
-                        </MenuItem>
-                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField
-                      size="small"
-                      label="Policy Term"
-                      variant="standard"
-                      value={fields?.Policy_Term ?? ""}
-                      onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")}
-                    />
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField
-                      size="small"
-                      label="Mandatory Premium Period"
-                      variant="standard"
-                      value={fields?.Mandatory_Premium_Period ?? ""}
-                      onChange={(e) => handleFieldChange(e.target.value, "Mandatory_Premium_Period")}
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-
-        {/* Get Premium UI */}
-        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
-          <Button
-            variant="contained"
-            onClick={handleGetPremium}
-            disabled={loading || !fields?.basicPlan || !fields?.basicSumInsured}
-          >
-            {loading ? <CircularProgress size={18} /> : "Get Premium"}
-          </Button>
-          {errorMsg && <Typography color="error">{errorMsg}</Typography>}
-        </Box>
-
-        {calcResult && (
-          <Paper sx={{ mt: 2, p: 2 }}>
-            <Typography variant="h6">Premium Response</Typography>
-            <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(calcResult, null, 2)}</pre>
-          </Paper>
-        )}
-      </Paper>
-
-      {/* Riders and Optional Benefits - keep existing UI/JSX if you had more */}
-    </Box>
-  );
-};
-
-export default PlanAndCoverage;
-
-
----
-
-जर run केल्यानंतर अजूनी काही issue आला (उदा. network calls 403/401, response shape वेगळा आहे म्हणून fields update होत नाही), तर मला पुढचे तीन गोष्टी ताबडतोब पाठव:
-
-1. src/api/apiClient.ts मध्ये API_BASE_URL आणि API_BEARER_TOKEN ची सध्याची सानुकूल कॉन्फिग (काही भाग redacted करु शकता)
-
-
-2. Network tab मध्ये एखादी failing request उघडून Request headers आणि Response status + response body screenshot किंवा copy-paste करा.
-
-
-3. API response (for premium calculate) चा एक उदाहरण JSON (जर available असेल).
-
-
-
-मी ते पाहून लगेच पुढे योग्य field mappings आणि fixes देईन.
+DropdownApi.tsx:47  GET http://localhost:8001/eapp/dropdown/getFamilyMemberType 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getFamilyMemberType @ DropdownApi.tsx:47
+(anonymous) @ LifeAssuredDetails.tsx:104
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:37  GET http://localhost:8001/eapp/dropdown/getOccupationCode 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getOccupationCode @ DropdownApi.tsx:37
+(anonymous) @ LifeAssuredDetails.tsx:120
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:42  GET http://localhost:8001/eapp/dropdown/getMaritalStatus 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getMaritalStatus @ DropdownApi.tsx:42
+(anonymous) @ LifeAssuredDetails.tsx:112
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:7  GET http://localhost:8001/eapp/dropdown/getCoutries 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getCoutries @ DropdownApi.tsx:7
+(anonymous) @ LifeAssuredDetails.tsx:136
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:402  GET http://localhost:8001/api/transaction-detail/getDistinctTransaction?id=new 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+func @ BasicTabs.tsx:402
+(anonymous) @ BasicTabs.tsx:440
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:32  GET http://localhost:8001/eapp/dropdown/getEvidenceProof 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getEvidenceProof @ DropdownApi.tsx:32
+(anonymous) @ LifeAssuredDetails.tsx:128
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:450  GET http://localhost:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+(anonymous) @ BasicTabs.tsx:450
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:47  GET http://localhost:8001/eapp/dropdown/getFamilyMemberType 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getFamilyMemberType @ DropdownApi.tsx:47
+(anonymous) @ LifeAssuredDetails.tsx:104
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:42  GET http://localhost:8001/eapp/dropdown/getMaritalStatus 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getMaritalStatus @ DropdownApi.tsx:42
+(anonymous) @ LifeAssuredDetails.tsx:112
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:37  GET http://localhost:8001/eapp/dropdown/getOccupationCode 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getOccupationCode @ DropdownApi.tsx:37
+(anonymous) @ LifeAssuredDetails.tsx:120
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:7  GET http://localhost:8001/eapp/dropdown/getCoutries 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getCoutries @ DropdownApi.tsx:7
+(anonymous) @ LifeAssuredDetails.tsx:136
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:32  GET http://localhost:8001/eapp/dropdown/getEvidenceProof 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getEvidenceProof @ DropdownApi.tsx:32
+(anonymous) @ LifeAssuredDetails.tsx:128
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:402  GET http://localhost:8001/api/transaction-detail/getDistinctTransaction?id=new 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+func @ BasicTabs.tsx:402
+(anonymous) @ BasicTabs.tsx:440
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:450  GET http://localhost:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+(anonymous) @ BasicTabs.tsx:450
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+DropdownApi.tsx:12  GET http://localhost:8001/eapp/dropdown/getStates?country=India 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getState @ DropdownApi.tsx:12
+(anonymous) @ LifeAssuredDetails.tsx:193
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:426  GET http://localhost:8001/api/transaction-detail/getTxn?id=new 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+func @ BasicTabs.tsx:426
+await in func
+(anonymous) @ BasicTabs.tsx:440
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18864
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19428
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+finishConcurrentRender @ chunk-OQJUKZWL.js?v=0b933210:18801
+performConcurrentWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18714
+workLoop @ chunk-OQJUKZWL.js?v=0b933210:197
+flushWork @ chunk-OQJUKZWL.js?v=0b933210:176
+performWorkUntilDeadline @ chunk-OQJUKZWL.js?v=0b933210:384Understand this error
+BasicTabs.tsx:426  GET http://localhost:8001/api/transaction-detail/getTxn?id=new 403 (Forbidden)
