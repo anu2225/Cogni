@@ -1,54 +1,11 @@
-ठीक आहे — एकाच मेसेजमध्ये सगळ्या गरजेच्या फाइल्स आणि त्यावर काम करण्याचे step-by-step (first → last) सूचनांसहित देतो. तू फक्त या फाइल्सप्रमाणे project मध्ये ठेव आणि दिलेल्या स्टेप्स प्रमाणे चालव. मी प्रत्येक फाइलचा path स्पष्ट लिहिला आहे — त्यानुसार replace करा.
+Final — full files (ready to paste)
+
+ठीक आहे Anurag — खाली तीन फाईल्स (final, ready-to-paste) देतो. Project मध्ये हे ओव्हरराइट करा. मी आधीच जे बदल केले होते तेच ताजे आणि consistent आहेत: token handling (setToken/clearToken), safe axios instance, mapLifeAssuredToInputs() mapping, आणि handleGetPremium() logic.
 
 
 ---
 
-🔧 फाइल्स (कॉपी-पेस्ट करून project मध्ये बनवा / ओवरराइट करा)
-
-> सगळ्या फाइल्स TypeScript + React प्रोजेक्टच्या src/ अंतर्गत आहेत. जर तुमच्या प्रोजेक्टची folder structure वेगळी असेल तर path adjust करा.
-
-
-
-
----
-
-1) src/api/apiClient.ts
-
-
-// src/api/apiClient.ts
-import axios, { AxiosInstance } from "axios";
-
-/**
- * KEEP THESE TWO VALUES ONLY:
- * - Base URL
- * - Bearer Token
- */
-export const API_BASE_URL = "https://excel.uat.us.coherent.global"; 
-export const API_BEARER_TOKEN = "PASTE_YOUR_FULL_TOKEN_HERE"; // <-- फुल token टाका
-
-let axiosInstance: AxiosInstance | null = null;
-
-/**
- * Simple axios instance creator for testing
- */
-export const getAxiosInstance = (): AxiosInstance => {
-  if (!axiosInstance) {
-    axiosInstance = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_BEARER_TOKEN}`,
-      },
-    });
-  }
-
-  return axiosInstance;
-};
-
-
-
-
-
+src/api/apiClient.ts
 
 // src/api/apiClient.ts
 import axios, { AxiosInstance } from "axios";
@@ -58,7 +15,7 @@ import dayjs from "dayjs";
  * CONFIG
  *
  * - API_BASE_URL should NOT include a trailing slash.
- * - In production: DO NOT store long-lived secrets in frontend. Use a backend proxy.
+ * - For production: DO NOT store long-lived secrets in frontend. Use a backend proxy.
  */
 export const API_BASE_URL = "https://excel.uat.us.coherent.global";
 
@@ -69,7 +26,7 @@ const STORAGE_KEY_TOKEN_SAVED_AT = "app_api_bearer_token_saved_at_v1";
 // token TTL (seconds) - 2 hours = 7200
 export const TOKEN_TTL_SECONDS = 7200;
 
-// internal runtime token (keeps in-memory copy as well)
+// runtime copies (in-memory)
 let runtimeToken: string | null = null;
 let tokenSavedAt: string | null = null;
 
@@ -80,18 +37,17 @@ const readTokenFromStorage = () => {
     runtimeToken = t || null;
     tokenSavedAt = stamped || null;
   } catch (e) {
-    // environment may not allow localStorage (SSR/testing). Ignore safely.
     runtimeToken = null;
     tokenSavedAt = null;
   }
 };
 
-// init from storage at module load
+// initialize runtime values from storage when module loads
 readTokenFromStorage();
 
 /**
  * isTokenValid
- * Returns true if a token exists and has not passed TTL_SECONDS since saved time.
+ * Returns true if a token exists and hasn't exceeded TTL since saved time.
  */
 export const isTokenValid = (): boolean => {
   if (!runtimeToken) return false;
@@ -105,19 +61,21 @@ export const isTokenValid = (): boolean => {
 
 /**
  * getAuthHeader
- * Returns Authorization header map when token valid, otherwise empty object.
+ * Returns Authorization header map when token valid; otherwise empty object.
  */
 export const getAuthHeader = (): Record<string, string> => {
-  if (!isTokenValid()) {
-    return {};
-  }
+  if (!isTokenValid()) return {};
   return { Authorization: `Bearer ${runtimeToken}` as string };
 };
 
 /**
  * setToken
- * Save token for runtime and persist in localStorage (useful for dev/UAT).
- * Also updates axios instance header immediately.
+ * Save token for runtime and persist in localStorage (dev/UAT).
+ * Also updates axios instance header immediately if instance exists.
+ *
+ * Usage (console or Dev UI):
+ *   import { setToken } from "src/api/apiClient";
+ *   setToken("FULL_BEARER_TOKEN_HERE");
  */
 export const setToken = (token: string) => {
   runtimeToken = token;
@@ -127,12 +85,11 @@ export const setToken = (token: string) => {
     localStorage.setItem(STORAGE_KEY_TOKEN, token);
     localStorage.setItem(STORAGE_KEY_TOKEN_SAVED_AT, tokenSavedAt);
   } catch (e) {
-    // ignore storage errors
+    // ignore storage errors (SSR or restricted env)
     // eslint-disable-next-line no-console
     console.warn("Could not persist token to localStorage", e);
   }
 
-  // if axios instance exists, update default header
   if (axiosInstance) {
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
@@ -140,7 +97,7 @@ export const setToken = (token: string) => {
 
 /**
  * clearToken
- * Removes token from runtime and localStorage and clears axios header.
+ * Remove token from runtime + localStorage and clear axios header.
  */
 export const clearToken = () => {
   runtimeToken = null;
@@ -162,7 +119,7 @@ let axiosInstance: AxiosInstance | null = null;
  * getAxiosInstance
  * - creates a singleton axios instance with baseURL
  * - attaches Authorization header if token present/valid
- * - adds a request interceptor to attach header (defensive)
+ * - adds a request interceptor to attach header defensively
  */
 export const getAxiosInstance = (): AxiosInstance => {
   if (!axiosInstance) {
@@ -173,10 +130,10 @@ export const getAxiosInstance = (): AxiosInstance => {
       },
     });
 
-    // defensive interceptor: always attach runtime token if valid
+    // defensive interceptor: always ensure latest token is attached
     axiosInstance.interceptors.request.use(
       (config) => {
-        // ensure we have the latest token from storage (helps if setToken() used elsewhere)
+        // refresh runtime token from storage in case it was set elsewhere
         readTokenFromStorage();
         if (isTokenValid() && runtimeToken) {
           config.headers = config.headers || {};
@@ -191,7 +148,7 @@ export const getAxiosInstance = (): AxiosInstance => {
       (error) => Promise.reject(error)
     );
   } else {
-    // update default header if token state changed
+    // if instance already exists, update default header to reflect current token state
     readTokenFromStorage();
     if (isTokenValid() && runtimeToken) {
       axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${runtimeToken}`;
@@ -204,22 +161,23 @@ export const getAxiosInstance = (): AxiosInstance => {
 };
 
 /**
- * Helpful dev utility:
- * If you need to manually seed token (e.g. from dev console), call:
- *   import { setToken } from "src/api/apiClient";
- *   setToken("your_full_token_here");
+ * Dev helper note:
+ * - To seed token quickly from browser console:
+ *     import { setToken } from "src/api/apiClient";
+ *     setToken("PASTE_FULL_TOKEN_HERE");
  *
- * REMINDER:
- *  - Do NOT hardcode production tokens into frontend code.
- *  - Prefer a backend proxy to hold the secret and call remote APIs.
+ * - To clear:
+ *     import { clearToken } from "src/api/apiClient";
+ *
+ * Security reminder:
+ * - Do NOT commit tokens to git.
+ * - For production, implement a backend proxy that stores the secret and forwards API calls.
  */
 
 
 ---
 
-2) src/Components/LifeAssuredDetails.tsx
-
-(पूरा file — includes mapLifeAssuredToInputs export)
+src/Components/LifeAssuredDetails.tsx
 
 // src/Components/LifeAssuredDetails.tsx
 import {
@@ -245,7 +203,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useTranslation } from "react-i18next";
 import Camera from "./Camera";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { Dropdown } from "./Dropdown/Dropdown";
 import {
   getCoutries,
@@ -931,9 +889,7 @@ export const mapLifeAssuredToInputs = (fields: LifeFields) => {
 
 ---
 
-3) src/Components/PlanAndCoverage.tsx
-
-(ही फाइल mapLifeAssuredToInputs वापरून पूर्ण workflow करते)
+src/Components/PlanAndCoverage.tsx
 
 // src/Components/PlanAndCoverage.tsx
 import dayjs from "dayjs";
@@ -1131,7 +1087,7 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         })(),
         _1p_Policy_Term: Number(fields?.Policy_Term || 0),
         _1r_Mandatory_Premium_Period: fields?.Mandatory_Premium_Period || "",
-        _1zb_PAV: Number(fields?.PAV || 0),
+        _1zb_PAV: 0,
         _1zc_per_mille_rating_death: Number(fields?.per_mille_rating_death || 1),
         _1zd_per_mille_rating_TPD: Number(fields?.per_mille_rating_TPD || 1),
         _1ze_per_mille_rating_SCI: Number(fields?.per_mille_rating_SCI || 1),
@@ -1383,140 +1339,20 @@ export default PlanAndCoverage;
 
 ---
 
-✅ One-message Step-by-step — First → Last (exact order, काय करायचं)
+Next steps (quick)
 
-1. Prepare environment
-
-सुनिश्चित करा: project मध्ये react, @mui/material, @mui/x-date-pickers, dayjs, axios, react-i18next इन्स्टॉल आहे.
-
-(Optional) git branch तयार करा (feature/premium-integration) — म्हणजे बदल सहज revert करता येईल.
+1. ओव्हरराइट ही तीन फाईल्स project मध्ये.
 
 
-
-2. Replace / Add files
-
-src/api/apiClient.ts — paste कर.
-
-src/Components/LifeAssuredDetails.tsx — paste कर.
-
-src/Components/PlanAndCoverage.tsx — paste कर.
-
-(जर Camera, Dropdown, DropdownApi किंवा styles.css आधीपासून नसेल तर ते फाईल्स राख्या — मी तुमच्या पुरवलेल्या code वर काम केलंय; जर ते नसेल तर मला कळव).
+2. Browser console किंवा Dev UI मध्ये token set करा:
 
 
-
-3. Dev token सेट करा (जर UAT API call करायचं असेल)
-
-browser DevTools console मध्ये:
 
 import { setToken } from "src/api/apiClient";
-setToken("FULL_BEARER_TOKEN_HERE");
+setToken("PASTE_FULL_BEARER_TOKEN_HERE");
 
-किंवा window वर थेट call करायचं असेल तर project मध्ये एखादा small dev-settings modal बनवता येईल — पण console चालेल.
+3. Run app → fill LifeAssured → fill Plan → click Get Premium → response panel मध्ये JSON दिसेल आणि fields.totalPremiumVal update होईल.
 
 
 
-4. Run project locally
-
-npm install (जर नवीन dependencies असतील)
-
-npm start किंवा yarn start
-
-
-
-5. Flow in UI
-
-Open app → Fill LifeAssured form (DOB, name, gender, contact, address, occupation etc).
-
-Move to Plan & Coverage → choose plan, edit fields as needed (SumInsured etc).
-
-Click Get Premium (button at bottom).
-
-UI shows loader.
-
-Behind the scenes: PlanAndCoverage.handleGetPremium calls mapLifeAssuredToInputs(fields) + plan inputs, builds payload and posts to Coherent API via getAxiosInstance() (which attaches token if present).
-
-
-On success:
-
-JSON response shows in "Premium Response" panel.
-
-fields updated (accdmgPrem, floodPrem, firePrem, earthquakePrem, terrorismPrem, totalPremiumVal).
-
-localStorage optionally persisted dev values.
-
-
-On failure:
-
-Error message appears under button (errorMsg).
-
-If 401 → message will say "Authorization failed (401)..."
-
-
-
-
-6. Verify results
-
-Check fields.totalPremiumVal in UI or console.
-
-Verify calcResult JSON for expected fields (response_data.outputs).
-
-
-
-7. If 401 or auth issues
-
-Re-run setToken(...) with fresh bearer token.
-
-Optionally call clearToken() if you want to remove stored token:
-
-import { clearToken } from "src/api/apiClient";
-clearToken();
-
-
-
-8. Polish / Next improvements (optional, recommended)
-
-Move token handling to backend proxy (production).
-
-Add small dev settings modal (UI) to setToken from UI instead of console.
-
-Add axios response interceptor to auto-handle 401 (clearToken + show modal).
-
-Map API outputs more granularly to UI fields (presently we parse common premium outputs).
-
-Add unit tests around mapLifeAssuredToInputs and getAxiosInstance() behavior.
-
-
-
-9. Deploy
-
-For UAT: ensure token available or use backend proxy before deploying.
-
-For Prod: implement secure backend token flow and update API_BASE_URL if needed.
-
-
-
-
-
----
-
-🙋 Final notes / warnings
-
-Security: Never commit full bearer token into repo. Use dev-only setToken and do not push token to git.
-
-Files assumed to exist: Camera, Dropdown, DropdownApi endpoints — मी ते बदलले नाही. If any import is missing, tell me and मी त्या छोट्या helper फाइल्सही देईन.
-
-Want me to do next? — If तू सांगशील तर:
-
-मी Get Token small modal component बनवून देईन (dev-only).
-
-किंवा 401 auto-handling interceptor जोडून द्येन.
-
-किंवा मी mapLifeAssuredToInputs वरून अजून fields वाढवून API input map पूर्ण करू (जर API input list अधिक असेल).
-
-
-
-
----
-
-If ready, replies with: "Done — start" आणि मी पुढचे step-by-step locally test tips देईन किंवा (जर हवा तर) मी dev-token modal code आणि 401-handler लगेच देतो.
+जर project मध्ये Camera, Dropdown, DropdownApi वगैरे components नसतील तर सांग — मी त्या helpers लगेच देऊ (छोटे stubs किंवा working implementations).
