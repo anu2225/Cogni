@@ -1,491 +1,4 @@
-[12/12, 11:02 am] Ashish Kandekar 14/7: // src/Components/PlanAndCoverage.tsx
-import dayjs from "dayjs";
-import {
-  Box,
-  Divider,
-  Link,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  Button,
-  CircularProgress,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { getAxiosInstance } from "../api/apiClient";
 
-interface ChildComponentProps {
-  fields: {
-    basicPlan: string;
-    basicSumInsured: string;
-    basicPlanPremium: string;
-    typeOfDivident: string;
-    insuranceTerm: string;
-    ppt: string;
-    Product: string;
-    Policy_Inception_Date: string | null;
-    Smoker: string;
-    Pre_Existing_Disease: string;
-    Extra_mortality: string;
-    Policy_Term: string;
-    Mandatory_Premium_Period: string;
-    PAV: string;
-    per_mille_rating_death: string;
-    per_mille_rating_TPD: string;
-    per_mille_rating_SCI: string;
-    Death_Benefit: string;
-    Total_and_Permanent_Disability_TPD: string;
-    Accidental_Death_and_Dismemberment_ADD: string;
-    Staged_Critical_Illness_SCI: string;
-    _2e_Hospital_Cash_Benefit_HCB: string;
-    Partial_Withdrawl: string;
-    Partial_Withdrawl_Amount: string;
-
-    // from LifeAssuredDetail
-    insuredDateOfBirth?: any;
-    insuredGender?: string;
-    occupationCode?: string;
-  };
-
-  setFields: React.Dispatch<
-    React.SetStateAction<any>
-  >;
-
-  savedQuotation: any;
-  savedTransaction: any;
-}
-
-const MAIN_PLANS = [
-  "Term Insurance",
-  "Whole Life Insurance",
-  "Universal Life Insurance",
-  "Endowment Plan",
-];
-
-const RIDERS = ["ADD", "CI", "WOP", "HCB", "DB"];
-const YES_NO = ["Yes", "No"];
-const PRODUCT_OPTIONS = ["a", "b"];
-const EXTRA_MORTALITY_OPTIONS = [
-  "5%",
-  "10%",
-  "15%",
-  "20%",
-  "25%",
-  "30%",
-  "35%",
-  "40%",
-  "45%",
-  "50%",
-  "55%",
-  "60%",
-  "65%",
-  "70%",
-  "75%",
-  "80%",
-  "85%",
-  "90%",
-  "95%",
-  "100%",
-];
-
-const API_CALCULATE_PATH =
-  "/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute"; // your endpoint path
-
-const camelToNormal = (text: string) =>
-  text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
-
-const PlanAndCoverage: React.FC<ChildComponentProps> = ({
-  fields,
-  setFields,
-  savedQuotation,
-  savedTransaction,
-}) => {
-  const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [calcResult, setCalcResult] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const handleFieldChange = (val: string, fieldName: string) => {
-    setFields({ ...fields, [fieldName]: val });
-  };
-
-  const handlePlanChange = (event: SelectChangeEvent<string>) => {
-    const selectedPlan = event.target.value;
-    handleFieldChange(selectedPlan, "basicPlan");
-    const defaultSumInsured = getDefaultSumInsured(selectedPlan);
-    const defaultPremium = calculatePremium(defaultSumInsured, selectedPlan);
-    handleFieldChange(defaultSumInsured.toString(), "basicSumInsured");
-    handleFieldChange(defaultPremium.toString(), "basicPlanPremium");
-  };
-
-  const getDefaultSumInsured = (planType: string): number => {
-    switch (planType) {
-      case "Term Insurance":
-        return 1000000;
-      case "Whole Life Insurance":
-        return 500000;
-      case "Universal Life Insurance":
-        return 750000;
-      case "Endowment Plan":
-        return 300000;
-      default:
-        return 500000;
-    }
-  };
-
-  const calculatePremium = (sumInsured: number, planType: string): number => {
-    const baseRate: { [k: string]: number } = {
-      "Term Insurance": 0.002,
-      "Whole Life Insurance": 0.015,
-      "Universal Life Insurance": 0.012,
-      "Endowment Plan": 0.025,
-    };
-    return Math.round(sumInsured * (baseRate[planType] || 0.01));
-  };
-
-  const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value;
-    setSelectedRiders(typeof value === "string" ? value.split(",") : value);
-  };
-
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (savedTransaction && savedTransaction.length > 0) {
-      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
-      const plan = savedTransaction[0]?.txn_input_json?.Plan;
-      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
-      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
-
-      setFields((prevFields: any) => ({
-        ...prevFields,
-        basicPlanPremium:
-          savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary?.[1]
-            ?.basePlan,
-        basicSumInsured: baseSA || "200000",
-        basicPlan: plan,
-        insuranceTerm: term,
-        ppt: ppt,
-        typeOfDivident: "Non - Participatory",
-        Product: "",
-        Policy_Inception_Date: new Date().toISOString().split("T")[0],
-        Smoker: "No",
-        Pre_Existing_Disease: "Yes",
-        Extra_mortality: "75%",
-        Policy_Term: "45",
-        Mandatory_Premium_Period: "ErrName",
-        PAV: "0",
-        per_mille_rating_death: "1",
-        per_mille_rating_TPD: "1",
-        per_mille_rating_SCI: "1",
-        Death_Benefit: "Yes",
-        Total_and_Permanent_Disability_TPD: "Yes",
-        Accidental_Death_and_Dismemberment_ADD: "Yes",
-        Staged_Critical_Illness_SCI: "Yes",
-        _2e_Hospital_Cash_Benefit_HCB: "Y",
-        Partial_Withdrawl: "Yes",
-        Partial_Withdrawl_Amount: "5000",
-      }));
-    } else {
-      setFields((prevFields: any) => ({
-        ...prevFields,
-        basicSumInsured: "200000",
-        Product: "",
-        Policy_Inception_Date: new Date().toISOString().split("T")[0],
-        Smoker: "No",
-        Pre_Existing_Disease: "Yes",
-        Extra_mortality: "75%",
-        Policy_Term: "45",
-        Mandatory_Premium_Period: "ErrName",
-        PAV: "0",
-        per_mille_rating_death: "1",
-        per_mille_rating_TPD: "1",
-        per_mille_rating_SCI: "1",
-        Death_Benefit: "Yes",
-        Total_and_Permanent_Disability_TPD: "Yes",
-        Accidental_Death_and_Dismemberment_ADD: "Yes",
-        Staged_Critical_Illness_SCI: "Yes",
-        _2e_Hospital_Cash_Benefit_HCB: "Y",
-        Partial_Withdrawl: "Yes",
-        Partial_Withdrawl_Amount: "5000",
-      }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savedTransaction]);
-
-  // helper to map Yes/No to Y/N
-  const yesNoToYN = (val?: string | null) => {
-    if (!val) return "N";
-    const v = val.toString().toLowerCase();
-    if (v === "y" || v === "yes" || v === "true") return "Y";
-    return "N";
-  };
-
-  const handleGetPremium = async () => {
-    setLoading(true);
-    setCalcResult(null);
-    setErrorMsg("");
-
-    try {
-      const inputs: any = {
-        _1a_DOB: fields.insuredDateOfBirth
-          ? typeof fields.insuredDateOfBirth === "string"
-            ? fields.insuredDateOfBirth
-            : dayjs(fields.insuredDateOfBirth).format("YYYY-MM-DD")
-          : "",
-
-        _1b_Product: fields.Product || "",
-
-        _1c_Gender: fields.insuredGender || "",
-
-        _1d_Face_Amount: Number(fields.basicSumInsured || 0),
-
-        _1e_Occupation: Number(fields.occupationCode || 0),
-
-        _1h_Policy_Inception_Date: fields.Policy_Inception_Date
-          ? fields.Policy_Inception_Date
-          : dayjs().format("YYYY-MM-DD"),
-
-        _1i_Smoker: yesNoToYN(fields.Smoker),
-
-        _1j_Pre_Existing_Disease: yesNoToYN(fields.Pre_Existing_Disease),
-
-        _1k_Extra_mortality: (() => {
-          const v = (fields.Extra_mortality || "").toString();
-          if (v.endsWith("%")) {
-            const n = parseFloat(v.replace("%", "")) || 0;
-            return +(n / 100).toFixed(4);
-          }
-          const num = parseFloat(v);
-          if (!isNaN(num) && num > 0 && num <= 1) return num;
-          if (!isNaN(num) && num > 1) return +(num / 100).toFixed(4);
-          return 0;
-        })(),
-
-        _1p_Policy_Term: Number(fields.Policy_Term || 0),
-
-        _1r_Mandatory_Premium_Period: fields.Mandatory_Premium_Period || "",
-
-        _1zb_PAV: Number(fields.PAV || 0),
-
-        _1zc_per_mille_rating_death: Number(
-          fields.per_mille_rating_death || 1
-        ),
-
-        _1zd_per_mille_rating_TPD: Number(fields.per_mille_rating_TPD || 1),
-
-        _1ze_per_mille_rating_SCI: Number(fields.per_mille_rating_SCI || 1),
-
-        _2a_Death_Benefit: yesNoToYN(fields.Death_Benefit),
-
-        _2b_Total_and_Permanent_Disability_TPD: yesNoToYN(
-          fields.Total_and_Permanent_Disability_TPD
-        ),
-
-        _2c_Accidental_Death_and_Dismemberment_ADD: yesNoToYN(
-          fields.Accidental_Death_and_Dismemberment_ADD
-        ),
-
-        _2d_Staged_Critical_Illness_SCI: yesNoToYN(
-          fields.Staged_Critical_Illness_SCI
-        ),
-
-        _2e_Hospital_Cash_Benefit_HCB:
-          fields._2e_Hospital_Cash_Benefit_HCB || "Y",
-
-        _3a_Partial_Withdrawl: yesNoToYN(fields.Partial_Withdrawl),
-
-        _3b_Partial_Withdrawl_Amount: Number(
-          fields.Partial_Withdrawl_Amount || 0
-        ),
-      };
-
-      const payload = {
-        request_data: { inputs },
-        request_meta: {
-          version_id: "57e38b87-052c-4fb1-a6c5-76bd1567df2d",
-          call_purpose: "Spark - API Tester",
-          source_system: "SPARK",
-          correlation_id: null,
-          requested_output: null,
-          service_category: "",
-        },
-      };
-
-      const axiosInst = getAxiosInstance();
-      const resp = await axiosInst.post(API_CALCULATE_PATH, payload);
-      setCalcResult(resp.data);
-
-      // Optionally: you can parse outputs and set fields similarly to the property example you gave
-      // Example (depends on response structure):
-      // const outputs = resp.data?.response_data?.outputs || resp.data?.request_data?.outputs;
-      // setFields({...fields, someField: outputs?.SomeValue});
-
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.response?.data?.message || err.message || "Request failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Box sx={{ width: "100%", padding: 2 }}>
-      {/* Quotation Summary */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">
-          {t("quotation_summaryh")}
-        </Typography>
-        <Divider />
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
-          <Typography>{t("quotation_summary")}&emsp;</Typography>
-          <Link
-            underline="always"
-            color="inherit"
-            sx={{ color: "#000048" }}
-            onClick={() => {
-              if (!savedQuotation?.txn_pdf) return;
-              const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], { type: "application/pdf" });
-              const fileURL = URL.createObjectURL(file);
-              window.open(fileURL);
-            }}
-          >
-            Download Link to Quotation
-          </Link>
-        </Box>
-      </Paper>
-
-      {/* Main Plan */}
-      <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
-        <Typography className="typography-main-header">{t("main_plan")}</Typography>
-        <Divider />
-        <Box sx={{ marginTop: 2 }}>
-          <TableContainer sx={{ width: "100%" }}>
-            <Table className="table-main" sx={{ width: "100%" }}>
-              <TableBody>
-                <TableRow sx={{ display: "flex", flexWrap: "wrap" }}>
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>{t("basicPlan")}</InputLabel>
-                      <Select value={fields.basicPlan} onChange={handlePlanChange}>
-                        {MAIN_PLANS.map((plan) => (
-                          <MenuItem key={plan} value={plan}>
-                            {plan}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  {["basicSumInsured", "basicPlanPremium", "typeOfDivident", "insuranceTerm", "ppt"].map((field) => (
-                    <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                      <TextField size="small" label={t(field)} variant="standard" InputProps={{ readOnly: true }} value={fields[field as keyof typeof fields]} onChange={(e) => handleFieldChange(e.target.value, field)} />
-                    </TableCell>
-                  ))}
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Product</InputLabel>
-                      <Select value={fields.Product} onChange={(e) => handleFieldChange(e.target.value, "Product")}>
-                        {PRODUCT_OPTIONS.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField size="small" label="Policy Inception Date" variant="standard" type="date" value={fields.Policy_Inception_Date ?? ""} onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")} />
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Smoker</InputLabel>
-                      <Select value={fields.Smoker} onChange={(e) => handleFieldChange(e.target.value, "Smoker")}>
-                        {YES_NO.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Pre Existing Disease</InputLabel>
-                      <Select value={fields.Pre_Existing_Disease} onChange={(e) => handleFieldChange(e.target.value, "Pre_Existing_Disease")}>
-                        {YES_NO.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <FormControl variant="standard" size="small" fullWidth>
-                      <InputLabel>Extra Mortality</InputLabel>
-                      <Select value={fields.Extra_mortality} onChange={(e) => handleFieldChange(e.target.value, "Extra_mortality")}>
-                        {EXTRA_MORTALITY_OPTIONS.map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField size="small" label="Policy Term" variant="standard" value={fields.Policy_Term} onChange={(e) => handleFieldChange(e.target.value, "Policy_Term")} />
-                  </TableCell>
-
-                  <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
-                    <TextField size="small" label="Mandatory Premium Period" variant="standard" value={fields.Mandatory_Premium_Period} onChange={(e) => handleFieldChange(e.target.value, "Mandatory_Premium_Period")} />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-
-        {/* Get Premium UI */}
-        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
-          <Button variant="contained" onClick={handleGetPremium} disabled={loading}>
-            {loading ? <CircularProgress size={18} /> : "Get Premium"}
-          </Button>
-          {errorMsg && <Typography color="error">{errorMsg}</Typography>}
-        </Box>
-
-        {calcResult && (
-          <Paper sx={{ mt: 2, p: 2 }}>
-            <Typography variant="h6">Premium Response</Typography>
-            <pre style={{ whiteSpace: "pre-wrap" }}>{JSON.stringify(calcResult, null, 2)}</pre>
-          </Paper>
-        )}
-      </Paper>
-
-      {/* Riders and Optional Benefits are omitted here for brevity - keep the rest of your JSX as in original */}
-    </Box>
-  );
-};
-
-export default PlanAndCoverage;
-[12/12, 11:03 am] Ashish Kandekar 14/7: // src/Components/LifeAssuredDetail.tsx
 import {
   Box,
   Checkbox,
@@ -503,6 +16,7 @@ import {
   Typography,
   tableCellClasses,
 } from "@mui/material";
+import
 import React, { useEffect, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -511,18 +25,11 @@ import { useTranslation } from "react-i18next";
 import Camera from "./Camera";
 import dayjs, { Dayjs } from "dayjs";
 import { Dropdown } from "./Dropdown/Dropdown";
-import {
-  getCoutries,
-  getDistrict,
-  getEvidenceProof,
-  getOccupationCode,
-  getState,
-  getMaritalStatus,
-  getFamilyMemberType,
-  getInsuredData,
-} from "./Dropdown/DropdownApi";
+import { getCoutries, getDistrict, getEvidenceProof, getOccupationCode, getState,getMaritalStatus,getFamilyMemberType,getInsuredData } from "./Dropdown/DropdownApi";
 import { DateField } from "@mui/x-date-pickers";
-import "../styles.css";
+import "../styles.css"
+
+
 
 interface ChildComponentProps {
   fields: {
@@ -530,12 +37,12 @@ interface ChildComponentProps {
     insuredEvidenceOfProof: string;
     insuredIdNumber: string;
     customerIdEbao: number;
-    insuredIdExpiryDate: dayjs.Dayjs | null;
+    insuredIdExpiryDate: dayjs.Dayjs;
     insuredTitle: string;
     insuredFirstName: string;
     insuredSurName: string;
-    insuredDateOfBirth: dayjs.Dayjs | string | null;
-    insuredGender: string;
+    insuredDateOfBirth: dayjs.Dayjs;
+    insuredGender : string;
     insuredAge: string;
 
     insuredProvince: string;
@@ -552,11 +59,11 @@ interface ChildComponentProps {
     regAddrStrNum: string;
     regAddrSubDist: string;
     regAddrZipCode: string;
-    regFullAddr: string;
+    regFullAddr:string;
     familyMemberType: string;
     insuredMritalStatus: string;
 
-    workCompanyName: string;
+    workCompanyName:string;
     workAddrNum: string;
     workAddrVilla: string;
     workAddrMooNum: string;
@@ -584,16 +91,12 @@ interface ChildComponentProps {
     workPhoneNumber: string;
     emailAddress: string;
 
-    occupationCode: string;
+    occupationCode:string;
     positionHeld: string;
     occupationDetail: string;
     businessDetail: string;
     annualIncome: string;
     otherOccupation: string;
-
-    // extras used elsewhere
-    regAddrMoo?: string;
-    cRegAddMoo?: string;
   };
   setFields: React.Dispatch<
     React.SetStateAction<{
@@ -601,14 +104,13 @@ interface ChildComponentProps {
       insuredEvidenceOfProof: string;
       insuredIdNumber: string;
       customerIdEbao: number;
-      insuredIdExpiryDate: dayjs.Dayjs | null;
+      insuredIdExpiryDate: dayjs.Dayjs;
       insuredTitle: string;
       insuredFirstName: string;
       insuredSurName: string;
-      insuredDateOfBirth: dayjs.Dayjs | string | null;
-      insuredGender: string;
+      insuredDateOfBirth: dayjs.Dayjs;
+      insuredGender : string;
       insuredAge: string;
-
       insuredProvince: string;
       insuredDistrict: string;
       imgURL: string;
@@ -623,11 +125,11 @@ interface ChildComponentProps {
       regAddrStrNum: string;
       regAddrSubDist: string;
       regAddrZipCode: string;
-      regFullAddr: string;
+      regFullAddr:string;
       familyMemberType: string;
       insuredMritalStatus: string;
 
-      workCompanyName: string;
+      workCompanyName:string;
       workAddrNum: string;
       workAddrVilla: string;
       workAddrMooNum: string;
@@ -654,8 +156,8 @@ interface ChildComponentProps {
       homeNumber: string;
       workPhoneNumber: string;
       emailAddress: string;
+      occupationCode:string;
 
-      occupationCode: string;
       positionHeld: string;
       occupationDetail: string;
       businessDetail: string;
@@ -666,21 +168,34 @@ interface ChildComponentProps {
   savedTransaction: any;
 }
 
-const LifeAssuredDetail: React.FC<ChildComponentProps> = ({ fields, setFields, savedTransaction }) => {
-  const handleFieldChange = (val: string, fieldName: string, imgURL?: string) => {
+const LifeAssuredDetail: React.FC<ChildComponentProps> = ({
+  fields,
+  setFields,
+  savedTransaction,
+}) => {
+  const handleFieldChange = (
+    val: string,
+    fieldName: string,
+    imgURL?: string
+  ) => {
     const newFields = { ...fields, [fieldName]: val };
     if (imgURL !== undefined) {
       newFields["imgURL"] = imgURL;
     }
     setFields({ ...newFields });
+    console.log("After ==>", newFields);
   };
 
   const handleDateChange = (date: dayjs.Dayjs | null, fieldName: string) => {
     setFields({ ...fields, [fieldName]: date });
   };
 
-  const handleButtonChange = (event: React.MouseEvent<HTMLElement>, fieldName: string) => {
-    const stateVal = event.currentTarget.textContent || "";
+  const handleButtonChange = (
+    event: React.MouseEvent<HTMLElement>,
+    fieldName: string
+  ) => {
+    console.log(event.currentTarget.textContent);
+    const stateVal = event.currentTarget.textContent;
     setFields((fields) => ({ ...fields, [fieldName]: stateVal }));
   };
 
@@ -691,55 +206,70 @@ const LifeAssuredDetail: React.FC<ChildComponentProps> = ({ fields, setFields, s
       const nameLI = savedTransaction[0]?.txn_input_json?.Name_LI;
       const genderLI = savedTransaction[0]?.txn_input_json?.Gender_LI;
       const ageLI = savedTransaction[0]?.txn_input_json?.Age_LI;
+      // const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
       const dob = savedTransaction[0]?.txn_input_json?.DOB_LI;
       setFields((prevFields) => ({
         ...prevFields,
-        insuredFirstName: nameLI,
-        insuredGender: genderLI,
-        insuredAge: ageLI,
-        insuredDateOfBirth: dob,
+        insuredFirstName : nameLI,
+        insuredGender : genderLI,
+        insuredAge:ageLI,
+        insuredDateOfBirth:dob,
+
       }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [savedTransaction]);
 
-  // dependent dropdown state
-  const [countries, setCountries] = useState<any[]>([]);
-  const [states, setStates] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [evidenceProof, setEvidenceProof] = useState<any[]>([]);
-  const [occupationCode1, setOccupationCode1] = useState<any[]>([]);
-  const [marriageStatus, setMarriageStatus] = useState<any[]>([]);
-  const [familyMemTyp, setFamilyMemTyp] = useState<any[]>([]);
+  // for dependent dropdown
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const[evidenceProof,setEvidenceProof] = useState([]);
+  const [occupationCode1,setOccupationCode1] = useState([]);
+  const[marriageStatus,setMarriageStatus] = useState([]);
+  const[familyMemTyp,setFamilyMemTyp] = useState([]);
 
   useEffect(() => {
-    getFamilyMemberType().then((res) => setFamilyMemTyp(res.data)).catch(()=>{});
+    getFamilyMemberType().then((res) => {
+      setFamilyMemTyp(res.data);
+    });
   }, []);
 
   useEffect(() => {
-    getMaritalStatus().then((res) => setMarriageStatus(res.data)).catch(()=>{});
+    getMaritalStatus().then((res) => {
+      setMarriageStatus(res.data);
+    });
   }, []);
 
   useEffect(() => {
-    getOccupationCode().then((res) => setOccupationCode1(res.data)).catch(()=>{});
+    getOccupationCode().then((res) => {
+      setOccupationCode1(res.data);
+    });
+  }, []);
+
+
+  useEffect(() => {
+    getEvidenceProof().then((res) => {
+      setEvidenceProof(res.data);
+    });
   }, []);
 
   useEffect(() => {
-    getEvidenceProof().then((res) => setEvidenceProof(res.data)).catch(()=>{});
+    getCoutries().then((res) => {
+      setCountries(res.data);
+    });
   }, []);
 
-  useEffect(() => {
-    getCoutries().then((res) => setCountries(res.data)).catch(()=>{});
-  }, []);
 
   useEffect(() => {
     getInsuredData().then((res) => {
+      console.log("Insdata ==>",res);
       const fnameLI = res.data.insuredFirstName;
       const lNameLI = res.data.insuredLastName;
       const genderLI = res.data.insuredGender;
-      const ageLI = res.data.insuredAge;
-      const nationalityLI = res.data.insuredNationality;
-      const titleLI = res.data.insuredTitle;
+      const ageLI = res.data.insuredAge;  
+      const nationalityLI= res.data.insuredNationality;
+      const titleLI= res.data.insuredTitle;
       const dobstring = res.data.insuredDob;
       const dob: Dayjs = dayjs(dobstring);
       const insCurAddr1 = res.data.insuredCurAddrLine1;
@@ -747,142 +277,1234 @@ const LifeAssuredDetail: React.FC<ChildComponentProps> = ({ fields, setFields, s
       const insCurVilla = res.data.insuredCurVilla;
       const insCurMobile = res.data.insuredCurMobile;
       const insCurAlley = res.data.insuredCurAlley;
-      const insCurPin = res.data.insuredCurPin;
-
+      const insCurPin = res.data.insuredCurPin
+         
       setFields((prevFields) => ({
         ...prevFields,
-        insuredFirstName: fnameLI,
-        insuredSurName: lNameLI,
-        insuredGender: genderLI,
-        insuredAge: ageLI,
-        insuredNationality: nationalityLI,
-        insuredTitle: titleLI,
-        insuredDateOfBirth: dob,
-        regAddrNum: insCurAddr1,
-        regAddrVilla: insCurVilla,
-        regAddrMooNum: insCurMobile,
-        regAddrAlley: insCurAlley,
-        regAddrZipCode: insCurPin,
-        regAddrStrNum: insCurAddr2,
-      }));
-    }).catch(()=>{});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+          insuredFirstName : fnameLI,
+          insuredSurName : lNameLI,
+          insuredGender : genderLI,
+          insuredAge: ageLI,
+          insuredNationality: nationalityLI,
+          insuredTitle: titleLI,
+          insuredDateOfBirth: dob,
+          regAddrNum: insCurAddr1,
+          regAddrVilla: insCurVilla,
+          regAddrMooNum: insCurMobile,
+          regAddrAlley: insCurAlley,
+          regAddrZipCode: insCurPin,
+          regAddrStrNum: insCurAddr2
+         }));
+     
+    });      
+     
   }, []);
+
 
   useEffect(() => {
     setStates([]);
     handleFieldChange("", "insuredProvince");
     setDistricts([]);
-    if (fields.insuredNationality) {
-      getState(fields.insuredNationality).then((res) => setStates(res.data)).catch(()=>{});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getState(fields.insuredNationality).then((res) => {
+      setStates(res.data);
+    });
   }, [fields.insuredNationality]);
 
   useEffect(() => {
     setDistricts([]);
     handleFieldChange("", "insuredDistrict");
-    if (fields.insuredProvince) {
-      getDistrict(fields.insuredProvince).then((res) => setDistricts(res.data)).catch(()=>{});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields.insuredProvince]);
+    getDistrict(fields.insuredProvince).then((res) => {
+      setDistricts(res.data);
+    });
+  }, [fields.insuredNationality, fields.insuredProvince]);
 
   const [error, setError] = useState("");
+
   const handleEmailChange = (value: string, fieldName: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setFields((fields) => ({ ...fields, [fieldName]: value }));
-    if (fieldName === "emailAddress") {
-      if (value.trim() === "") setError("Email is required");
-      else if (!emailRegex.test(value)) setError("Invalid email format");
-      else setError("");
+
+    if(fieldName === 'emailAddress'){
+    if (value.trim() === "") {
+      setError("Email is required");
+    } else if (!emailRegex.test(value)) {
+      setError("Invalid email format");
+    } else {
+      setError("");
     }
+  }
   };
 
-  const [priErr, setPriErr] = useState("");
-  const [homeErr, setHomeErr] = useState("");
-  const [workErr, setWorkErr] = useState("");
+ const [priErr,setPriErr] = useState('')
+ const [homeErr,setHomeErr] = useState('')
+ const [workErr,setWorkErr] = useState('')
+
 
   const handlePhoneNumberChange = (value: string, fieldName: string) => {
     const phoneRegex = /^[0-9]{10}$/;
     setFields((fields) => ({ ...fields, [fieldName]: value }));
-    if (fieldName === "primaryNumber") {
-      if (value.trim() === "") setPriErr("Phone Number is required");
-      else if (!phoneRegex.test(value)) setPriErr("Invalid Phone Number format");
-      else setPriErr("");
-    } else if (fieldName === "homeNumber") {
-      if (value.trim() === "") setHomeErr("Home Phone Number is required");
-      else if (!phoneRegex.test(value)) setHomeErr("Invalid Phone Number format");
-      else setHomeErr("");
-    } else if (fieldName === "workPhoneNumber") {
-      if (value.trim() === "") setWorkErr("Work Phone Number is required");
-      else if (!phoneRegex.test(value)) setWorkErr("Invalid Phone Number format");
-      else setWorkErr("");
+if(fieldName === 'primaryNumber'){
+    if (value.trim() === "") {
+      setPriErr("Phone Number is required");
+    } else if (!phoneRegex.test(value)) {
+      setPriErr("Invalid Phone Number format");
+    } else {
+      setPriErr("");
     }
+  } else if (fieldName === 'homeNumber'){
+    if (value.trim() === "") {
+      setHomeErr("Home Phone Number is required");
+    } else if (!phoneRegex.test(value)) {
+      setHomeErr("Invalid Phone Number format");
+    } else {
+      setHomeErr("");
+    }
+  }
+  else if (fieldName === 'workPhoneNumber'){
+    if (value.trim() === "") {
+      setWorkErr("Work Phone Number is required");
+    } else if (!phoneRegex.test(value)) {
+      setWorkErr("Invalid Phone Number format");
+    } else {
+      setWorkErr("");
+    }
+  }
   };
 
   return (
     <Box>
-      {/* All your existing UI: I kept it identical to your file */}
-      {/* For brevity in this message I will not duplicate the full JSX again — you said you already have it */}
-      {/* But in your local project, keep the same JSX you already pasted earlier. */}
-      {/* The important part is the TypeScript typings above to make sure fields like occupationCode exist */}
-      {/* If you want, I can paste the full JSX too, but you already supplied it earlier. */}
-      <Typography>LifeAssured Detail component loaded.</Typography>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header" 
+          >
+            {t("welcome_message")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                className="table-main"
+                aria-label="table2"
+              >
+                <TableBody>
+                  <TableRow>
+                    {/* <TableCell>{t("insured_nationality")}</TableCell> */}
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_nationality")}
+                        options={countries}
+                        value={fields.insuredNationality}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            e.target.value,
+                            "insuredNationality"
+                          )
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>{t("camera")}</TableCell>
+                    <TableCell colSpan={2}>
+                    {fields.imgURL !== "" && (
+                        <img src={fields.imgURL} alt="Captured Image" />
+                  )}
+                      <Camera handleFieldChange={handleFieldChange} />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("insured_evidence_of_proof")}</TableCell> */}
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_evidence_of_proof")}
+                        options={evidenceProof}
+                        value={fields.insuredEvidenceOfProof}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            e.target.value,
+                            "insuredEvidenceOfProof"
+                          )
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell> */}
+                      {/* {t("insured_id_number_/_passport_number")} */}
+                    {/* </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        label={t("insured_id_number_/_passport_number")}
+                        variant="standard"
+                        // fullWidth
+                        value={fields.insuredIdNumber}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredIdNumber")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>{t("insured_id_expiry_date")}</TableCell> */}
+                    <TableCell>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          slotProps={{ textField: { size: "small" } }}
+                          name="date"
+                          label={t("insured_id_expiry_date")}
+                          // variant="standard"
+                          // value={dayjs(new Date())}
+                          value={dayjs(fields.insuredIdExpiryDate)}
+                          onChange={(e) =>
+                            handleDateChange(e, "insuredIdExpiryDate")
+                          }
+                        />
+                      </LocalizationProvider>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("customer_id_in_eBao")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        type="number"
+                        label={t("customer_id_in_eBao")}
+                        size="small"
+                        variant="standard"
+                        value={fields.customerIdEbao}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "customerIdEbao")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("family_member_type")}</TableCell> */}
+                    <TableCell>
+                      <Dropdown
+                        label={t("family_member_type")}
+                        // variant="standard"
+                        options={familyMemTyp}
+                        value={fields.familyMemberType}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "familyMemberType")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("insured_title")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        label={t("insured_title")}
+                        variant="standard"
+                        // fullWidth
+                        //label='insuredTitle'
+                        value={fields.insuredTitle}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredTitle")
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("insured_first_name")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        // fullWidth
+                        variant="standard"
+                        label={t('insured_first_name')}
+                        value={fields.insuredFirstName}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredFirstName")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("insured_surname")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        // fullWidth
+                        variant="standard"
+                        label={t("insured_surname")}
+                        //label='insuredTitle'
+                        value={fields.insuredSurName}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredSurName")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("insured_date_of_birth")}</TableCell> */}
+                    <TableCell>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateField
+                        // fullWidth
+                          slotProps={{ textField: { size: "small" } }}
+                          name="date"
+                          readOnly
+                          label={t("insured_date_of_birth")}
+                          variant="standard"
+                          // value={dayjs(new Date())}
+                          value={dayjs(fields.insuredDateOfBirth)}
+                          onChange={(e) =>
+                            handleDateChange(e, "insuredDateOfBirth")
+                          }
+                        />
+                      </LocalizationProvider>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("insured_age")}</TableCell> */}
+                    <TableCell><TextField 
+                    value={fields.insuredAge}
+                    label={t("insured_age")}
+                    variant="standard"
+                    ></TextField></TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("insured_gender")}</TableCell> */}
+                    <TableCell><TextField 
+                    value={fields.insuredGender}
+                    label={t("insured_gender")}
+                    variant="standard"
+                    ></TextField></TableCell>
+                    {/* <TableCell><Typography>{fields.insuredGender}</Typography></TableCell> */}
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("insured_marital_status")}</TableCell> */}
+
+                    <TableCell>
+                      <Dropdown
+                        label={t("insured_marital_status")}
+                        options={marriageStatus}
+                        value={fields.insuredMritalStatus}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            e.target.value,
+                            "insuredMritalStatus"
+                          )
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <FormControlLabel
+                        disabled
+                        control={<Checkbox defaultChecked />}
+                        label="Policy Owner is the insured person of this policy "
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">
+            {t("insured_address")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                className="table-main"
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    {/* <TableCell>{t("registered_address_number")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label = {t("registered_address_number")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrNum}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrNum")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      {t("registered_address_villa/building")}
+                    </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label={t("registered_address_villa/building")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrVilla}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrVilla")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>{t("registered_address_moo_number")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label={t("registered_address_moo_number")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrMooNum}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrMooNum")
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>
+                      {t("registered_address_alleyway/soi")}
+                    </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label={t("registered_address_alleyway/soi")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrAlley}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrAlley")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>{t("registered_address_street")} </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label={t("registered_address_street")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrStrNum}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrStrNum")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>{t("registered_address_province")} </TableCell> */}
+                    <TableCell>
+                      <Dropdown
+                        label="Province"
+                        options={states}
+                        value={fields.insuredProvince}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredProvince")
+                        }
+                      />
+                    </TableCell>
+                   </TableRow>
+                  <TableRow>
+                    {/*
+                    <TableCell>{t("registered_address_district")}</TableCell> */}
+                    <TableCell>
+                      <Dropdown
+                        label="District"
+                        options={districts}
+                        value={fields.insuredDistrict}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "insuredDistrict")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      {t("registered_address_sub_district")}
+                    </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        label={t("registered_address_sub_district")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrSubDist}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrSubDist")
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow>
+                    <TableCell>{t("registered_address_zip_code")} </TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="standard-basic"
+                        label={t("registered_address_zip_code")}
+                        size="small"
+                        variant="standard"
+                        value={fields.regAddrZipCode}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regAddrZipCode")
+                        }
+                      />
+                    </TableCell>
+                   </TableRow>
+                  <TableRow>
+                    {/*
+                    <TableCell>{t("registered_full_address")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="outlined-basic"
+                        size="small"
+                        label={t("registered_full_address")}
+                        multiline
+                        value={fields.regFullAddr}
+                        variant="standard"
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "regFullAddr")
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">
+            {t("insured_address_workplace")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                className="table-main"
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    <TableCell>{t("same_as_the_registered_address")}</TableCell>
+                    <TableCell colSpan={2}>
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={fields.workplaceAddressOptn}
+                        exclusive
+                        fullWidth
+                        onChange={(event) =>
+                          handleButtonChange(event, "workplaceAddressOptn")
+                        }
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="Yes">Yes</ToggleButton>
+                        <ToggleButton value="No">No</ToggleButton>
+                      </ToggleButtonGroup>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("working_company_name")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        id="standard-basic"
+                        label={t("working_company_name")}
+                        size="small"
+                        variant="standard"
+                        value={fields.workCompanyName}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "workCompanyName")
+                            }
+                      />
+                    </TableCell>
+                  </TableRow>
+                  {fields.workplaceAddressOptn === "No" && (
+                    <>
+                      <TableRow>
+                        {/* <TableCell>{t("workplace_address_number")}</TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_address_number")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrNum}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "workAddrNum")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>
+                          {t("workplace_address_villa/building")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_address_villa/building")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrVilla}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "workAddrVilla")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>
+                          {t("workplace_address_moo_number")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_address_moo_number")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrMooNum}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "workAddrMooNum"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>
+                          {t("workplace_address_alleyway/soi")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_address_alleyway/soi")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrAlley}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "workAddrAlley")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>{t("workplace_address_street")} </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            size="small"
+                            label={t("workplace_address_street")}
+                            variant="standard"
+                            value={fields.workAddrStrNum}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "workAddrStrNum"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>
+                          {t("workplace_address_province")}{" "}
+                        </TableCell> */}
+                        <TableCell>
+                          <Dropdown
+                            label={t("workplace_address_province")}
+                            options={states}
+                            value={fields.insuredWorkProvince}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "insuredWorkProvince"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>{t("workplace_address_district")}</TableCell> */}
+                        <TableCell>
+                          <Dropdown
+                            label={t("workplace_address_district")}
+                            options={districts}
+                            value={fields.insuredWorkDistrict}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "insuredWorkDistrict"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          {t("workplace_address_sub_district")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                           label={t("workplace_address_sub_district")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrSubDist}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "workAddrSubDist"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>
+                          {t("workplace_address_zip_code")}{" "}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_address_zip_code")}
+                            size="small"
+                            variant="standard"
+                            value={fields.workAddrZipCode}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "workAddrZipCode"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>{t("workplace_full_address")}</TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("workplace_full_address")}
+                            size="small"
+                            multiline
+                            value={fields.workFullAddress}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "workFullAddress"
+                              )
+                            }
+                            variant="standard"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">
+            {t("contact_address_indicator")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                className="table-main"
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      {t(
+                        "current_address_same_as_the_registered/working_address"
+                      )}
+                    </TableCell>
+                    <TableCell colSpan={2}>
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={fields.currentAddressOptn}
+                        exclusive
+                        fullWidth
+                        onChange={(event) =>
+                          handleButtonChange(event, "currentAddressOptn")
+                        }
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="Registered Address">
+                          Registered Address
+                        </ToggleButton>
+                        <ToggleButton value="Work Address">
+                          Work Address
+                        </ToggleButton>
+                        <ToggleButton value="Different Address">
+                          Different Address
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </TableCell>
+                  </TableRow>
+                  {/* 3rd set */}
+                  {fields.currentAddressOptn === "Different Address" && (
+                    <>
+                      <TableRow>
+                        {/* <TableCell>{t("contact_address_number")}</TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_number")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddNum}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddNum")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow>
+                        <TableCell>
+                          {t("contact_address_villa/building")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_villa/building")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddVilla}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddVilla")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>{t("contact_address_moo_number")}</TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_moo_number")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddMoo}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddMoo")
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>
+                          {t("contact_address_alleyway/soi")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_alleyway/soi")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddAlley}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddAlley")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>{t("contact_address_street")} </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_street")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddStrNum}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddStrNum")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>{t("contact_address_province")} </TableCell> */}
+                        <TableCell>
+                          <Dropdown
+                            label={t("contact_address_province")}
+                            options={states}
+                            value={fields.cRegAddProvince}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "cRegAddProvince"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>{t("contact_address_district")}</TableCell> */}
+                        <TableCell>
+                          <Dropdown
+                            label={t("contact_address_district")}
+                            options={districts}
+                            value={fields.cRegAddDist}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddDist")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>
+                          {t("contact_address_sub_district")}
+                        </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_sub_district")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddSubDis}
+                            onChange={(e) =>
+                              handleFieldChange(e.target.value, "cRegAddSubDis")
+                            }
+                          />
+                        </TableCell>
+                      {/* </TableRow>
+                      <TableRow> */}
+                        {/* <TableCell>{t("contact_address_zip_code")} </TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_address_zip_code")}
+                            size="small"
+                            variant="standard"
+                            value={fields.cRegAddZipCode}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "cRegAddZipCode"
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        {/* <TableCell>{t("contact_full_address")}</TableCell> */}
+                        <TableCell>
+                          <TextField
+                            id="outlined-basic"
+                            label={t("contact_full_address")}
+                            size="small"
+                            multiline
+                            value={fields.contactFullAddr}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                e.target.value,
+                                "contactFullAddr"
+                              )
+                            }
+                            // value={fields.cRegAddAlley + " , " + fields.cRegAddNum}
+                            // InputProps={{ readOnly: true }}
+                            variant="standard"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                  <TableRow>
+                    <TableCell>
+                      {t("insured_contact_address_indicator")}
+                    </TableCell>
+                    <TableCell>
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={fields.insContactAddressIndicator}
+                        fullWidth
+                        exclusive
+                        onChange={(event) =>
+                          handleButtonChange(
+                            event,
+                            "insContactAddressIndicator"
+                          )
+                        }
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="Registered Address">
+                          Registered Address
+                        </ToggleButton>
+                        <ToggleButton value="Work Address">
+                          Work Address
+                        </ToggleButton>
+                        <ToggleButton value="Current Address">
+                          Current Address
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">
+            {t("insured_contact_number")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                className="table-main"
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    {/* <TableCell> {t("primary_number")}</TableCell> */}
+                    <TableCell>
+                    {/* <Stack
+            // spacing={2}
+            direction={"row"}
+            justifyContent={"flex-end"}
+            paddingRight={5}
+            paddingBottom={3}
+          >
+                      <CountrySelect/> */}
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("primary_number")}
+                        // k  onChange={handlePhoneNumberChange_primary}/>
+                        //{isValid?(<p style={{color:'green'}}>valid mobile number</p>):(<p style={{color:'red'}}>please enter valid 10 digits mobile number</p>)}
+                        value={fields.primaryNumber}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(
+                            e.target.value,
+                            "primaryNumber"
+                          )
+                        }
+                        error={Boolean(priErr)}
+                        helperText={priErr}
+                      ></TextField>
+                      {/* </Stack> */}
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell> {t("home_number")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("home_number")}
+                        value={fields.homeNumber}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(e.target.value, "homeNumber")
+                        }
+                        error={Boolean(homeErr)}
+                        helperText={homeErr}
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell> {t("workplace_phone_number")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("workplace_phone_number")}
+                        value={fields.workPhoneNumber}
+                        onChange={(e) =>
+                          handlePhoneNumberChange(
+                            e.target.value,
+                            "workPhoneNumber"
+                          )
+                        }
+                        error={Boolean(workErr)}
+                        helperText={workErr}
+                      ></TextField>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell> {t("insured_email_address")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("insured_email_address")}
+                        value={fields.emailAddress}
+                        onChange={(e) =>
+                          handleEmailChange(e.target.value, "emailAddress")
+                        }
+                        error={Boolean(error)}
+                        helperText={error}
+                      ></TextField>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
+      <Paper elevation={3} sx={{ margin: 2 }}>
+        <Box sx={{ padding: 2 }}>
+          <Typography className="typography-main-header">
+            {t("insured_occupation")}
+          </Typography>
+          <Divider />
+          <Box sx={{ marginTop: 2 }}>
+            <TableContainer>
+              <Table
+                sx={{
+                  [`& .${tableCellClasses.root}`]: { borderBottom: "none" },
+                }}
+                aria-label="simple table"
+              >
+                <TableBody>
+                  <TableRow>
+                    {/* <TableCell>{t("occupation_code")}</TableCell> */}
+                    <TableCell>
+                    <Dropdown
+                        label={t("occupation_code")}
+                        options={occupationCode1}
+                        value={fields.occupationCode}
+                        onChange={(e) =>
+                          handleFieldChange(
+                            e.target.value,
+                            "occupationCode"
+                          )
+                        }
+                      />
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("position_held")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("position_held")}
+                        value={fields.positionHeld}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "positionHeld")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("occupation_detail")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("occupation_detail")}
+                        value={fields.occupationDetail}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "occupationDetail")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    {/* <TableCell>{t("business_detail")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("business_detail")}
+                        value={fields.businessDetail}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "businessDetail")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell> {t("annual_income")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("annual_income")}
+                        type="number"
+                        value={fields.annualIncome}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "annualIncome")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  {/* </TableRow>
+                  <TableRow> */}
+                    {/* <TableCell>{t("other_occupations")}</TableCell> */}
+                    <TableCell>
+                      <TextField
+                        variant="standard"
+                        size="small"
+                        label={t("other_occupations")}
+                        multiline
+                        value={fields.otherOccupation}
+                        onChange={(e) =>
+                          handleFieldChange(e.target.value, "otherOccupation")
+                        }
+                      ></TextField>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        whiteSpace: "normal",
+                        wordWrap: "break-word",
+                      }}
+                    >
+                      {t("do_you_use_the_motorcycle_in_your_occupation")}
+                    </TableCell>
+                    <TableCell>
+                      <ToggleButtonGroup
+                        color="primary"
+                        value={fields.motorcycleOptn}
+                        exclusive
+                        fullWidth
+                        size="small"
+                        onChange={(event) =>
+                          handleButtonChange(event, "motorcycleOptn")
+                        }
+                        aria-label="Platform"
+                      >
+                        <ToggleButton value="Yes">Yes</ToggleButton>
+                        <ToggleButton value="No">No</ToggleButton>
+                      </ToggleButtonGroup>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Paper>
     </Box>
   );
 };
 
 export default LifeAssuredDetail;
-[12/12, 11:03 am] Ashish Kandekar 14/7: // src/api/apiClient.ts
-import axios, { AxiosInstance } from "axios";
-import dayjs from "dayjs";
 
-/**
- * BASE URL and TOKEN - update token when team lead gives one.
- * API_BASE_URL should NOT include trailing slash.
- */
-export const API_BASE_URL = "https://excel.uat.us.coherent.global"; // <-- keep as given
-export const API_BEARER_TOKEN = "PASTE_FULL_TOKEN_HERE"; // <-- replace with full token
 
-// token TTL (seconds) - 2 hours = 7200
-export const TOKEN_TTL_SECONDS = 7200;
 
-// store token save time locally (update manually if you replace token)
-let tokenSavedAt: string | null = dayjs().toISOString();
-
-export const isTokenValid = (): boolean => {
-  if (!API_BEARER_TOKEN) return false;
-  if (!tokenSavedAt) return false;
-  return dayjs().diff(dayjs(tokenSavedAt), "second") < TOKEN_TTL_SECONDS;
-};
-
-export const getAuthHeader = (): Record<string, string> => {
-  if (!isTokenValid()) {
-    console.warn("Token missing or expired in apiClient.ts — update API_BEARER_TOKEN");
-    return {};
-  }
-  return { Authorization: `Bearer ${API_BEARER_TOKEN}` };
-};
-
-let axiosInstance: AxiosInstance | null = null;
-
-export const getAxiosInstance = (): AxiosInstance => {
-  if (!axiosInstance) {
-    axiosInstance = axios.create({
-      baseURL: API_BASE_URL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  // attach Authorization if token valid
-  if (isTokenValid()) {
-    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${API_BEARER_TOKEN}`;
-  } else {
-    delete axiosInstance.defaults.headers.common["Authorization"];
-  }
-
-  return axiosInstance;
-};
