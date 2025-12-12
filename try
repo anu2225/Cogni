@@ -1,730 +1,320 @@
-ठीक आहे — खाली LifeAssuredDetails.tsx ची पूर्ण, अपडेटेड फाइल आहे (सर्वत्र insCurVilla / regAddrVilla समस्या दुरुस्त केली आहे). ही फाइल project मधली जुनी फाइल ओव्हरराइट करा.
-
-// src/Components/LifeAssuredDetails.tsx
-import {
-  Box,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-  tableCellClasses,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useTranslation } from "react-i18next";
-import Camera from "./Camera";
-import dayjs from "dayjs";
-import { Dropdown } from "./Dropdown/Dropdown";
-import {
-  getCoutries,
-  getDistrict,
-  getEvidenceProof,
-  getOccupationCode,
-  getState,
-  getMaritalStatus,
-  getFamilyMemberType,
-  getInsuredData,
-} from "./Dropdown/DropdownApi";
-import { DateField } from "@mui/x-date-pickers";
-import "../styles.css";
-
-interface ChildComponentProps {
-  fields: any;
-  setFields: React.Dispatch<React.SetStateAction<any>>;
-  savedTransaction: any;
-}
-
-const LifeAssuredDetail: React.FC<ChildComponentProps> = ({
-  fields,
-  setFields,
-  savedTransaction,
-}) => {
-  // === SAFE updater helpers ===
-  const handleFieldChange = (val: any, fieldName: string, imgURL?: string) => {
-    setFields((prev: any) => {
-      const updated = { ...(prev || {}), [fieldName]: val };
-      if (imgURL !== undefined) {
-        updated["imgURL"] = imgURL;
-      }
-      console.log("After ==>", updated);
-      return updated;
-    });
-  };
-
-  const handleDateChange = (date: dayjs.Dayjs | null, fieldName: string) => {
-    setFields((prev: any) => ({ ...(prev || {}), [fieldName]: date }));
-  };
-
-  const handleButtonChange = (
-    event: React.MouseEvent<HTMLElement>,
-    fieldName: string
-  ) => {
-    const stateVal = event.currentTarget.textContent;
-    setFields((prev: any) => ({ ...(prev || {}), [fieldName]: stateVal }));
-  };
-
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (savedTransaction && savedTransaction.length > 0) {
-      const txn0 = savedTransaction[0];
-      const nameLI = txn0?.txn_input_json?.Name_LI;
-      const genderLI = txn0?.txn_input_json?.Gender_LI;
-      const ageLI = txn0?.txn_input_json?.Age_LI;
-      const dob = txn0?.txn_input_json?.DOB_LI;
-      setFields((prevFields: any) => ({
-        ...(prevFields || {}),
-        insuredFirstName: nameLI ?? prevFields?.insuredFirstName,
-        insuredGender: genderLI ?? prevFields?.insuredGender,
-        insuredAge: ageLI ?? prevFields?.insuredAge,
-        insuredDateOfBirth: dob ?? prevFields?.insuredDateOfBirth,
-      }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savedTransaction]);
-
-  // for dependent dropdown
-  const [countries, setCountries] = useState<any[]>([]);
-  const [states, setStates] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [evidenceProof, setEvidenceProof] = useState<any[]>([]);
-  const [occupationCode1, setOccupationCode1] = useState<any[]>([]);
-  const [marriageStatus, setMarriageStatus] = useState<any[]>([]);
-  const [familyMemTyp, setFamilyMemTyp] = useState<any[]>([]);
-
-  useEffect(() => {
-    getFamilyMemberType()
-      .then((res) => {
-        setFamilyMemTyp(res?.data ?? []);
-      })
-      .catch((e) => console.warn(e));
-  }, []);
-
-  useEffect(() => {
-    getMaritalStatus()
-      .then((res) => {
-        setMarriageStatus(res?.data ?? []);
-      })
-      .catch((e) => console.warn(e));
-  }, []);
-
-  useEffect(() => {
-    getOccupationCode()
-      .then((res) => {
-        setOccupationCode1(res?.data ?? []);
-      })
-      .catch((e) => console.warn(e));
-  }, []);
-
-  useEffect(() => {
-    getEvidenceProof()
-      .then((res) => {
-        setEvidenceProof(res?.data ?? []);
-      })
-      .catch((e) => console.warn(e));
-  }, []);
-
-  useEffect(() => {
-    getCoutries()
-      .then((res) => {
-        setCountries(res?.data ?? []);
-      })
-      .catch((e) => console.warn(e));
-  }, []);
-
-  useEffect(() => {
-    // load initial insured data if API returns something useful
-    getInsuredData()
-      .then((res) => {
-        console.log("Insdata ==>", res);
-        const data = res?.data ?? {};
-        const fnameLI = data.insuredFirstName;
-        const lNameLI = data.insuredLastName;
-        const genderLI = data.insuredGender;
-        const ageLI = data.insuredAge;
-        const nationalityLI = data.insuredNationality;
-        const titleLI = data.insuredTitle;
-        const dobstring = data.insuredDob;
-        const dob = dobstring ? dayjs(dobstring) : null;
-
-        // address fields from API (use consistent variable names)
-        const insCurAddr1 = data.insuredCurAddrLine1;
-        const insCurAddr2 = data.insuredCurAddrLine2;
-        const insCurVilla = data.insuredCurVilla;
-        const insCurMobile = data.insuredCurMobile;
-        const insCurAlley = data.insuredCurAlley;
-        const insCurPin = data.insuredCurPin;
-
-        setFields((prevFields: any) => ({
-          ...(prevFields || {}),
-          insuredFirstName: fnameLI ?? prevFields?.insuredFirstName,
-          insuredSurName: lNameLI ?? prevFields?.insuredSurName,
-          insuredGender: genderLI ?? prevFields?.insuredGender,
-          insuredAge: ageLI ?? prevFields?.insuredAge,
-          insuredNationality: nationalityLI ?? prevFields?.insuredNationality,
-          insuredTitle: titleLI ?? prevFields?.insuredTitle,
-          insuredDateOfBirth: dob ?? prevFields?.insuredDateOfBirth,
-          regAddrNum: insCurAddr1 ?? prevFields?.regAddrNum,
-          regAddrStrNum: insCurAddr2 ?? prevFields?.regAddrStrNum,
-          regAddrVilla: insCurVilla ?? prevFields?.regAddrVilla,
-          regAddrMooNum: insCurMobile ?? prevFields?.regAddrMooNum,
-          regAddrAlley: insCurAlley ?? prevFields?.regAddrAlley,
-          regAddrZipCode: insCurPin ?? prevFields?.regAddrZipCode,
-        }));
-      })
-      .catch((e) => console.warn("getInsuredData failed", e));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setFields]);
-
-  useEffect(() => {
-    // when insuredNationality changes, load states and clear dependent fields safely
-    setStates([]);
-    handleFieldChange("", "insuredProvince");
-    setDistricts([]);
-    if (fields?.insuredNationality) {
-      getState(fields.insuredNationality)
-        .then((res) => {
-          setStates(res?.data ?? []);
-        })
-        .catch((e) => console.warn(e));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields?.insuredNationality]);
-
-  useEffect(() => {
-    setDistricts([]);
-    handleFieldChange("", "insuredDistrict");
-    if (fields?.insuredProvince) {
-      getDistrict(fields.insuredProvince)
-        .then((res) => {
-          setDistricts(res?.data ?? []);
-        })
-        .catch((e) => console.warn(e));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields?.insuredProvince]);
-
-  const [error, setError] = useState("");
-
-  const handleEmailChange = (value: string, fieldName: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    setFields((prev: any) => ({ ...(prev || {}), [fieldName]: value }));
-
-    if (fieldName === "emailAddress") {
-      if (value.trim() === "") {
-        setError("Email is required");
-      } else if (!emailRegex.test(value)) {
-        setError("Invalid email format");
-      } else {
-        setError("");
-      }
-    }
-  };
-
-  const [priErr, setPriErr] = useState("");
-  const [homeErr, setHomeErr] = useState("");
-  const [workErr, setWorkErr] = useState("");
-
-  const handlePhoneNumberChange = (value: string, fieldName: string) => {
-    const phoneRegex = /^[0-9]{10}$/;
-    setFields((prev: any) => ({ ...(prev || {}), [fieldName]: value }));
-
-    if (fieldName === "primaryNumber") {
-      if (value.trim() === "") {
-        setPriErr("Phone Number is required");
-      } else if (!phoneRegex.test(value)) {
-        setPriErr("Invalid Phone Number format");
-      } else {
-        setPriErr("");
-      }
-    } else if (fieldName === "homeNumber") {
-      if (value.trim() === "") {
-        setHomeErr("Home Phone Number is required");
-      } else if (!phoneRegex.test(value)) {
-        setHomeErr("Invalid Phone Number format");
-      } else {
-        setHomeErr("");
-      }
-    } else if (fieldName === "workPhoneNumber") {
-      if (value.trim() === "") {
-        setWorkErr("Work Phone Number is required");
-      } else if (!phoneRegex.test(value)) {
-        setWorkErr("Invalid Phone Number format");
-      } else {
-        setWorkErr("");
-      }
-    }
-  };
-
-  return (
-    <Box>
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">{t("welcome_message")}</Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table className="table-main" aria-label="table2">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <Dropdown
-                        label={t("insured_nationality")}
-                        options={countries}
-                        value={fields?.insuredNationality ?? ""}
-                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredNationality")}
-                      />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>{t("camera")}</TableCell>
-                    <TableCell colSpan={2}>
-                      {fields?.imgURL && <img src={fields.imgURL} alt="Captured" style={{ maxWidth: 120 }} />}
-                      <Camera handleFieldChange={handleFieldChange} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <Dropdown
-                        label={t("insured_evidence_of_proof")}
-                        options={evidenceProof}
-                        value={fields?.insuredEvidenceOfProof ?? ""}
-                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredEvidenceOfProof")}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        label={t("insured_id_number_/_passport_number")}
-                        variant="standard"
-                        value={fields?.insuredIdNumber ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, "insuredIdNumber")}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          slotProps={{ textField: { size: "small" } }}
-                          name="date"
-                          label={t("insured_id_expiry_date")}
-                          value={fields?.insuredIdExpiryDate ? dayjs(fields.insuredIdExpiryDate) : null}
-                          onChange={(e) => handleDateChange(e as dayjs.Dayjs | null, "insuredIdExpiryDate")}
-                        />
-                      </LocalizationProvider>
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        label={t("customer_id_in_eBao")}
-                        size="small"
-                        variant="standard"
-                        value={fields?.customerIdEbao ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, "customerIdEbao")}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <Dropdown
-                        label={t("family_member_type")}
-                        options={familyMemTyp}
-                        value={fields?.familyMemberType ?? ""}
-                        onChange={(e: any) => handleFieldChange(e.target.value, "familyMemberType")}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        label={t("insured_title")}
-                        variant="standard"
-                        value={fields?.insuredTitle ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, "insuredTitle")}
-                      />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        variant="standard"
-                        label={t("insured_first_name")}
-                        value={fields?.insuredFirstName ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, "insuredFirstName")}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        size="small"
-                        variant="standard"
-                        label={t("insured_surname")}
-                        value={fields?.insuredSurName ?? ""}
-                        onChange={(e) => handleFieldChange(e.target.value, "insuredSurName")}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateField
-                          slotProps={{ textField: { size: "small" } }}
-                          name="date"
-                          readOnly
-                          label={t("insured_date_of_birth")}
-                          value={fields?.insuredDateOfBirth ? dayjs(fields.insuredDateOfBirth) : null}
-                          onChange={(e) => handleDateChange(e as dayjs.Dayjs | null, "insuredDateOfBirth")}
-                        />
-                      </LocalizationProvider>
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField value={fields?.insuredAge ?? ""} label={t("insured_age")} variant="standard" InputProps={{ readOnly: true }} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField value={fields?.insuredGender ?? ""} label={t("insured_gender")} variant="standard" InputProps={{ readOnly: true }} />
-                    </TableCell>
-
-                    <TableCell>
-                      <Dropdown
-                        label={t("insured_marital_status")}
-                        options={marriageStatus}
-                        value={fields?.insuredMritalStatus ?? ""}
-                        onChange={(e: any) => handleFieldChange(e.target.value, "insuredMritalStatus")}
-                      />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Policy Owner is the insured person of this policy " />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Registered Address */}
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">{t("insured_address")}</Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table className="table-main" aria-label="simple table">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_number")} size="small" variant="standard" value={fields?.regAddrNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrNum")} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_villa/building")} size="small" variant="standard" value={fields?.regAddrVilla ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrVilla")} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_moo_number")} size="small" variant="standard" value={fields?.regAddrMooNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrMooNum")} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_alleyway/soi")} size="small" variant="standard" value={fields?.regAddrAlley ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrAlley")} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_street")} size="small" variant="standard" value={fields?.regAddrStrNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrStrNum")} />
-                    </TableCell>
-                    <TableCell>
-                      <Dropdown label="Province" options={states} value={fields?.insuredProvince ?? ""} onChange={(e: any) => handleFieldChange(e.target.value, "insuredProvince")} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <Dropdown label="District" options={districts} value={fields?.insuredDistrict ?? ""} onChange={(e: any) => handleFieldChange(e.target.value, "insuredDistrict")} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="outlined-basic" label={t("registered_address_sub_district")} size="small" variant="standard" value={fields?.regAddrSubDist ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrSubDist")} />
-                    </TableCell>
-                    <TableCell>
-                      <TextField id="standard-basic" label={t("registered_address_zip_code")} size="small" variant="standard" value={fields?.regAddrZipCode ?? ""} onChange={(e) => handleFieldChange(e.target.value, "regAddrZipCode")} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField id="outlined-basic" size="small" label={t("registered_full_address")} multiline value={fields?.regFullAddr ?? ""} variant="standard" onChange={(e) => handleFieldChange(e.target.value, "regFullAddr")} />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Workplace address */}
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">{t("insured_address_workplace")}</Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table className="table-main" aria-label="simple table">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>{t("same_as_the_registered_address")}</TableCell>
-                    <TableCell colSpan={2}>
-                      <ToggleButtonGroup
-                        color="primary"
-                        value={fields?.workplaceAddressOptn ?? ""}
-                        exclusive
-                        fullWidth
-                        onChange={(event: any) => handleButtonChange(event, "workplaceAddressOptn")}
-                        aria-label="Platform"
-                      >
-                        <ToggleButton value="Yes">Yes</ToggleButton>
-                        <ToggleButton value="No">No</ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>
-                      <TextField id="standard-basic" label={t("working_company_name")} size="small" variant="standard" value={fields?.workCompanyName ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workCompanyName")} />
-                    </TableCell>
-                  </TableRow>
-
-                  {fields?.workplaceAddressOptn === "No" && (
-                    <>
-                      <TableRow>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_number")} size="small" variant="standard" value={fields?.workAddrNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrNum")} />
-                        </TableCell>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_villa/building")} size="small" variant="standard" value={fields?.workAddrVilla ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrVilla")} />
-                        </TableCell>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_moo_number")} size="small" variant="standard" value={fields?.workAddrMooNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrMooNum")} />
-                        </TableCell>
-                      </TableRow>
-
-                      <TableRow>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_alleyway/soi")} size="small" variant="standard" value={fields?.workAddrAlley ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrAlley")} />
-                        </TableCell>
-                        <TableCell>
-                          <TextField id="outlined-basic" size="small" label={t("workplace_address_street")} variant="standard" value={fields?.workAddrStrNum ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrStrNum")} />
-                        </TableCell>
-                        <TableCell>
-                          <Dropdown label={t("workplace_address_province")} options={states} value={fields?.insuredWorkProvince ?? ""} onChange={(e: any) => handleFieldChange(e.target.value, "insuredWorkProvince")} />
-                        </TableCell>
-                      </TableRow>
-
-                      <TableRow>
-                        <TableCell>
-                          <Dropdown label={t("workplace_address_district")} options={districts} value={fields?.insuredWorkDistrict ?? ""} onChange={(e: any) => handleFieldChange(e.target.value, "insuredWorkDistrict")} />
-                        </TableCell>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_sub_district")} size="small" variant="standard" value={fields?.workAddrSubDist ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrSubDist")} />
-                        </TableCell>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_address_zip_code")} size="small" variant="standard" value={fields?.workAddrZipCode ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workAddrZipCode")} />
-                        </TableCell>
-                      </TableRow>
-
-                      <TableRow>
-                        <TableCell>
-                          <TextField id="outlined-basic" label={t("workplace_full_address")} size="small" multiline value={fields?.workFullAddress ?? ""} onChange={(e) => handleFieldChange(e.target.value, "workFullAddress")} variant="standard" />
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Contact / phone / email */}
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">{t("insured_contact_number")}</Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table className="table-main" aria-label="simple table">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("primary_number")} value={fields?.primaryNumber ?? ""} onChange={(e) => handlePhoneNumberChange(e.target.value, "primaryNumber")} error={Boolean(priErr)} helperText={priErr} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("home_number")} value={fields?.homeNumber ?? ""} onChange={(e) => handlePhoneNumberChange(e.target.value, "homeNumber")} error={Boolean(homeErr)} helperText={homeErr} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("workplace_phone_number")} value={fields?.workPhoneNumber ?? ""} onChange={(e) => handlePhoneNumberChange(e.target.value, "workPhoneNumber")} error={Boolean(workErr)} helperText={workErr} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("insured_email_address")} value={fields?.emailAddress ?? ""} onChange={(e) => handleEmailChange(e.target.value, "emailAddress")} error={Boolean(error)} helperText={error} />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-
-      {/* Occupation */}
-      <Paper elevation={3} sx={{ margin: 2 }}>
-        <Box sx={{ padding: 2 }}>
-          <Typography className="typography-main-header">{t("insured_occupation")}</Typography>
-          <Divider />
-          <Box sx={{ marginTop: 2 }}>
-            <TableContainer>
-              <Table sx={{ [`& .${tableCellClasses.root}`]: { borderBottom: "none" } }} aria-label="simple table">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <Dropdown label={t("occupation_code")} options={occupationCode1} value={fields?.occupationCode ?? ""} onChange={(e: any) => handleFieldChange(e.target.value, "occupationCode")} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("position_held")} value={fields?.positionHeld ?? ""} onChange={(e) => handleFieldChange(e.target.value, "positionHeld")} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("occupation_detail")} value={fields?.occupationDetail ?? ""} onChange={(e) => handleFieldChange(e.target.value, "occupationDetail")} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("business_detail")} value={fields?.businessDetail ?? ""} onChange={(e) => handleFieldChange(e.target.value, "businessDetail")} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("annual_income")} type="number" value={fields?.annualIncome ?? ""} onChange={(e) => handleFieldChange(e.target.value, "annualIncome")} />
-                    </TableCell>
-
-                    <TableCell>
-                      <TextField variant="standard" size="small" label={t("other_occupations")} multiline value={fields?.otherOccupation ?? ""} onChange={(e) => handleFieldChange(e.target.value, "otherOccupation")} />
-                    </TableCell>
-                  </TableRow>
-
-                  <TableRow>
-                    <TableCell sx={{ whiteSpace: "normal", wordWrap: "break-word" }}>{t("do_you_use_the_motorcycle_in_your_occupation")}</TableCell>
-                    <TableCell>
-                      <ToggleButtonGroup color="primary" value={fields?.motorcycleOptn ?? ""} exclusive fullWidth size="small" onChange={(event: any) => handleButtonChange(event, "motorcycleOptn")} aria-label="Platform">
-                        <ToggleButton value="Yes">Yes</ToggleButton>
-                        <ToggleButton value="No">No</ToggleButton>
-                      </ToggleButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Paper>
-    </Box>
-  );
-};
-
-export default LifeAssuredDetail;
-
-/**
- * Helper utilities exported so PlanAndCoverage (or other modules) can build the exact API input map.
- */
-
-type LifeFields = any;
-
-/** convert YES/No/true/false/empty -> "Y"/"N" */
-const yesNoToYN = (val?: string | null) => {
-  if (val === undefined || val === null) return "N";
-  const v = val.toString().trim().toLowerCase();
-  if (v === "y" || v === "yes" || v === "true" || v === "yep") return "Y";
-  return "N";
-};
-
-/** parse "75%" or "0.75" or "75" -> decimal 0.75 (number) */
-const parseExtraMortality = (val?: string | null) => {
-  if (!val) return 0;
-  const s = val.toString().trim();
-  if (s.endsWith("%")) {
-    const num = parseFloat(s.replace("%", ""));
-    if (isNaN(num)) return 0;
-    return +(num / 100);
-  }
-  const n = parseFloat(s);
-  if (isNaN(n)) return 0;
-  if (n > 0 && n <= 1) return n;
-  if (n > 1) return +(n / 100);
-  return 0;
-};
-
-export const mapLifeAssuredToInputs = (fields: LifeFields) => {
-  const dob =
-    fields?.insuredDateOfBirth && typeof fields.insuredDateOfBirth !== "string"
-      ? dayjs(fields.insuredDateOfBirth).format("YYYY-MM-DD")
-      : (fields?.insuredDateOfBirth as string) || "";
-
-  return {
-    _1a_DOB: dob,
-    _1c_Gender: fields?.insuredGender || "",
-    _1e_Occupation: fields?.occupationCode ? Number(fields.occupationCode) : 0,
-    _1i_Smoker: yesNoToYN(fields?.Smoker || null),
-    _1j_Pre_Existing_Disease: yesNoToYN(fields?.Pre_Existing_Disease || null),
-    _1k_Extra_mortality: parseExtraMortality(fields?.Extra_mortality || null),
-    insuredFirstName: fields?.insuredFirstName || "",
-    insuredSurName: fields?.insuredSurName || "",
-    insuredAge: fields?.insuredAge || "",
-    insuredNationality: fields?.insuredNationality || "",
-    insuredTitle: fields?.insuredTitle || "",
-    insuredIdNumber: fields?.insuredIdNumber || "",
-    insuredIdExpiryDate:
-      fields?.insuredIdExpiryDate && typeof fields.insuredIdExpiryDate !== "string"
-        ? dayjs(fields.insuredIdExpiryDate).format("YYYY-MM-DD")
-        : (fields?.insuredIdExpiryDate as string) || "",
-    primaryNumber: fields?.primaryNumber || "",
-    emailAddress: fields?.emailAddress || "",
-    occupationCode: fields?.occupationCode || "",
-    positionHeld: fields?.positionHeld || "",
-    occupationDetail: fields?.occupationDetail || "",
-    businessDetail: fields?.businessDetail || "",
-    annualIncome: fields?.annualIncome || "",
-    otherOccupation: fields?.otherOccupation || "",
-    regAddrNum: fields?.regAddrNum || "",
-    regAddrVilla: fields?.regAddrVilla || "",
-    regAddrMooNum: fields?.regAddrMooNum || "",
-    regAddrAlley: fields?.regAddrAlley || "",
-    regAddrStrNum: fields?.regAddrStrNum || "",
-    regAddrSubDist: fields?.regAddrSubDist || "",
-    regAddrZipCode: fields?.regAddrZipCode || "",
-    regFullAddr: fields?.regFullAddr || "",
-  };
-};
-
-काम संपलंय — ह्या फाइलने insCurAddrVilla is not defined ची त्रुटी निघून जावी. तु फाइल ओव्हरराइट करून browser मध्ये reload कर आणि एरर बघ. अजून काही undefined आढळले तर मला error stack काढून पाठव — मी लगेच fix करेन.
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/api/transaction-detail/getDistinctTransaction?id=new:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/api/transaction-detail/getDistinctTransaction?id=new:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getStates?country=India:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/api/transaction-detail/getTxn?id=new:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/api/transaction-detail/getTxn?id=new:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=2:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute:1  Failed to load resource: the server responded with a status of 401 ()Understand this error
+PlanAndCoverage.tsx:271 Premium calc error: AxiosError
+handleGetPremium @ PlanAndCoverage.tsx:271Understand this error
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getStates?country=India:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getStates?country=India:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=2:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getMaritalStatus:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getFamilyMemberType:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getOccupationCode:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getEvidenceProof:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getCoutries:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getStates?country=India:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/dropdown/getStates?country=India:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=2:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+DropdownApi.tsx:47  GET http://localhost:8001/eapp/dropdown/getFamilyMemberType 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getFamilyMemberType @ DropdownApi.tsx:47
+(anonymous) @ LifeAssuredDetails.tsx:104
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:32  GET http://localhost:8001/eapp/dropdown/getEvidenceProof 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getEvidenceProof @ DropdownApi.tsx:32
+(anonymous) @ LifeAssuredDetails.tsx:128
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:37  GET http://localhost:8001/eapp/dropdown/getOccupationCode 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getOccupationCode @ DropdownApi.tsx:37
+(anonymous) @ LifeAssuredDetails.tsx:120
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:42  GET http://localhost:8001/eapp/dropdown/getMaritalStatus 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getMaritalStatus @ DropdownApi.tsx:42
+(anonymous) @ LifeAssuredDetails.tsx:112
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:7  GET http://localhost:8001/eapp/dropdown/getCoutries 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getCoutries @ DropdownApi.tsx:7
+(anonymous) @ LifeAssuredDetails.tsx:136
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:37  GET http://localhost:8001/eapp/dropdown/getOccupationCode 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getOccupationCode @ DropdownApi.tsx:37
+(anonymous) @ LifeAssuredDetails.tsx:120
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:47  GET http://localhost:8001/eapp/dropdown/getFamilyMemberType 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getFamilyMemberType @ DropdownApi.tsx:47
+(anonymous) @ LifeAssuredDetails.tsx:104
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:42  GET http://localhost:8001/eapp/dropdown/getMaritalStatus 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getMaritalStatus @ DropdownApi.tsx:42
+(anonymous) @ LifeAssuredDetails.tsx:112
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:32  GET http://localhost:8001/eapp/dropdown/getEvidenceProof 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getEvidenceProof @ DropdownApi.tsx:32
+(anonymous) @ LifeAssuredDetails.tsx:128
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:12  GET http://localhost:8001/eapp/dropdown/getStates?country=India 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getState @ DropdownApi.tsx:12
+(anonymous) @ LifeAssuredDetails.tsx:193
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:7  GET http://localhost:8001/eapp/dropdown/getCoutries 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+getCoutries @ DropdownApi.tsx:7
+(anonymous) @ LifeAssuredDetails.tsx:136
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+invokePassiveEffectMountInDEV @ chunk-OQJUKZWL.js?v=0b933210:18320
+invokeEffectsInDev @ chunk-OQJUKZWL.js?v=0b933210:19697
+commitDoubleInvokeEffectsInDEV @ chunk-OQJUKZWL.js?v=0b933210:19682
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19499
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+BasicTabs.tsx:450  GET http://localhost:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=new&screenNo=1 403 (Forbidden)
+dispatchXhrRequest @ axios.js?v=0b933210:1513
+xhr @ axios.js?v=0b933210:1373
+dispatchRequest @ axios.js?v=0b933210:1590
+Promise.then
+_request @ axios.js?v=0b933210:1854
+request @ axios.js?v=0b933210:1776
+Axios.<computed> @ axios.js?v=0b933210:1891
+wrap @ axios.js?v=0b933210:8
+(anonymous) @ BasicTabs.tsx:450
+commitHookEffectListMount @ chunk-OQJUKZWL.js?v=0b933210:16904
+commitPassiveMountOnFiber @ chunk-OQJUKZWL.js?v=0b933210:18152
+commitPassiveMountEffects_complete @ chunk-OQJUKZWL.js?v=0b933210:18125
+commitPassiveMountEffects_begin @ chunk-OQJUKZWL.js?v=0b933210:18115
+commitPassiveMountEffects @ chunk-OQJUKZWL.js?v=0b933210:18105
+flushPassiveEffectsImpl @ chunk-OQJUKZWL.js?v=0b933210:19486
+flushPassiveEffects @ chunk-OQJUKZWL.js?v=0b933210:19443
+commitRootImpl @ chunk-OQJUKZWL.js?v=0b933210:19412
+commitRoot @ chunk-OQJUKZWL.js?v=0b933210:19273
+performSyncWorkOnRoot @ chunk-OQJUKZWL.js?v=0b933210:18891
+flushSyncCallbacks @ chunk-OQJUKZWL.js?v=0b933210:9135
+(anonymous) @ chunk-OQJUKZWL.js?v=0b933210:18623Understand this error
+DropdownApi.tsx:12  GET http://localhost:8001/eapp/dropdown/getStates?country=India 403 (Forbidden)
