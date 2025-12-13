@@ -1,12 +1,5 @@
 
-ठीक आहे! मी तुझ्या PlanAndCoverage.tsx component चे पूर्ण working version तयार करून देतो, ज्यात:
-
-Main Plan, Riders, Optional Benefits
-
-API call URL + Token ready
-
-State handling आणि field updates
-
+ठीक आहे! मी तुझ्यासाठी पूर्ण PlanAndCoverage component` code देतो, कुठलाही field remove न करता, clean आणि ready-to-use.
 
 import {
   Box,
@@ -28,14 +21,65 @@ import {
   MenuItem,
   SelectChangeEvent,
 } from "@mui/material";
-
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/axiosInterceptor";
 
 interface ChildComponentProps {
-  fields: any;
-  setFields: React.Dispatch<React.SetStateAction<any>>;
+  fields: {
+    basicPlan: string;
+    basicSumInsured: string;
+    basicPlanPremium: string;
+    typeOfDivident: string;
+    insuranceTerm: string;
+    ppt: string;
+    Product: string;
+    Policy_Inception_Date: string;
+    Smoker: string;
+    Pre_Existing_Disease: string;
+    Extra_mortality: string;
+    Policy_Term: string;
+    Mandatory_Premium_Period: string;
+    PAV: string;
+    per_mille_rating_death: string;
+    per_mille_rating_TPD: string;
+    per_mille_rating_SCI: string;
+    Death_Benefit: string;
+    Total_and_Permanent_Disability_TPD: string;
+    Accidental_Death_and_Dismemberment_ADD: string;
+    Staged_Critical_Illness_SCI: string;
+    _2e_Hospital_Cash_Benefit_HCB: string;
+    Partial_Withdrawl: string;
+    Partial_Withdrawl_Amount: string;
+  };
+  setFields: React.Dispatch<
+    React.SetStateAction<{
+      basicPlan: string;
+      basicSumInsured: string;
+      basicPlanPremium: string;
+      typeOfDivident: string;
+      insuranceTerm: string;
+      ppt: string;
+      Product: string;
+      Policy_Inception_Date: string;
+      Smoker: string;
+      Pre_Existing_Disease: string;
+      Extra_mortality: string;
+      Policy_Term: string;
+      Mandatory_Premium_Period: string;
+      PAV: string;
+      per_mille_rating_death: string;
+      per_mille_rating_TPD: string;
+      per_mille_rating_SCI: string;
+      Death_Benefit: string;
+      Total_and_Permanent_Disability_TPD: string;
+      Accidental_Death_and_Dismemberment_ADD: string;
+      Staged_Critical_Illness_SCI: string;
+      _2e_Hospital_Cash_Benefit_HCB: string;
+      Partial_Withdrawl: string;
+      Partial_Withdrawl_Amount: string;
+    }>
+  >;
   savedQuotation: any;
   savedTransaction: any;
   lifeAssuredDetails: {
@@ -45,20 +89,11 @@ interface ChildComponentProps {
   };
 }
 
-const MAIN_PLANS = [
-  "Term Insurance",
-  "Whole Life Insurance",
-  "Universal Life Insurance",
-  "Endowment Plan",
-];
-
+const MAIN_PLANS = ["Term Insurance", "Whole Life Insurance", "Universal Life Insurance", "Endowment Plan"];
 const RIDERS = ["ADD", "CI", "TPD", "HCB", "DB"];
 const YES_NO = ["Yes", "No"];
 const PRODUCT_OPTIONS = ["a", "b"];
-const EXTRA_MORTALITY_OPTIONS = [
-  "5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%",
-  "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"
-];
+const EXTRA_MORTALITY_OPTIONS = ["5%", "10%", "15%", "20%", "25%", "30%", "35%", "40%", "45%", "50%", "55%", "60%", "65%", "70%", "75%", "80%", "85%", "90%", "95%", "100%"];
 
 const camelToNormal = (text: string) => {
   return text.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
@@ -112,25 +147,25 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
       "Term Insurance": 0.002,
       "Whole Life Insurance": 0.015,
       "Universal Life Insurance": 0.012,
-      "Endowment Plan": 0.025
+      "Endowment Plan": 0.025,
     };
     return Math.round(sumInsured * (baseRate[planType as keyof typeof baseRate] || 0.01));
   };
 
   const handleRiderChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value;
-    const newSelectedRiders = typeof value === 'string' ? value.split(',') : value;
+    const newSelectedRiders = typeof value === "string" ? value.split(",") : value;
     setSelectedRiders(newSelectedRiders);
 
     const riderToFieldMap: { [key: string]: string } = {
-      "DB": "Death_Benefit",
-      "TPD": "Total_and_Permanent_Disability_TPD",
-      "ADD": "Accidental_Death_and_Dismemberment_ADD",
-      "CI": "Staged_Critical_Illness_SCI",
-      "HCB": "_2e_Hospital_Cash_Benefit_HCB"
+      DB: "Death_Benefit",
+      TPD: "Total_and_Permanent_Disability_TPD",
+      ADD: "Accidental_Death_and_Dismemberment_ADD",
+      CI: "Staged_Critical_Illness_SCI",
+      HCB: "_2e_Hospital_Cash_Benefit_HCB",
     };
 
-    newSelectedRiders.forEach(rider => {
+    newSelectedRiders.forEach((rider) => {
       const field = riderToFieldMap[rider];
       if (field) handleFieldChange("Yes", field);
     });
@@ -166,11 +201,10 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
       };
 
       const requestData = { request_data: { inputs: mappedData } };
-
       console.log("Request data:", requestData);
 
       const response = await apiClient.post(
-        "folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute",
+        "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute",
         requestData
       );
 
@@ -182,45 +216,40 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
 
   useEffect(() => {
     if (savedTransaction && savedTransaction.length > 0) {
-      const baseSA = savedTransaction[0]?.txn_input_json?.Base_SA;
-      const plan = savedTransaction[0]?.txn_input_json?.Plan;
-      const term = savedTransaction[0]?.txn_input_json["SSPP.Policy_Term"];
-      const ppt = savedTransaction[0]?.txn_input_json?.PPT;
+      const txn = savedTransaction[0]?.txn_input_json;
+      const txnOut = savedTransaction[0]?.txn_output_json?.outputs;
 
-      setFields((prevFields) => ({
-        ...prevFields,
-        basicPlanPremium: savedTransaction[0]?.txn_output_json?.outputs?.PremiumSummary?.[1]?.basePlan,
-        basicSumInsured: baseSA || '200000',
-        basicPlan: plan,
-        insuranceTerm: term,
-        ppt: ppt,
+      setFields((prev) => ({
+        ...prev,
+        basicPlanPremium: txnOut?.PremiumSummary?.[1]?.basePlan,
+        basicSumInsured: txn?.Base_SA || "200000",
+        basicPlan: txn?.Plan,
+        insuranceTerm: txn?.["SSPP.Policy_Term"],
+        ppt: txn?.PPT,
         typeOfDivident: "Non - Participatory",
-        Product: '',
-        DOB: '',
-        Gender: '',
-        Occupation: '',
-        Policy_Inception_Date: new Date().toISOString().split('T')[0],
-        Smoker: 'No',
-        Pre_Existing_Disease: 'Yes',
-        Extra_mortality: '75%',
-        Policy_Term: '45',
-        Mandatory_Premium_Period: 'ErrName',
-        PAV: '0',
-        per_mille_rating_death: '1',
-        per_mille_rating_TPD: '1',
-        per_mille_rating_SCI: '1',
-        Death_Benefit: 'No',
-        Total_and_Permanent_Disability_TPD: 'No',
-        Accidental_Death_and_Dismemberment_ADD: 'No',
-        Staged_Critical_Illness_SCI: 'No',
-        _2e_Hospital_Cash_Benefit_HCB: 'No',
-        Partial_Withdrawl: 'Yes',
-        Partial_Withdrawl_Amount: '5000',
+        Product: "",
+        Policy_Inception_Date: new Date().toISOString().split("T")[0],
+        Smoker: "No",
+        Pre_Existing_Disease: "Yes",
+        Extra_mortality: "75%",
+        Policy_Term: "45",
+        Mandatory_Premium_Period: "ErrName",
+        PAV: "0",
+        per_mille_rating_death: "1",
+        per_mille_rating_TPD: "1",
+        per_mille_rating_SCI: "1",
+        Death_Benefit: "No",
+        Total_and_Permanent_Disability_TPD: "No",
+        Accidental_Death_and_Dismemberment_ADD: "No",
+        Staged_Critical_Illness_SCI: "No",
+        _2e_Hospital_Cash_Benefit_HCB: "No",
+        Partial_Withdrawl: "Yes",
+        Partial_Withdrawl_Amount: "5000",
       }));
     }
   }, [savedTransaction]);
 
-  if (savedTransaction && typeof savedTransaction === "object" && Object.keys(savedTransaction).length !== 0) {
+  if (savedTransaction && Object.keys(savedTransaction).length !== 0) {
     jsonData = savedTransaction[0]?.txn_output_json?.outputs?.RiderDetails;
     if (jsonData?.length) headers = Object.keys(jsonData[0]);
 
@@ -236,27 +265,21 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         <Divider />
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, marginTop: 2 }}>
           <Typography>{t("quotation_summary")}&emsp;</Typography>
-          {savedQuotation?.txn_pdf && (
-            <Link
-              underline="always"
-              color="inherit"
-              sx={{ color: "#000048" }}
-              onClick={() => {
-                const file = new Blob(
-                  [Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))],
-                  { type: "application/pdf" }
-                );
-                const fileURL = URL.createObjectURL(file);
-                window.open(fileURL);
-              }}
-            >
-              Download Link to Quotation
-            </Link>
-          )}
+          <Link
+            underline="always"
+            color="inherit"
+            sx={{ color: "#000048" }}
+            onClick={() => {
+              const file = new Blob([Uint8Array.from(atob(savedQuotation.txn_pdf), (c) => c.charCodeAt(0))], { type: "application/pdf" });
+              window.open(URL.createObjectURL(file));
+            }}
+          >
+            Download Link to Quotation
+          </Link>
         </Box>
       </Paper>
 
-      {/* Main Plan */}
+      {/* Main Plan Table */}
       <Paper elevation={3} sx={{ marginBottom: 2, padding: 2 }}>
         <Typography className="typography-main-header">{t("main_plan")}</Typography>
         <Divider />
@@ -282,27 +305,24 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
                         size="small"
                         label={t(field)}
                         variant="standard"
-                        InputProps={{ readOnly: !["basicPlanPremium","typeOfDivident","insuranceTerm","ppt"].includes(field) }}
-                        value={fields[field]}
+                        InputProps={{ readOnly: ["basicPlanPremium","typeOfDivident","insuranceTerm","ppt"].includes(field) }}
+                        value={fields[field as keyof typeof fields]}
                         onChange={(e) => handleFieldChange(e.target.value, field)}
                       />
                     </TableCell>
                   ))}
 
+                  {/* Product */}
                   <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
                     <FormControl variant="standard" size="small" fullWidth>
                       <InputLabel>Product</InputLabel>
-                      <Select
-                        value={fields.Product}
-                        onChange={(e) => handleFieldChange(e.target.value, "Product")}
-                      >
-                        {PRODUCT_OPTIONS.map((option) => (
-                          <MenuItem key={option} value={option}>{option}</MenuItem>
-                        ))}
+                      <Select value={fields.Product} onChange={(e)=>handleFieldChange(e.target.value,"Product")}>
+                        {PRODUCT_OPTIONS.map((option)=>(<MenuItem key={option} value={option}>{option}</MenuItem>))}
                       </Select>
                     </FormControl>
                   </TableCell>
 
+                  {/* Policy Inception Date */}
                   <TableCell sx={{ flex: "1 1 30%", minWidth: "120px" }}>
                     <TextField
                       size="small"
@@ -313,6 +333,34 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
                       onChange={(e) => handleFieldChange(e.target.value, "Policy_Inception_Date")}
                     />
                   </TableCell>
+
+                  {/* Smoker, Pre-Existing Disease, Extra Mortality */}
+                  {[
+                    { key: "Smoker", options: YES_NO },
+                    { key: "Pre_Existing_Disease", options: YES_NO },
+                    { key: "Extra_mortality", options: EXTRA_MORTALITY_OPTIONS }
+                  ].map(({key, options}) => (
+                    <TableCell key={key} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                      <FormControl variant="standard" size="small" fullWidth>
+                        <InputLabel>{key}</InputLabel>
+                        <Select value={fields[key as keyof typeof fields]} onChange={(e)=>handleFieldChange(e.target.value,key)}>
+                          {options.map(opt=><MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                  ))}
+
+                  {["Policy_Term","Mandatory_Premium_Period"].map(field=>(
+                    <TableCell key={field} sx={{ flex: "1 1 30%", minWidth: "120px" }}>
+                      <TextField
+                        size="small"
+                        label={field}
+                        variant="standard"
+                        value={fields[field as keyof typeof fields]}
+                        onChange={(e)=>handleFieldChange(e.target.value,field)}
+                      />
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableBody>
             </Table>
@@ -327,101 +375,175 @@ const PlanAndCoverage: React.FC<ChildComponentProps> = ({
         <Box sx={{ marginTop: 2 }}>
           <FormControl variant="standard" size="small" sx={{ minWidth: 200, marginBottom: 2 }}>
             <InputLabel>Select Riders</InputLabel>
-            <Select
-              multiple
-              value={selectedRiders}
-              onChange={handleRiderChange}
-              renderValue={(selected) => selected.join(", ")}
-            >
-              {RIDERS.map((rider) => (
-                <MenuItem key={rider} value={rider}>{rider}</MenuItem>
-              ))}
+            <Select multiple value={selectedRiders} onChange={handleRiderChange} renderValue={(selected)=>selected.join(", ")}>
+              {RIDERS.map(rider=><MenuItem key={rider} value={rider}>{rider}</MenuItem>)}
             </Select>
           </FormControl>
 
-          <Box sx={{ marginTop: 2 }}>
-            <Typography variant="h6" sx={{ marginBottom: 1 }}>Benefits</Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-              {[
-                { key: "Death_Benefit", label: "Death Benefit" },
-                { key: "Total_and_Permanent_Disability_TPD", label: "Total and Permanent Disability TPD" },
-                { key: "Accidental_Death_and_Dismemberment_ADD", label: "Accidental Death and Dismemberment ADD" },
-                { key: "Staged_Critical_Illness_SCI", label: "Staged Critical Illness SCI" },
-                { key: "_2e_Hospital_Cash_Benefit_HCB", label: "Hospital Cash Benefit HCB" },
-              ].map(({ key, label }) => (
-                <FormControl key={key} variant="standard" size="small" sx={{ marginRight: 2, marginBottom: 1, minWidth: 200 }}>
-                  <InputLabel>{label}</InputLabel>
-                  <Select
-                    value={fields[key]}
-                    onChange={(e) => handleFieldChange(e.target.value, key)}
-                  >
-                    {YES_NO.map((option) => (
-                      <MenuItem key={option} value={option}>{option}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ))}
-            </Box>
+          <Box sx={{ display:"flex", flexWrap:"wrap" }}>
+            {[
+              { key: "Death_Benefit", label: "Death Benefit" },
+              { key: "Total_and_Permanent_Disability_TPD", label: "Total and Permanent Disability TPD" },
+              { key: "Accidental_Death_and_Dismemberment_ADD", label: "Accidental Death and Dismemberment ADD" },
+              { key: "Staged_Critical_Illness_SCI", label: "Staged Critical Illness SCI" },
+              { key: "_2e_Hospital_Cash_Benefit_HCB", label: "Hospital Cash Benefit HCB" }
+            ].map(({key,label})=>(
+              <FormControl key={key} variant="standard" size="small" sx={{ marginRight:2, marginBottom:1, minWidth:200 }}>
+                <InputLabel>{label}</InputLabel>
+                <Select value={fields[key as keyof typeof fields]} onChange={e=>handleFieldChange(e.target.value,key)}>
+                  {YES_NO.map(opt=><MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                </Select>
+              </FormControl>
+            ))}
           </Box>
+
+          {/* Rider Table */}
+          {jsonData && (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>{headers?.map(h=><TableCell key={h}>{camelToNormal(h)}</TableCell>)}</TableRow>
+                </TableHead>
+                <TableBody>
+                  {jsonData?.map((row:any,rowIndex:number)=>(
+                    <TableRow key={rowIndex}>{headers?.map(h=><TableCell key={h}>{row[h]}</TableCell>)}</TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Box>
       </Paper>
 
-      {/* Calculate Button */}
-      <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={handleCalculatePremium}
-          sx={{
-            minWidth: 200,
-            padding: "12px 24px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            "&:hover": { boxShadow: "0 6px 8px rgba(0,0,0,0.15)" },
-          }}
-        >
-          Calculate Premium
-        </Button>
-      </Box>
-    </Box>
-  );
-};
 
-export default PlanAndCoverage;
+
+
+
+
+
+
+
+      {/* Calculate Premium Button */}
+      <Box sx={{ display:"flex", justifyContent:"center", marginBottom:2 }}>
+        <Button variant="contained" color="primary" size="large" onClick={handleCalculatePremium} sx={{ minWidth:200, padding:"12px 24px", fontSize:"16px", fontWeight:"bold", textTransform:"none", borderRadius:"8px" }}>
+          Calculate Premium
+
+
+
+
+ठीक आहे! तुझ्या PlanAndCoverage component मधून API call करण्यासाठी मी आधीच handleCalculatePremium function दिला आहे. आता मी step-by-step सांगतो कसा call करायचा:
 
 
 ---
 
-✅ Important Notes:
+1️⃣ API Call Function (handleCalculatePremium)
 
-1. apiClient.ts मध्ये Token ठेवा:
+const handleCalculatePremium = async () => {
+  try {
+    const mappedData = {
+      DOB: lifeAssuredDetails.DOB,
+      Gender: lifeAssuredDetails.Gender,
+      Occupation: lifeAssuredDetails.Occupation,
+      Base_SA: fields.basicSumInsured,
+      Plan: fields.basicPlan,
+      PPT: fields.ppt,
+      Product: fields.Product,
+      Policy_Inception_Date: fields.Policy_Inception_Date,
+      Smoker: fields.Smoker === "Yes" ? "Y" : "N",
+      Pre_Existing_Disease: fields.Pre_Existing_Disease,
+      Extra_mortality: fields.Extra_mortality,
+      "SSPP.Policy_Term": fields.Policy_Term,
+      Mandatory_Premium_Period: fields.Mandatory_Premium_Period,
+      PAV: fields.PAV,
+      per_mille_rating_death: fields.per_mille_rating_death,
+      per_mille_rating_TPD: fields.per_mille_rating_TPD,
+      per_mille_rating_SCI: fields.per_mille_rating_SCI,
+      Death_Benefit: fields.Death_Benefit,
+      Total_and_Permanent_Disability_TPD: fields.Total_and_Permanent_Disability_TPD,
+      Accidental_Death_and_Dismemberment_ADD: fields.Accidental_Death_and_Dismemberment_ADD,
+      Staged_Critical_Illness_SCI: fields.Staged_Critical_Illness_SCI,
+      _2e_Hospital_Cash_Benefit_HCB: fields._2e_Hospital_Cash_Benefit_HCB,
+      Partial_Withdrawl: fields.Partial_Withdrawl,
+      Partial_Withdrawl_Amount: fields.Partial_Withdrawl_Amount,
+    };
+
+    const requestData = { request_data: { inputs: mappedData } };
+
+    const response = await apiClient.post(
+      "https://excel.uat.us.coherent.global/cognizant/api/v3/folders/Sanjana_Test/services/Universal-Life-product-TestPrd/execute",
+      requestData
+    );
+
+    console.log("API Response:", response.data);
+  } catch (error) {
+    console.error("Error calculating premium:", error);
+  }
+};
 
 
+---
+
+2️⃣ Call करण्यासाठी बटण
+
+तुझ्या component मध्ये हा बटण आधीच आहे:
+
+<Button
+  variant="contained"
+  color="primary"
+  size="large"
+  onClick={handleCalculatePremium}
+>
+  Calculate Premium
+</Button>
+
+म्हणजे UI वर button click करताच handleCalculatePremium call होईल.
+
+console.log मध्ये API response दिसेल.
+
+
+
+---
+
+3️⃣ Token कुठे द्यायचा
+
+तू apiClient वापरतोयस, तर Axios interceptor मध्ये Authorization header add करायची:
 
 import axios from "axios";
 
-const token = "YOUR_API_TOKEN_HERE"; // API token
 export const apiClient = axios.create({
-  baseURL: "https://excel.uat.us.coherent.global/cognizant/api/v3/",
-  headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+  baseURL: "https://excel.uat.us.coherent.global/cognizant/api/v3",
+  headers: {
+    Authorization: `Bearer YOUR_TOKEN_HERE`,
+    "Content-Type": "application/json",
+  },
 });
 
-2. Request data map fields पासून तयार केले आहेत.
+YOUR_TOKEN_HERE तुझा API token आहे.
+
+एकदा interceptor setup झाला की, प्रत्येक call automatically token घेईल.
 
 
-3. handleCalculatePremium function click वर API call करेल.
+
+---
+
+💡 Summary:
+
+1. handleCalculatePremium मध्ये API call तयार आहे.
 
 
-4. Main Plan, Riders, Benefits सर्व UI मध्ये handle केले आहेत.
+2. Button click → function call → response console मध्ये.
+
+
+3. Token apiClient मध्ये headers मध्ये add करा.
 
 
 
 
 ---
 
-जर हवं असेल तर मी Optional Benefits table + RiderDetails table पण fully integrate करून देऊ शकतो.
-तुम्हाला तो version हवे का?
+जर तू हवे तर मी तुझ्यासाठी Axios interceptor + call ready-to-use code तयार करतो, जे लगेच काम करेल.
+तुला मी ते तयार करून देऊ का?
+
+
+
+
