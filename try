@@ -1,37 +1,3 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Paper, Typography } from '@mui/material';
-import PolicyList from './PolicyList';
-import UnderwritingDetails from './UnderwritingDetails';
-
-const Underwriting: React.FC = () => {
-  // Get the Transaction ID from the URL (e.g., /underwriting/Q000000488)
-  const { txnTypeId } = useParams();
-
-  // IF an ID exists, render the Details View
-  if (txnTypeId) {
-    return <UnderwritingDetails />;
-  }
-
-  // ELSE, render the List View
-  return (
-    <Paper sx={{ p: 3, height: '100%' }}>
-      <Typography variant="h5" gutterBottom>
-        Underwriting Sharing Pool
-      </Typography>
-      <PolicyList />
-    </Paper>
-  );
-};
-
-export default Underwriting;
-
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Paper, Typography, Grid, TextField, 
