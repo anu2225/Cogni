@@ -1,0 +1,20 @@
+[plugin:vite:import-analysis] Failed to resolve import "../api/axiosInterceptor" from "src/Components/proofing/ProofingPolicyList.tsx". Does the file exist?
+C:/Users/2440835/OneDrive - Cognizant/Documents/COGNIZANT/app-frontend-7.3v/src/Components/proofing/ProofingPolicyList.tsx:24:18
+32 |  import { ArrowBack } from "@mui/icons-material";
+33 |  import { useNavigate, useParams } from "react-router-dom";
+34 |  import axios from "../api/axiosInterceptor";
+   |                     ^
+35 |  const Proofing = () => {
+36 |    _s();
+    at formatError (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:50796:46)
+    at TransformContext.error (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:50790:19)
+    at normalizeUrl (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:65925:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:66080:47
+    at async Promise.all (index 7)
+    at async TransformContext.transform (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:66001:13)
+    at async Object.transform (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:51105:30)
+    at async loadAndTransform (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:53858:29)
+    at async viteTransformMiddleware (file:///C:/Users/2440835/OneDrive%20-%20Cognizant/Documents/COGNIZANT/app-frontend-7.3v/node_modules/vite/dist/node/chunks/dep-BBHrJRja.js:63631:32
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
