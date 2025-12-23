@@ -1,3 +1,289 @@
+
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  Stack,
+  CircularProgress,
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  TextField
+} from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from '../api/axiosInterceptor';
+
+interface ProofingData {
+  id: string;
+  name: string;
+  status: string;
+  workType: string;
+  [key: string]: any;
+}
+
+const ProofingPolicyList: React.FC = () => {
+  const navigate = useNavigate();
+  const { txnTypeId } = useParams();
+
+  const [workType, setWorkType] = useState<string>('GenerateQuote');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [proofingData, setProofingData] = useState<ProofingData[]>([]);
+  const [hasApplied, setHasApplied] = useState<boolean>(false);
+
+  const uwStatus = 'UW In Progress'; // UW Ready | UW In Progress | UW Complete
+  const isReadOnly = uwStatus === 'UW Complete';
+
+  const [applicationInfo, setApplicationInfo] = useState({
+    clientName: '',
+    clientNo: '',
+    quotationNumber: '',
+    quotationDate: '',
+    applicationNumber: '',
+    productName: '',
+    sumAssured: '',
+    annualPremium: '',
+    issueDate: '',
+  });
+
+  const [baseCoverage, setBaseCoverage] = useState({
+    coverageAmount: '',
+    startDate: '',
+    endDate: '',
+    issueAge: '',
+    tobacco: '',
+    uwClass: '',
+    tableRating: '',
+    permFlatExtra: '',
+    tempFlatExtra: '',
+    tempFlatExtraDuration: '',
+  });
+
+  const [adbCoverage, setAdbCoverage] = useState({
+    coverageAmount: '',
+    startDate: '',
+    endDate: '',
+    issueAge: '',
+    uwClass: '',
+    tableRating: '',
+  });
+
+  const [wopCoverage, setWopCoverage] = useState({
+    coverageAmount: '',
+    startDate: '',
+    endDate: '',
+    issueAge: '',
+    uwClass: '',
+    tableRating: '',
+  });
+
+  const workTypeMap: { [key: string]: string } = {
+    GenerateQuote: 'W021225-1',
+    QuoteUWR: 'W021225-3',
+  };
+
+  const handleApplyChanges = async (selectedWorkCode?: string) => {
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const codeToUse = selectedWorkCode || workTypeMap[workType];
+
+      await axios.post(`http://localhost:8001/eapp/setRuleDef`, {
+        workCode: codeToUse,
+        quoteId: txnTypeId,
+      });
+
+      const getResponse = await axios.get(
+        `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`
+      );
+
+      setProofingData(getResponse.data || []);
+      setSuccessMessage('Successfully applied changes and loaded data');
+      setHasApplied(true);
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        'Failed to apply changes';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!txnTypeId) return;
+
+    const loadData = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8001/eapp/application-basic-info?quoteId=${txnTypeId}`
+        );
+        const d = res.data || {};
+
+        setApplicationInfo({
+          clientName: d.clientName || '',
+          clientNo: d.clientNo || '',
+          quotationNumber: d.quotationNumber || '',
+          quotationDate: d.quotationDate || '',
+          applicationNumber: d.applicationNumber || '',
+          productName: d.productName || '',
+          sumAssured: d.sumAssured || '',
+          annualPremium: d.annualPremium || '',
+          issueDate: d.issueDate || '',
+        });
+
+        setBaseCoverage(d.baseCoverage || {});
+        setAdbCoverage(d.adbCoverage || {});
+        setWopCoverage(d.wopCoverage || {});
+      } catch (e) {
+        console.error('Failed to load application data', e);
+      }
+    };
+
+    loadData();
+  }, [txnTypeId]);
+
+  const handleOpenDetails = (id: string) => {
+    navigate(`/proofing/${id}`);
+  };
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate(-1)} sx={{ bgcolor: 'white', border: '1px solid #ccc' }}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">Proofing Management</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {txnTypeId ? `Viewing Proofing for: ${txnTypeId}` : 'Select work type to view proofing data'}
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Filter Proofing Data</Typography>
+        <Stack direction="row" spacing={2} alignItems="flex-end">
+          <FormControl sx={{ minWidth: 250 }}>
+            <InputLabel>Work Type</InputLabel>
+            <Select value={workType} label="Work Type" disabled={loading}>
+              <MenuItem value="GenerateQuote">Generate Quote</MenuItem>
+              <MenuItem value="QuoteUWR">Quote UWR</MenuItem>
+            </Select>
+            <Button variant="contained" sx={{ mt: 2 }} onClick={() => handleApplyChanges()} disabled={loading}>
+              Approve
+            </Button>
+          </FormControl>
+          {loading && <CircularProgress size={24} />}
+        </Stack>
+        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {successMessage && <Alert severity="success" sx={{ mt: 2 }}>{successMessage}</Alert>}
+      </Paper>
+
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold">Application Basic Info</Typography>
+        <Box display="grid" gridTemplateColumns="repeat(3,1fr)" gap={2}>
+          <TextField label="Client Name" value={applicationInfo.clientName}
+            onChange={e => setApplicationInfo({ ...applicationInfo, clientName: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Client No." value={applicationInfo.clientNo}
+            onChange={e => setApplicationInfo({ ...applicationInfo, clientNo: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Quotation Number" value={applicationInfo.quotationNumber}
+            onChange={e => setApplicationInfo({ ...applicationInfo, quotationNumber: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }}
+            value={applicationInfo.quotationDate}
+            onChange={e => setApplicationInfo({ ...applicationInfo, quotationDate: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Application Number" value={applicationInfo.applicationNumber}
+            onChange={e => setApplicationInfo({ ...applicationInfo, applicationNumber: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Product Name" value={applicationInfo.productName}
+            onChange={e => setApplicationInfo({ ...applicationInfo, productName: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Sum Assured" value={applicationInfo.sumAssured}
+            onChange={e => setApplicationInfo({ ...applicationInfo, sumAssured: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Annual Premium" value={applicationInfo.annualPremium}
+            onChange={e => setApplicationInfo({ ...applicationInfo, annualPremium: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }}
+            value={applicationInfo.issueDate}
+            onChange={e => setApplicationInfo({ ...applicationInfo, issueDate: e.target.value })}
+            disabled={isReadOnly} />
+        </Box>
+      </Paper>
+
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Coverage – Base</Typography>
+        <Box display="grid" gridTemplateColumns="repeat(3,1fr)" gap={2}>
+          <TextField label="Coverage Amount" value={baseCoverage.coverageAmount}
+            onChange={e => setBaseCoverage({ ...baseCoverage, coverageAmount: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }}
+            value={baseCoverage.startDate}
+            onChange={e => setBaseCoverage({ ...baseCoverage, startDate: e.target.value })}
+            disabled={isReadOnly} />
+          <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }}
+            value={baseCoverage.endDate}
+            onChange={e => setBaseCoverage({ ...baseCoverage, endDate: e.target.value })}
+            disabled={isReadOnly} />
+        </Box>
+      </Paper>
+
+      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Coverage – ADB</Typography>
+        <Box display="grid" gridTemplateColumns="repeat(3,1fr)" gap={2}>
+          <TextField label="Coverage Amount" value={adbCoverage.coverageAmount}
+            onChange={e => setAdbCoverage({ ...adbCoverage, coverageAmount: e.target.value })}
+            disabled={isReadOnly} />
+        </Box>
+      </Paper>
+
+      <Paper elevation={2} sx={{ p: 3 }}>
+        <Typography variant="h6">Coverage – Waiver of Premium</Typography>
+        <Box display="grid" gridTemplateColumns="repeat(3,1fr)" gap={2}>
+          <TextField label="Coverage Amount" value={wopCoverage.coverageAmount}
+            onChange={e => setWopCoverage({ ...wopCoverage, coverageAmount: e.target.value })}
+            disabled={isReadOnly} />
+        </Box>
+      </Paper>
+    </Box>
+  );
+};
+
+export default ProofingPolicyList;
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
