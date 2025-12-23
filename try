@@ -1,22 +1,3 @@
-import { Paper, Typography } from '@mui/material'
-import ProofingPolicyList from './ProofingPolicyList'
-
-
-const Proofing = () => {
-  return (
-    <Paper sx={{ p: 3, height: '100%' }}>
-      <Typography variant="h5" gutterBottom>
-        Proofing Sharing Pool
-      </Typography>
-      <ProofingPolicyList />
-    </Paper>
-  )
-}
-
-export default Proofing
-
-
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -37,11 +18,12 @@ import {
   TableHead,
   TableRow,
   IconButton,
+  TextField
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from '../api/axiosInterceptor';
- 
+
 interface ProofingData {
   id: string;
   name: string;
@@ -49,76 +31,71 @@ interface ProofingData {
   workType: string;
   [key: string]: any;
 }
- 
-const Proofing: React.FC = () => {
+
+const ProofingPolicyList: React.FC = () => {
   const navigate = useNavigate();
   const { txnTypeId } = useParams();
- 
+
   const [workType, setWorkType] = useState<string>('GenerateQuote');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [proofingData, setProofingData] = useState<ProofingData[]>([]);
   const [hasApplied, setHasApplied] = useState<boolean>(false);
- 
+
   // Map display names to work codes
   const workTypeMap: { [key: string]: string } = {
     GenerateQuote: 'W021225-1',
     QuoteUWR: 'W021225-3',
   };
- 
- 
+
   const handleApplyChanges = async (selectedWorkCode?: string) => {
-  setLoading(true);
-  setError('');
-  setSuccessMessage('');
- 
-  try {
-    const codeToUse = selectedWorkCode || workTypeMap[workType];
-    console.log(`Selected workCode: ${codeToUse}, quoteId: ${txnTypeId}`);
- 
-    // First call: POST to setRuleDef
-    const postUrl = `http://localhost:8001/eapp/setRuleDef`;
-    const postResponse = await axios.post(postUrl, {
-      workCode: codeToUse,
-      quoteId: txnTypeId,
-    });
- 
-    console.log('Post Response:', postResponse.data);
- 
-    // Second call: GET proofing data
-    const getUrl = `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`;
-    const getResponse = await axios.get(getUrl);
- 
-    console.log('Get Response Status:', getResponse.status);
-    console.log('Get Response Data:', getResponse.data);
- 
-    setProofingData(getResponse.data || []);
-    setSuccessMessage(`Successfully applied changes and loaded data`);
-    setHasApplied(true);
-  } catch (err: any) {
-    console.error('Error:', err);
-    const errorMessage =
-      err.response?.data?.message ||
-      err.response?.data?.error ||
-      err.message ||
-      'Failed to apply changes';
-    setError(errorMessage);
-  } finally {
-    setLoading(false);
-  }
-};
- 
- 
+    setLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const codeToUse = selectedWorkCode || workTypeMap[workType];
+
+      const postUrl = `http://localhost:8001/eapp/setRuleDef`;
+      await axios.post(postUrl, {
+        workCode: codeToUse,
+        quoteId: txnTypeId,
+      });
+
+      const getUrl = `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`;
+      const getResponse = await axios.get(getUrl);
+
+      setProofingData(getResponse.data || []);
+      setSuccessMessage('Successfully applied changes and loaded data');
+      setHasApplied(true);
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        'Failed to apply changes';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOpenDetails = (id: string) => {
     navigate(`/proofing/${id}`);
   };
- 
- 
- 
+
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
-      {/* Header */}
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: 1400,
+        margin: 'auto',
+        backgroundColor: '#f4f6f8',
+        minHeight: '100vh',
+      }}
+    >
+      {/* ================= EXISTING HEADER ================= */}
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
         <IconButton
           onClick={() => navigate(-1)}
@@ -127,27 +104,28 @@ const Proofing: React.FC = () => {
           <ArrowBack />
         </IconButton>
         <Box>
-          <Typography variant="h5" fontWeight="bold" color="text.primary">
+          <Typography variant="h5" fontWeight="bold">
             Proofing Management
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {txnTypeId ? `Viewing Proofing for: ${txnTypeId}` : 'Select work type to view proofing data'}
+            {txnTypeId
+              ? `Viewing Proofing for: ${txnTypeId}`
+              : 'Select work type to view proofing data'}
           </Typography>
         </Box>
       </Stack>
- 
-      {/* Dropdown and Apply Button Section */}
+
+      {/* ================= EXISTING FILTER SECTION ================= */}
       <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
           Filter Proofing Data
         </Typography>
- 
-        <Stack direction="row" spacing={2} alignItems="flex-end" sx={{ flexWrap: 'wrap' }}>
+
+        <Stack direction="row" spacing={2} alignItems="flex-end">
           <FormControl sx={{ minWidth: 250 }}>
             <InputLabel id="work-type-label">Work Type</InputLabel>
             <Select
               labelId="work-type-label"
-              id="work-type-select"
               value={workType}
               label="Work Type"
               disabled={loading}
@@ -155,9 +133,9 @@ const Proofing: React.FC = () => {
               <MenuItem value="GenerateQuote">Generate Quote</MenuItem>
               <MenuItem value="QuoteUWR">Quote UWR</MenuItem>
             </Select>
+
             <Button
               variant="contained"
-              color="primary"
               sx={{ mt: 2 }}
               onClick={() => handleApplyChanges()}
               disabled={loading}
@@ -165,29 +143,94 @@ const Proofing: React.FC = () => {
               Approve
             </Button>
           </FormControl>
- 
-          {loading && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CircularProgress size={24} />
-              <Typography variant="body2" color="text.secondary">
-                Loading...
-              </Typography>
-            </Box>
-          )}
+
+          {loading && <CircularProgress size={24} />}
         </Stack>
- 
-        {/* Selected Work Type Display */}
-        <Box sx={{ mt: 2, p: 2, backgroundColor: '#e3f2fd', borderRadius: 1 }}>
-          <Typography variant="body2" color="text.secondary">
-            Selected Work Type:{' '}
-            <strong>{workType === 'GenerateQuote' ? 'Generate Quote' : 'Quote UWR'}</strong>
-          </Typography>
+
+        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+        {successMessage && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+      </Paper>
+
+      {/* ================= NEW : SHEET 2 START ================= */}
+
+      {/* Application Basic Info */}
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+
+        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2}>
+          <TextField label="Client Name" disabled />
+          <TextField label="Client No." disabled />
+          <TextField label="Quotation Number" disabled />
+          <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} disabled />
+          <TextField label="Application Number" disabled />
+          <TextField label="Product Name" disabled />
+          <TextField label="Sum Assured" disabled />
+          <TextField label="Annual Premium" disabled />
+          <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} disabled />
         </Box>
       </Paper>
+
+      {/* Coverage – Base */}
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold">
+          Coverage Details – Rider Type (Base)
+        </Typography>
+
+        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2}>
+          <TextField label="Coverage Amount" />
+          <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="Issue Age" />
+          <TextField label="Tobacco" />
+          <TextField label="UW Class" />
+          <TextField label="Table Rating" />
+          <TextField label="Perm Flat Extra" />
+          <TextField label="Temp Flat Extra" />
+          <TextField label="Temp Flat Extra Duration" />
+        </Box>
+      </Paper>
+
+      {/* Coverage – ADB */}
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold">
+          Rider Type (ADB)
+        </Typography>
+
+        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2}>
+          <TextField label="Coverage Amount" />
+          <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="Issue Age" />
+          <TextField label="UW Class" />
+          <TextField label="Table Rating" />
+        </Box>
+      </Paper>
+
+      {/* Coverage – Waiver of Premium */}
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography variant="h6" fontWeight="bold">
+          Rider Type (Waiver of Premium)
+        </Typography>
+
+        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={2}>
+          <TextField label="Coverage Amount" />
+          <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} />
+          <TextField label="Issue Age" />
+          <TextField label="UW Class" />
+          <TextField label="Table Rating" />
+        </Box>
+      </Paper>
+
+      {/* ================= NEW : SHEET 2 END ================= */}
     </Box>
   );
 };
- 
-export default Proofing;
- 
- 
+
+export default ProofingPolicyList;
