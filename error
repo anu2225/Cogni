@@ -4,9 +4,10 @@ import {
   Button, Stack, IconButton, CircularProgress, 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   MenuItem, Select, FormControl, InputLabel, Chip, Divider,
-  Checkbox
+  Checkbox, Accordion, AccordionSummary, AccordionDetails
 } from '@mui/material';
-import { ArrowBack, Person, Assignment, LocalHospital, Assessment, Gavel } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { ArrowBack, Person, Assignment, LocalHospital, Assessment, Gavel, ExpandMore } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../../api/axiosInterceptor';
 import dayjs from 'dayjs';
@@ -35,6 +36,10 @@ interface UnderwritingCase {
   mobile: string;
   dob: string;
   gender: string;
+  age: string;
+  weight: string;
+  height: string;
+  bmi: string;
   heightWeight: string; 
   occupation: string;
   income: string;
@@ -63,6 +68,8 @@ const UnderwritingDetails: React.FC = () => {
   
   const [loading, setLoading] = useState(true);
   const [caseData, setCaseData] = useState<UnderwritingCase | null>(null);
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
   
   // Controls Modal Visibility
   const [openModal, setOpenModal] = useState(false);
@@ -73,7 +80,19 @@ const UnderwritingDetails: React.FC = () => {
   const [riskValues, setRiskValues] = useState({
     life: '',
     accident: '',
-    health: ''
+    health: '',
+    smokingStatus: '',
+    alcoholConsumption: '',
+    occupation: '',
+    lifestyle: '',
+    travel: '',
+    familyHistory: '',
+    healthImpairments: '',
+    medicalImpairments: '',
+    mentalHealthHistory: '',
+    prescriptionDrugHistory: '',
+    drivingHistory: '',
+    criminalHistory: ''
   });
 
   // 2. Table Data and Selection States
@@ -121,6 +140,13 @@ const UnderwritingDetails: React.FC = () => {
         const s3 = screens[3]?.parsedData || {};
         const s10 = screens[10]?.parsedData || {};
 
+        const calculateAge = (dob: string) => {
+          if (!dob) return '-';
+          const today = dayjs();
+          const birthDate = dayjs(dob);
+          return today.diff(birthDate, 'year').toString();
+        };
+
         const mapped: UnderwritingCase = {
           uwCode: `UW-${txnTypeId}`,
           creationDate: creationTime ? dayjs(creationTime).format('DD MMM YYYY') : '-',
@@ -135,6 +161,10 @@ const UnderwritingDetails: React.FC = () => {
           mobile: s1.primaryNumber || s1.workPhoneNumber || '-',
           dob: s1.insuredDateOfBirth ? dayjs(s1.insuredDateOfBirth).format('DD/MM/YYYY') : '-',
           gender: s1.insuredGender || '-',
+          age: calculateAge(s1.insuredDateOfBirth),
+          weight: '83',
+          height: '174',
+          bmi: '27.40',
           heightWeight: 'N/A', 
           occupation: s1.occupationCode || s1.occupationDetail || 'N/A',
           income: s1.annualIncome ? `INR ${Number(s1.annualIncome).toLocaleString()}` : '-',
@@ -149,12 +179,26 @@ const UnderwritingDetails: React.FC = () => {
         };
 
         setCaseData(mapped);
+        setWeight('83');
+        setHeight('174');
 
         // Initialize Risk Dropdowns from data
         setRiskValues({
             life: mapped.occLevelLife,
             accident: mapped.occLevelAccident,
-            health: mapped.occLevelHealth
+            health: mapped.occLevelHealth,
+            smokingStatus: 'Non-smoker',
+            alcoholConsumption: 'Non-drinker',
+            occupation: 'No hazardous Occupation',
+            lifestyle: 'Low-risk lifestyle',
+            travel: 'No Frequent travel',
+            familyHistory: 'clean family history',
+            healthImpairments: 'No Health Impairments',
+            medicalImpairments: 'No medical Impairments',
+            mentalHealthHistory: 'No Mental Health History',
+            prescriptionDrugHistory: 'No Prescription Drug History',
+            drivingHistory: 'Clean Driving Record',
+            criminalHistory: 'No Criminal History'
         });
 
         // Initialize Policy List (Simulating a list based on the single case)
@@ -175,6 +219,32 @@ const UnderwritingDetails: React.FC = () => {
 
     fetchData();
   }, [txnTypeId]);
+
+  const calculateBMI = (weightKg: string, heightCm: string): string => {
+    const w = parseFloat(weightKg);
+    const h = parseFloat(heightCm) / 100; // Convert cm to meters
+    if (w > 0 && h > 0) {
+      const bmi = w / (h * h);
+      return bmi.toFixed(2);
+    }
+    return '';
+  };
+
+  const handleWeightChange = (value: string) => {
+    setWeight(value);
+    if (caseData) {
+      const newBMI = calculateBMI(value, height);
+      setCaseData({ ...caseData, weight: value, bmi: newBMI });
+    }
+  };
+
+  const handleHeightChange = (value: string) => {
+    setHeight(value);
+    if (caseData) {
+      const newBMI = calculateBMI(weight, value);
+      setCaseData({ ...caseData, height: value, bmi: newBMI });
+    }
+  };
 
   const handleDecisionSubmit = (data: any) => {
     console.log("Decision from Modal:", data);
@@ -295,6 +365,30 @@ const UnderwritingDetails: React.FC = () => {
           <InfoRow label="Full Name" value={caseData.applicantName} />
           <InfoRow label="DOB" value={caseData.dob} />
           <InfoRow label="Gender" value={caseData.gender} />
+          <InfoRow label="Age" value={caseData.age} />
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>Weight (kg)</Typography>
+            <TextField
+              size="small"
+              type="number"
+              value={weight}
+              onChange={(e) => handleWeightChange(e.target.value)}
+              placeholder="Enter weight"
+              sx={{ width: '100%' }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>Height (cm)</Typography>
+            <TextField
+              size="small"
+              type="number"
+              value={height}
+              onChange={(e) => handleHeightChange(e.target.value)}
+              placeholder="Enter height"
+              sx={{ width: '100%' }}
+            />
+          </Grid>
+          <InfoRow label="BMI" value={caseData.bmi || '-'} />
           <InfoRow label="Occupation" value={caseData.occupation} />
           <InfoRow label="Income" value={caseData.income} />
           <InfoRow label="Sum Assured" value={`INR ${caseData.sumAssured}`} />
@@ -309,60 +403,281 @@ const UnderwritingDetails: React.FC = () => {
 
       {/* 4. Risk Assessment */}
       <SectionHeader title="Risk Assessment" icon={<LocalHospital />} />
-      <Paper elevation={1} sx={{ p: 3, borderRadius: 2 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth size="small">
-                <InputLabel>Life Occ. Level</InputLabel>
-                <Select 
-                    value={riskValues.life} 
-                    label="Life Occ. Level"
-                    onChange={(e) => setRiskValues({...riskValues, life: e.target.value})}
-                >
-                    <MenuItem value="Class 1">Class 1</MenuItem>
-                    <MenuItem value="Class 2">Class 2</MenuItem>
-                    <MenuItem value="Class 3">Class 3</MenuItem>
-                    <MenuItem value="Class 4">Class 4</MenuItem>
-                    <MenuItem value="Standard">Standard</MenuItem>
-                </Select>
-            </FormControl>
-          </Grid>
+      <Paper elevation={1} sx={{ borderRadius: 2 }}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Occupation Risk Levels</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Life Occ. Level</InputLabel>
+                    <Select 
+                        value={riskValues.life} 
+                        label="Life Occ. Level"
+                        onChange={(e) => setRiskValues({...riskValues, life: e.target.value})}
+                    >
+                        <MenuItem value="Class 1">Class 1</MenuItem>
+                        <MenuItem value="Class 2">Class 2</MenuItem>
+                        <MenuItem value="Class 3">Class 3</MenuItem>
+                        <MenuItem value="Class 4">Class 4</MenuItem>
+                        <MenuItem value="Standard">Standard</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                 <FormControl fullWidth size="small">
+                    <InputLabel>Accident Occ. Level</InputLabel>
+                    <Select 
+                        value={riskValues.accident} 
+                        label="Accident Occ. Level"
+                        onChange={(e) => setRiskValues({...riskValues, accident: e.target.value})}
+                    >
+                        <MenuItem value="Class 1">Class 1</MenuItem>
+                        <MenuItem value="Class 2">Class 2</MenuItem>
+                        <MenuItem value="Class 3">Class 3</MenuItem>
+                        <MenuItem value="Standard">Standard</MenuItem>
+                        <MenuItem value="Declined">Declined</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Health Occ. Level</InputLabel>
+                    <Select 
+                        value={riskValues.health} 
+                        label="Health Occ. Level"
+                        onChange={(e) => setRiskValues({...riskValues, health: e.target.value})}
+                    >
+                        <MenuItem value="Standard">Standard</MenuItem>
+                        <MenuItem value="Sub-Standard A">Sub-Standard A</MenuItem>
+                        <MenuItem value="Sub-Standard B">Sub-Standard B</MenuItem>
+                        <MenuItem value="Declined">Declined</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
 
-          <Grid item xs={12} sm={6} md={3}>
-             <FormControl fullWidth size="small">
-                <InputLabel>Accident Occ. Level</InputLabel>
-                <Select 
-                    value={riskValues.accident} 
-                    label="Accident Occ. Level"
-                    onChange={(e) => setRiskValues({...riskValues, accident: e.target.value})}
-                >
-                    <MenuItem value="Class 1">Class 1</MenuItem>
-                    <MenuItem value="Class 2">Class 2</MenuItem>
-                    <MenuItem value="Class 3">Class 3</MenuItem>
-                    <MenuItem value="Standard">Standard</MenuItem>
-                    <MenuItem value="Declined">Declined</MenuItem>
-                </Select>
-            </FormControl>
-          </Grid>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Lifestyle & Habits</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Smoking Status</InputLabel>
+                    <Select 
+                        value={riskValues.smokingStatus} 
+                        label="Smoking Status"
+                        onChange={(e) => setRiskValues({...riskValues, smokingStatus: e.target.value})}
+                    >
+                        <MenuItem value="Smoker">Smoker</MenuItem>
+                        <MenuItem value="Non-smoker">Non-smoker</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Alcohol Consumption</InputLabel>
+                    <Select 
+                        value={riskValues.alcoholConsumption} 
+                        label="Alcohol Consumption"
+                        onChange={(e) => setRiskValues({...riskValues, alcoholConsumption: e.target.value})}
+                    >
+                        <MenuItem value="Non-drinker">Non-drinker</MenuItem>
+                        <MenuItem value="Heavy">Heavy</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Lifestyle</InputLabel>
+                    <Select 
+                        value={riskValues.lifestyle} 
+                        label="Lifestyle"
+                        onChange={(e) => setRiskValues({...riskValues, lifestyle: e.target.value})}
+                    >
+                        <MenuItem value="Low-risk lifestyle">Low-risk lifestyle</MenuItem>
+                        <MenuItem value="High-risk hobbies(e.g.skydiving)">High-risk hobbies(e.g.skydiving)</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth size="small">
-                <InputLabel>Health Occ. Level</InputLabel>
-                <Select 
-                    value={riskValues.health} 
-                    label="Health Occ. Level"
-                    onChange={(e) => setRiskValues({...riskValues, health: e.target.value})}
-                >
-                    <MenuItem value="Standard">Standard</MenuItem>
-                    <MenuItem value="Sub-Standard A">Sub-Standard A</MenuItem>
-                    <MenuItem value="Sub-Standard B">Sub-Standard B</MenuItem>
-                    <MenuItem value="Declined">Declined</MenuItem>
-                </Select>
-            </FormControl>
-          </Grid>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Occupation & Travel</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Occupation</InputLabel>
+                    <Select 
+                        value={riskValues.occupation} 
+                        label="Occupation"
+                        onChange={(e) => setRiskValues({...riskValues, occupation: e.target.value})}
+                    >
+                        <MenuItem value="No hazardous Occupation">No hazardous Occupation</MenuItem>
+                        <MenuItem value="Hazardous Occupation">Hazardous Occupation</MenuItem>
+                        <MenuItem value="Offshore Oil Rig Worker">Offshore Oil Rig Worker</MenuItem>
+                        <MenuItem value="Commercial Pilot">Commercial Pilot</MenuItem>
+                        <MenuItem value="Deep-sea Diver">Deep-sea Diver</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Travel Risk</InputLabel>
+                    <Select 
+                        value={riskValues.travel} 
+                        label="Travel Risk"
+                        onChange={(e) => setRiskValues({...riskValues, travel: e.target.value})}
+                    >
+                        <MenuItem value="No Frequent travel">No Frequent travel</MenuItem>
+                        <MenuItem value="Frequent travel to High-Risk Countries">Frequent travel to High-Risk Countries</MenuItem>
+                        <MenuItem value="Permanent residence in conflict zone">Permanent residence in conflict zone</MenuItem>
+                        <MenuItem value="Frequent missionary trips to epidemic-prone regions">Frequent missionary trips to epidemic-prone regions</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Criminal History</InputLabel>
+                    <Select 
+                        value={riskValues.criminalHistory} 
+                        label="Criminal History"
+                        onChange={(e) => setRiskValues({...riskValues, criminalHistory: e.target.value})}
+                    >
+                        <MenuItem value="No Criminal History">No Criminal History</MenuItem>
+                        <MenuItem value="Minor Offenses">Minor Offenses</MenuItem>
+                        <MenuItem value="Felony Convictions">Felony Convictions</MenuItem>
+                        <MenuItem value="Financial Crimes">Financial Crimes</MenuItem>
+                        <MenuItem value="Drug-related Offenses">Drug-related Offenses</MenuItem>
+                        <MenuItem value="Violent Crimes">Violent Crimes</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
 
-          <InfoRow label="Medical Report" value={caseData.medicalReport} />
-        </Grid>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Medical History</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Family History</InputLabel>
+                    <Select 
+                        value={riskValues.familyHistory} 
+                        label="Family History"
+                        onChange={(e) => setRiskValues({...riskValues, familyHistory: e.target.value})}
+                    >
+                        <MenuItem value="clean family history">clean family history</MenuItem>
+                        <MenuItem value="Early-onset cardiac disease in parent (<60 yrs)">Early-onset cardiac disease in parent (&lt;60 yrs)</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Health Impairments</InputLabel>
+                    <Select 
+                        value={riskValues.healthImpairments} 
+                        label="Health Impairments"
+                        onChange={(e) => setRiskValues({...riskValues, healthImpairments: e.target.value})}
+                    >
+                        <MenuItem value="No Health Impairments">No Health Impairments</MenuItem>
+                        <MenuItem value="Controlled Hypertension">Controlled Hypertension</MenuItem>
+                        <MenuItem value="Diabetes(Type 2, Controlled)">Diabetes(Type 2, Controlled)</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Medical Impairments</InputLabel>
+                    <Select 
+                        value={riskValues.medicalImpairments} 
+                        label="Medical Impairments"
+                        onChange={(e) => setRiskValues({...riskValues, medicalImpairments: e.target.value})}
+                    >
+                        <MenuItem value="No medical Impairments">No medical Impairments</MenuItem>
+                        <MenuItem value="Hypertension(Uncontrolled)">Hypertension(Uncontrolled)</MenuItem>
+                        <MenuItem value="Diabetes Type 1">Diabetes Type 1</MenuItem>
+                        <MenuItem value="Chronic Kidney Disease(Stage-3)">Chronic Kidney Disease(Stage-3)</MenuItem>
+                        <MenuItem value="Chronic Obstructive Pulmonary Disease(COPD)">Chronic Obstructive Pulmonary Disease(COPD)</MenuItem>
+                        <MenuItem value="Cancer History(Remission < 5 years)">Cancer History(Remission &lt; 5 years)</MenuItem>
+                        <MenuItem value="Liver Cirrhosis">Liver Cirrhosis</MenuItem>
+                        <MenuItem value="HIV Positive">HIV Positive</MenuItem>
+                        <MenuItem value="Stroke History">Stroke History</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Mental Health History</InputLabel>
+                    <Select 
+                        value={riskValues.mentalHealthHistory} 
+                        label="Mental Health History"
+                        onChange={(e) => setRiskValues({...riskValues, mentalHealthHistory: e.target.value})}
+                    >
+                        <MenuItem value="No Mental Health History">No Mental Health History</MenuItem>
+                        <MenuItem value="Severe depression">Severe depression</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Prescription Drug History</InputLabel>
+                    <Select 
+                        value={riskValues.prescriptionDrugHistory} 
+                        label="Prescription Drug History"
+                        onChange={(e) => setRiskValues({...riskValues, prescriptionDrugHistory: e.target.value})}
+                    >
+                        <MenuItem value="No Prescription Drug History">No Prescription Drug History</MenuItem>
+                        <MenuItem value="Accessing prescription history reports to confirm medical conditions and adherence to treatment">Accessing prescription history reports to confirm medical conditions and adherence to treatment</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>Medical Report</Typography>
+                <Typography variant="body2" fontWeight="500">{caseData.medicalReport}</Typography>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Motor Vehicle Report</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth size="small">
+                    <InputLabel>Driving History</InputLabel>
+                    <Select 
+                        value={riskValues.drivingHistory} 
+                        label="Driving History"
+                        onChange={(e) => setRiskValues({...riskValues, drivingHistory: e.target.value})}
+                    >
+                        <MenuItem value="Clean Driving Record">Clean Driving Record</MenuItem>
+                        <MenuItem value="DUIs">DUIs</MenuItem>
+                        <MenuItem value="reckless driving infractions">reckless driving infractions</MenuItem>
+                    </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
       </Paper>
 
       {/* 5. Policy Table */}
