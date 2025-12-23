@@ -1,183 +1,129 @@
-import React, { useEffect, useState } from "react";
-import {
-  AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem,
-  Grid, useMediaQuery, useTheme, Drawer, List, ListItem,
-  ListItemButton, ListItemIcon, ListItemText, Divider,
-} from "@mui/material";
-import { Outlet, useNavigate, useLocation, useParams, matchPath } from "react-router-dom";
-import MenuIcon from "@mui/icons-material/Menu";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import DescriptionIcon from "@mui/icons-material/Description";
-import PaymentIcon from "@mui/icons-material/Payment";
-import BentoIcon from "@mui/icons-material/Bento";
-import { Translate } from "@mui/icons-material";
-import { useTranslation } from "react-i18next";
-import i18next from "i18next";
-import cookies from "js-cookie";
-import styled from "@emotion/styled";
+import React, { Suspense } from 'react';
+import ReactDOM from 'react-dom/client';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import HttpApi from 'i18next-http-backend';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import 'bootstrap/dist/js/bootstrap.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./index.css";
+import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
 
-// Custom Styled AppBar
-const CustomAppBar = styled(AppBar)({
-  backgroundColor: "rgba(255, 255, 255, 1)",
-});
+// --- COMPONENT IMPORTS ---
+import App from './App.jsx';
+import SignIn from './Components/Auth/SignIn.js';
+import SignUp from './Components/Auth/SignUp.js';
+import BasicTabs from './Components/BasicTabs'; 
+import Underwriting from './Components/underwriting/Underwriting';
+import Application from './Components/application/Application.js';
+import Proofing from './Components/proofing/Proofing.js';
 
-// Language setup code 
-interface Language {
-  code: string;
-  name: string;
-  country_code: string;
-  dir: string;
-}
-const languages: Language[] = [
-  { code: "en", name: "English", country_code: "gb", dir: "ltr" },
-  { code: "th", name: "แบบไทย", country_code: "th", dir: "ltr" },
-];
+// --- PLACEHOLDER COMPONENTS ---
+// TODO:  (Replace these with real imports when files are created)
+const ProofingTxn = () => <div className="p-4"><h2>Proofing Details</h2></div>;
+const Payment = () => <div className="p-4"><h2>Payment Gateway</h2></div>;
+const Claims = () => <div className="p-4"><h2>Claims Processing</h2></div>;
 
-export default function App() {
-  const currentLanguageCode = cookies.get("i18next") || "en";
-  const currentLanguage = languages.find((l) => l.code === currentLanguageCode);
-  const { t } = useTranslation();
-  
-  // 1. HOOKS FOR ROUTING
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = useParams();
-  const currentTxnId = params.txnTypeId; 
+// --- I18N CONFIGURATION ---
+i18next
+  .use(HttpApi)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    supportedLngs: ['en', 'th'],
+    fallbackLng: 'en',
+    debug: false,
+    detection: {
+      order: ['path', 'cookie', 'htmlTag'],
+      caches: ['cookie'],
+    },
+    backend: {
+      loadPath: '/assets/locales/{{lng}}/translation.json',
+    },
+  });
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+// --- ROUTER CONFIGURATION ---
+const router = createBrowserRouter([
+  // 1. PUBLIC ROUTES
+  {
+    path: '/',
+    element: <SignIn />
+  },
+  {
+    path: '/signin',
+    element: <SignIn />
+  },
+  {
+    path: '/signup',
+    element: <SignUp />
+  },
 
-  useEffect(() => {
-    document.body.dir = currentLanguage?.dir || "ltr";
-    document.title = t("app_title");
-  }, [currentLanguage, t]);
+  // 2. PROTECTED APP ROUTES (Wrapped in App Layout)
+  {
+    element: <App />, // This is your Sidebar/Header Layout
+    children: [
+      // A. Application (Form) - Requires ID
+      {
+        path: 'application',
+        element: <Application/>
+      },
+      
+      {
+        path: 'application/:txnTypeId',
+        element: <BasicTabs />
+      },
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
+      // B. Underwriting - Handles BOTH List and Details
+      {
+        path: 'underwriting', // No ID -> Component should show List
+        element: <Underwriting />
+      },
+      {
+        path: 'underwriting/:txnTypeId', // Has ID -> Component should show Details
+        element: <Underwriting />
+      },
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (event.type === "keydown" && ((event as React.KeyboardEvent).key === "Tab" || (event as React.KeyboardEvent).key === "Shift")) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
+      // C. Proofing - Handles BOTH List and Details
+      {
+        path: 'proofing', 
+        element: <Proofing />
+      },
+      {
+        path: 'proofing/:txnTypeId',
+        element: <ProofingTxn />
+      },
 
-
-  // DEFINE MENU ITEMS (Use root path names)
-  const menuItems = [
-    { text: "Application Entry", icon: <DashboardIcon />, path: "application" },
-    { text: "Proofing", icon: <DescriptionIcon />, path: "proofing" },
-    { text: "Underwriting", icon: <DescriptionIcon />, path: "underwriting" },
-    { text: "Payment", icon: <PaymentIcon />, path: "payment" },
-    { text: "Claims", icon: <BentoIcon />, path: "claims" },
-  ];
-
-  //  NAVIGATION FUNCTION
-  const handleNavigation = (path: string) => {
-    if (path === "application") {
-      if (currentTxnId) {
-        navigate(`/application`);
-      } else {
-        navigate('/application');
-        // navigate('/dashboard'); 
+      // D. Other Modules
+      {
+        path: 'payment',
+        element: <Payment />
+      },
+      {
+        path: 'payment/:txnTypeId',
+        element: <Payment />
+      },
+      {
+        path: 'claims',
+        element: <Claims />
+      },
+      {
+        path: 'claims/:txnTypeId',
+        element: <Claims />
       }
-    } else {
-      // For Underwriting, Proofing, etc.
-      // If we have an ID, append it. If not, just go to the list view.
-      if (currentTxnId) {
-        navigate(`/${path}`);
-      } else {
-        navigate(`/${path}`);
-      }
-    }
-  };
+    ]
+  }
+]);
 
-  // 3. DETERMINE TITLE BASED ON URL
-  // We look at the current URL path to decide which title to show
-  const getCurrentTitle = () => {
-     const activeItem = menuItems.find((item) => 
-      location.pathname.includes(item.path)
-    );
-    
-    return activeItem ? activeItem.text : "Application Entry";
-  };
+const loadingMarkup = (
+  <div className="py-4 text-center">
+    <h3>Loading..</h3>
+  </div>
+);
 
-  const list = () => (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
-      {/* ... Headers ... */}
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              // USE THE NEW NAVIGATION FUNCTION
-              onClick={() => handleNavigation(item.path)} 
-              selected={location.pathname.includes(item.path)}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
-  return (
-    <Box sx={{ flexGrow: 1, backgroundColor: "#C9E9EA", minHeight: "100vh" }}>
-      <CustomAppBar position="static">
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }} variant="dense">
-          <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={toggleDrawer(true)}
-              sx={{ mr: 2, color: "black" }}
-            >
-              <MenuIcon />
-            </IconButton>
-
-            <Typography
-              variant={isMobile ? "h6" : "h5"}
-              sx={{ color: "black", fontWeight: "bold" }}
-            >
-               {/* Display Dynamic Title */}
-              {getCurrentTitle()} 
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton color="inherit" sx={{ color: "black" }} onClick={handleMenuOpen}>
-              <Translate />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-               {/* Language Menu Items (Same as before) */}
-               {languages.map(({ code, name }) => (
-                <MenuItem key={code} onClick={() => { i18next.changeLanguage(code); handleMenuClose(); }}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </CustomAppBar>
-
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        {list()}
-      </Drawer>
-
-      <Grid container justifyContent="center" sx={{ maxWidth: 1280, margin: "auto", padding: { xs: "1rem", sm: "2rem" } }}>
-        <Grid item xs={12}>
-          {/* 5. THIS IS WHERE THE CHILD COMPONENTS RENDER */}
-          <Outlet /> 
-        </Grid>
-      </Grid>
-    </Box>
-  );
-}
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <Suspense fallback={loadingMarkup}>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  </Suspense>,
+);
