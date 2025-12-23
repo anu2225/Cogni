@@ -1,3 +1,219 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Box, Paper, Typography, Grid, TextField, 
+  Button, Stack, IconButton, CircularProgress, 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  MenuItem, Select, FormControl, InputLabel, Chip, Divider,
+  Checkbox
+} from '@mui/material';
+import { ArrowBack, Person, Assignment, LocalHospital, Assessment, Gavel } from '@mui/icons-material';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from '../../api/axiosInterceptor';
+import dayjs from 'dayjs';
+import DecisionModal, { PolicyProduct } from './DecisionModal';
+
+/* ================= INTERFACES ================= */
+interface ApiRecord {
+  quotation_id: string;
+  screen_No: number;
+  json_DATA: string;
+  creation_TIME: string;
+  version_NO: number;
+}
+
+interface UnderwritingCase {
+  uwCode: string;
+  creationDate: string;
+  applicantName: string;
+  serviceType: string;
+  appNumber: string;
+  policyNumber: string;
+  agentCode: string;
+  branch: string;
+  productName: string;
+  email: string;
+  mobile: string;
+  dob: string;
+  gender: string;
+  heightWeight: string;
+  occupation: string;
+  income: string;
+  sumAssured: string;
+  premium: string;
+  address: string;
+  occLevelLife: string;
+  occLevelAccident: string;
+  occLevelHealth: string;
+  tpdExposure: string;
+  medicalReport: string;
+}
+
+interface PolicyRow {
+  id: string;
+  productName: string;
+  sumAssured: string;
+  premium: string;
+  status: string;
+}
+
+/* ================= MAIN COMPONENT ================= */
+const UnderwritingDetails: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [caseData, setCaseData] = useState<UnderwritingCase | null>(null);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [comments, setComments] = useState('');
+
+  const [riskValues, setRiskValues] = useState({
+    life: '',
+    accident: '',
+    health: ''
+  });
+
+  const [policyList, setPolicyList] = useState<PolicyRow[]>([]);
+  const [selectedPolicyIds, setSelectedPolicyIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setLoading(false);
+    setCaseData({
+      uwCode: `UW-${txnTypeId}`,
+      creationDate: dayjs().format('DD MMM YYYY'),
+      applicantName: 'Test User',
+      serviceType: 'New Business',
+      appNumber: txnTypeId || '',
+      policyNumber: 'PENDING',
+      agentCode: 'AG-1029',
+      branch: 'Head Office',
+      productName: 'Life Plan',
+      email: 'test@mail.com',
+      mobile: '9999999999',
+      dob: '01/01/1995',
+      gender: 'Male',
+      heightWeight: 'N/A',
+      occupation: 'Salaried',
+      income: 'INR 5,00,000',
+      sumAssured: '10,00,000',
+      premium: '12,000',
+      address: 'Pune',
+      occLevelLife: 'Class 1',
+      occLevelAccident: 'Class 1',
+      occLevelHealth: 'Standard',
+      tpdExposure: 'Low',
+      medicalReport: 'Pending'
+    });
+
+    setPolicyList([
+      {
+        id: 'POL-001',
+        productName: 'Life Plan',
+        sumAssured: '10,00,000',
+        premium: '12,000',
+        status: 'Pending'
+      }
+    ]);
+  }, [txnTypeId]);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!caseData) {
+    return null;
+  }
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
+
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate('/underwriting')}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+
+      {/* ================= BASIC INFO ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold">
+          Application Basic Info
+        </Typography>
+        <Grid container spacing={2} mt={1}>
+          <Grid item xs={12} md={4}><TextField label="Applicant Name" value={caseData.applicantName} fullWidth disabled /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Product Name" value={caseData.productName} fullWidth disabled /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Sum Assured" value={caseData.sumAssured} fullWidth disabled /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= UNDERWRITING ACTION ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Underwriting Action</Typography>
+        <TextField
+          fullWidth
+          multiline
+          rows={2}
+          label="Comments"
+          value={comments}
+          onChange={(e) => setComments(e.target.value)}
+          sx={{ mt: 2 }}
+        />
+      </Paper>
+
+      {/* ================= BACK / NEXT ================= */}
+      <Paper
+        sx={{
+          p: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+          borderTop: '1px solid #e0e0e0'
+        }}
+      >
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/underwriting')}
+        >
+          Back
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={() => navigate(`/underwriting/coverage/${txnTypeId}`)}
+        >
+          Next
+        </Button>
+      </Paper>
+
+    </Box>
+  );
+};
+
+export default UnderwritingDetails;
+
+
+
+
+
+
+
+
+
+
+
+
 import * as React from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
