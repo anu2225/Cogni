@@ -1,45 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  Box, Paper, Typography, Grid, TextField,
-  Button, Stack, IconButton, CircularProgress
-} from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
-
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams } from "react-router-dom";
+ 
 /* ================= TYPES ================= */
-type UWStatus = 'UW Ready' | 'UW In Progress' | 'UW Complete';
-
-/* ================= MAIN COMPONENT ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+ 
+/* ================= COMPONENT ================= */
 const UnderwritingDetails: React.FC = () => {
   const { txnTypeId } = useParams();
   const navigate = useNavigate();
-
+ 
   const [loading, setLoading] = useState(true);
-
-  /* ===== UW STATUS (later API madhun yeil) ===== */
-  const uwStatus: UWStatus = 'UW In Progress';
-
-  const isUWComplete = uwStatus === 'UW Complete';
-  const isEditable = uwStatus === 'UW Ready' || uwStatus === 'UW In Progress';
-
+ 
+  /* ===== UW STATUS (backend later) ===== */
+  const uwStatus: UWStatus = "UW In Progress";
+ 
+  /* ===== SCREEN 2 RULE ===== */
+  const editable = uwStatus !== "UW Complete";
+ 
   useEffect(() => {
     setLoading(false);
   }, [txnTypeId]);
-
+ 
   if (loading) {
     return (
-      <Box sx={{ p: 5, textAlign: 'center' }}>
+      <Box sx={{ p: 5, textAlign: "center" }}>
         <CircularProgress />
       </Box>
     );
   }
-
+ 
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8' }}>
-
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+ 
       {/* ================= HEADER ================= */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <IconButton onClick={() => navigate('/underwriting')}>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
           <ArrowBack />
         </IconButton>
         <Box>
@@ -51,374 +58,173 @@ const UnderwritingDetails: React.FC = () => {
           </Typography>
         </Box>
       </Stack>
-
+ 
       {/* ================= Application Basic Info ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           Application Basic Info
         </Typography>
-
+ 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Client Name" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Client No." fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Quotation Number" fullWidth disabled /></Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled />
+            <TextField label="Client Name" fullWidth disabled={!editable} />
           </Grid>
-
-          <Grid item xs={12} md={4}><TextField label="Application Number" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Product Name" fullWidth disabled /></Grid>
-
-          <Grid item xs={12} md={4}><TextField label="Sum Assured" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Annual Premium" fullWidth disabled /></Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled />
+            <TextField label="Client No." fullWidth disabled={!editable} />
+          </Grid>
+ 
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Number" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Quotation Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Application Number" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Product Name" fullWidth disabled />
+          </Grid>
+ 
+          <Grid item xs={12} md={4}>
+            <TextField label="Sum Assured" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Annual Premium" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Issue Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              disabled={!editable}
+            />
           </Grid>
         </Grid>
       </Paper>
-
-      {/* ================= Base Rider ================= */}
+ 
+      {/* ================= Rider Type – Base ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Coverage Details – Rider Type (Base)</Typography>
-
+        <Typography variant="h6">Rider Type (Base)</Typography>
+ 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Tobacco" fullWidth disabled={!isEditable} />
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!isEditable} />
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!isEditable} />
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
           </Grid>
-
+ 
           <Grid item xs={12} md={4}>
-            <TextField label="Perm Flat Extra" fullWidth disabled={!isEditable} />
+            <TextField label="Issue Age" fullWidth disabled />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Temp Flat Extra" fullWidth disabled={!isEditable} />
+            <TextField label="Tobacco" fullWidth disabled={!editable} />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Temp Flat Extra Duration" fullWidth disabled={!isEditable} />
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Perm Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} />
           </Grid>
         </Grid>
       </Paper>
-
-      {/* ================= ADB Rider ================= */}
+ 
+      {/* ================= Rider Type – ADB ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6">Rider Type (ADB)</Typography>
-
+ 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!isEditable} />
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!isEditable} />
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+ 
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
           </Grid>
         </Grid>
       </Paper>
-
-      {/* ================= Waiver of Premium ================= */}
+ 
+      {/* ================= Rider Type – Waiver of Premium ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
-
+ 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled /></Grid>
-
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!isEditable} />
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
           </Grid>
-
           <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!isEditable} />
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+ 
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
           </Grid>
         </Grid>
       </Paper>
-
+ 
       {/* ================= ACTION BUTTONS ================= */}
       <Paper sx={{ p: 2 }}>
-        <Stack direction="row" justifyContent="flex-end" spacing={2}>
-          <Button variant="outlined" onClick={() => navigate('/underwriting')}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
             Back
           </Button>
-
+          <Button variant="contained" disabled={!editable}>
+            Save
+          </Button>
           <Button
             variant="contained"
-            disabled={isUWComplete}
+            disabled={!editable}
             onClick={() => navigate(`/underwriting/${txnTypeId}/screen3`)}
           >
             Next
           </Button>
-
-          <Button color="error" onClick={() => navigate('/underwriting')}>
-            Exit
-          </Button>
         </Stack>
       </Paper>
-
+ 
     </Box>
   );
 };
-
+ 
 export default UnderwritingDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';mport { 
-  Box, Paper, Typography, Grid, TextField, 
-  Button, Stack, IconButton, CircularProgress, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  MenuItem, Select, FormControl, InputLabel, Chip, Divider,
-  Checkbox, Accordion, AccordionSummary, AccordionDetails
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ArrowBack, Person, Assignment, LocalHospital, Assessment, Gavel } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosInterceptor';
-import dayjs from 'dayjs';
-import DecisionModal, { PolicyProduct } from './DecisionModal';
-
-/* ================= EXISTING INTERFACES ================= */
-interface ApiRecord {
-  quotation_id: string;
-  screen_No: number;
-  json_DATA: string;
-  creation_TIME: string;
-  version_NO: number;
-}
-
-interface UnderwritingCase {
-  uwCode: string;
-  creationDate: string;
-  applicantName: string;
-  serviceType: string;
-  appNumber: string;
-  policyNumber: string;
-  agentCode: string;
-  branch: string;
-  productName: string;
-  email: string;
-  mobile: string;
-  dob: string;
-  gender: string;
-  age: string;
-  weight: string;
-  height: string;
-  bmi: string;
-  heightWeight: string; 
-  occupation: string;
-  income: string;
-  sumAssured: string;
-  premium: string;
-  address: string;
-  occLevelLife: string;
-  occLevelAccident: string;
-  occLevelHealth: string;
-  tpdExposure: string;
-  medicalReport: string;
-}
-
-interface PolicyRow {
-  id: string;
-  productName: string;
-  sumAssured: string;
-  premium: string;
-  status: string;
-}
-
-/* ================= MAIN COMPONENT ================= */
-const UnderwritingDetails: React.FC = () => {
-  const { txnTypeId } = useParams();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [caseData, setCaseData] = useState<UnderwritingCase | null>(null);
-
-  /* ===== UW STATUS RULE ===== */
-  // UW Ready | UW In Progress | UW Complete
-  const uwStatus = 'UW In Progress';
-  const isReadOnly = uwStatus === 'UW Complete';
-
-  /* ===== ADD: APPLICATION BASIC INFO STATES ===== */
-  const [applicationInfo, setApplicationInfo] = useState({
-    clientName: '',
-    clientNo: '',
-    quotationNumber: '',
-    quotationDate: '',
-    applicationNumber: '',
-    productName: '',
-    sumAssured: '',
-    annualPremium: '',
-    issueDate: ''
-  });
-
-  const [baseCoverage, setBaseCoverage] = useState({
-    coverageAmount: '',
-    startDate: '',
-    endDate: '',
-    issueAge: '',
-    tobacco: '',
-    uwClass: '',
-    tableRating: '',
-    permFlatExtra: '',
-    tempFlatExtra: '',
-    tempFlatExtraDuration: ''
-  });
-
-  const [adbCoverage, setAdbCoverage] = useState({
-    coverageAmount: '',
-    startDate: '',
-    endDate: '',
-    issueAge: '',
-    uwClass: '',
-    tableRating: ''
-  });
-
-  const [wopCoverage, setWopCoverage] = useState({
-    coverageAmount: '',
-    startDate: '',
-    endDate: '',
-    issueAge: '',
-    uwClass: '',
-    tableRating: ''
-  });
-
-  /* ===== EXISTING EFFECT (SIMPLIFIED PLACEHOLDER) ===== */
-  useEffect(() => {
-    setLoading(false);
-  }, [txnTypeId]);
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 5, textAlign: 'center' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8' }}>
-
-      {/* ================= HEADER ================= */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <IconButton onClick={() => navigate('/underwriting')}>
-          <ArrowBack />
-        </IconButton>
-        <Box>
-          <Typography variant="h5" fontWeight="bold">
-            Underwriting Details
-          </Typography>
-          <Typography variant="body2">
-            Application : {txnTypeId}
-          </Typography>
-        </Box>
-      </Stack>
-
-      {/* ================= Application Basic Info ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Application Basic Info
-        </Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Client Name" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Client No." fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Quotation Number" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Application Number" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Product Name" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Sum Assured" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Annual Premium" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Coverage – Base ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Coverage Details – Rider Type (Base)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Tobacco" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Perm Flat Extra" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra Duration" fullWidth disabled={isReadOnly} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Coverage – ADB ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (ADB)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={isReadOnly} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Coverage – Waiver of Premium ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={isReadOnly} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={isReadOnly} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= SAVE / NEXT ================= */}
-      <Paper sx={{ p: 2, textAlign: 'right' }}>
-        <Button variant="outlined" sx={{ mr: 2 }}>Save</Button>
-        <Button variant="contained">Next</Button>
-      </Paper>
-
-    </Box>
-  );
-};
-
-export default UnderwritingDetails;
-
-
+ 
