@@ -1,193 +1,35 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Paper,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  Stack,
-  IconButton,
-  CircularProgress
-} from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "../../api/axiosInterceptor";
 
-/* ================= TYPES ================= */
-type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
-
-interface ApplicationBasicInfoData {
-  clientName: string;
-  clientNo: string;
-  quotationNumber: string;
-  quotationDate: string;
-  applicationNumber: string;
-  productName: string;
-  sumAssured: string;
-  annualPremium: string;
-  issueDate: string;
-
-  // Rider Base
-  baseCoverageAmount: string;
-  baseStartDate: string;
-  baseEndDate: string;
-  baseIssueAge: string;
-  tobacco: string;
-  uwClass: string;
-  tableRating: string;
-  permFlatExtra: string;
-  tempFlatExtra: string;
-  tempFlatExtraDuration: string;
-
-  // Rider ADB
-  adbCoverageAmount: string;
-  adbStartDate: string;
-  adbEndDate: string;
-  adbIssueAge: string;
-  adbUwClass: string;
-  adbTableRating: string;
-
-  // Rider WOP
-  wopCoverageAmount: string;
-  wopStartDate: string;
-  wopEndDate: string;
-  wopIssueAge: string;
-  wopUwClass: string;
-  wopTableRating: string;
-
-  uwStatus: UWStatus;
-}
-
-/* ================= COMPONENT ================= */
-const ApplicationBasicInfo: React.FC = () => {
-  const { txnTypeId } = useParams();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] =
-    useState<ApplicationBasicInfoData | null>(null);
-
-  /* ================= FETCH DATA ================= */
-  useEffect(() => {
-    if (!txnTypeId) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(
-          `http://localhost:8001/eapp/application/basic-info/${txnTypeId}`
-        );
-        setFormData(res.data);
-      } catch (err) {
-        console.error("Failed to fetch application basic info", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [txnTypeId]);
-
-  const editable = formData?.uwStatus !== "UW Complete";
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 5, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!formData) {
-    return (
-      <Box sx={{ p: 5, textAlign: "center" }}>
-        <Typography>No application data found</Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
-
-      {/* ================= HEADER ================= */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-        <IconButton onClick={() => navigate("/underwriting")}>
-          <ArrowBack />
-        </IconButton>
-        <Box>
-          <Typography variant="h5" fontWeight="bold">
-            Underwriting Details
-          </Typography>
-          <Typography variant="body2">
-            Application : {txnTypeId}
-          </Typography>
-        </Box>
-      </Stack>
-
-      {/* ================= APPLICATION BASIC INFO ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold">Application Basic Info</Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField label="Client Name" fullWidth disabled={!editable} value={formData.clientName} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Client No." fullWidth disabled={!editable} value={formData.clientNo} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Quotation Number" fullWidth disabled value={formData.quotationNumber} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled value={formData.quotationDate} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Application Number" fullWidth disabled value={formData.applicationNumber} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Product Name" fullWidth disabled value={formData.productName} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Sum Assured" fullWidth disabled={!editable} value={formData.sumAssured} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Annual Premium" fullWidth disabled value={formData.annualPremium} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} value={formData.issueDate} />
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= RIDER BASE ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (Base)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} value={formData.baseCoverageAmount} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} value={formData.baseStartDate} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} value={formData.baseEndDate} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled value={formData.baseIssueAge} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Tobacco" fullWidth disabled={!editable} value={formData.tobacco} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} value={formData.uwClass} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} value={formData.tableRating} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Perm Flat Extra" fullWidth disabled={!editable} value={formData.permFlatExtra} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra" fullWidth disabled={!editable} value={formData.tempFlatExtra} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} value={formData.tempFlatExtraDuration} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= ACTIONS ================= */}
-      <Paper sx={{ p: 2 }}>
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button variant="outlined" onClick={() => navigate("/underwriting")}>Back</Button>
-          <Button variant="contained" disabled={!editable}>Save</Button>
-          <Button variant="contained" disabled={!editable} onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}>Next</Button>
-        </Stack>
-      </Paper>
-
-    </Box>
-  );
-};
-
-export default ApplicationBasicInfo;
+BasicTabs.tsx:579 9
+BasicTabs.tsx:586 Quote Data ==>  Object
+BasicTabs.tsx:588 Case Details ==> Object
+BasicTabs.tsx:592 response from backend: [object Object]
+ProofingPolicyList.tsx:110 Selected workCode: W021225-1, quoteId: Q000000001
+ProofingPolicyList.tsx:119 Post Response: R001
+ProofingPolicyList.tsx:125 Get Response Status: 200
+ProofingPolicyList.tsx:126 Get Response Data: Array(1)
+ProofingPolicyList.tsx:132 Error: ReferenceError: setSuccessMessage is not defined
+    at handleApplyChanges (ProofingPolicyList.tsx:129:5)
+handleApplyChanges @ ProofingPolicyList.tsx:132Understand this error
+ProofingPolicyList.tsx:138 Uncaught (in promise) ReferenceError: setError is not defined
+    at handleApplyChanges (ProofingPolicyList.tsx:138:5)Understand this error
+:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
+fetchData @ ApplicationBasicInfo.tsx:86Understand this error
+:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
+fetchData @ ApplicationBasicInfo.tsx:86Understand this error
+ProofingPolicyList.tsx:110 Selected workCode: W021225-1, quoteId: Q000000001
+ProofingPolicyList.tsx:119 Post Response: R001
+ProofingPolicyList.tsx:125 Get Response Status: 200
+ProofingPolicyList.tsx:126 Get Response Data: Array(1)
+ProofingPolicyList.tsx:132 Error: ReferenceError: setSuccessMessage is not defined
+    at handleApplyChanges (ProofingPolicyList.tsx:129:5)
+handleApplyChanges @ ProofingPolicyList.tsx:132Understand this error
+ProofingPolicyList.tsx:138 Uncaught (in promise) ReferenceError: setError is not defined
+    at handleApplyChanges (ProofingPolicyList.tsx:138:5)Understand this error
+:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
+fetchData @ ApplicationBasicInfo.tsx:86Understand this error
+:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
+fetchData @ ApplicationBasicInfo.tsx:86Understand this error
