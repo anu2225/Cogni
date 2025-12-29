@@ -4,26 +4,25 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import HttpApi from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+
 import 'bootstrap/dist/js/bootstrap.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./index.css";
-import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
+
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 // --- COMPONENT IMPORTS ---
 import App from './App.jsx';
 import SignIn from './Components/Auth/SignIn.js';
 import SignUp from './Components/Auth/SignUp.js';
-import BasicTabs from './Components/BasicTabs'; 
+import BasicTabs from './Components/BasicTabs';
 import Underwriting from './Components/underwriting/Underwriting';
-import { RouterProvider } from 'react-router-dom';
 import Application from './Components/application/Application.js';
 import UnderwritingDetails from './Components/underwriting/UnderwritingDetails';
+import UnderwritingDetailsTailwind from './Components/underwriting/UnderwritingDetailsTailwind.js';
 import Proofing from './Components/proofing/Proofing.js';
-// import UnderwritingDetailsTailwind from './Components/underwriting/UnderwritingDetailsTailwind.js';
 
 // --- PLACEHOLDER COMPONENTS ---
-// TODO:  (Replace these with real imports when files are created)
-const ProofingTxn = () => <div className="p-4"><h2>Proofing Details</h2></div>;
 const Payment = () => <div className="p-4"><h2>Payment Gateway</h2></div>;
 const Claims = () => <div className="p-4"><h2>Claims Processing</h2></div>;
 
@@ -61,42 +60,39 @@ const router = createBrowserRouter([
     element: <SignUp />
   },
 
-  // 2. PROTECTED APP ROUTES (Wrapped in App Layout)
+  // 2. PROTECTED APP ROUTES
   {
-    element: <App />, // This is your Sidebar/Header Layout
+    element: <App />,
     children: [
-      // A. Application (Form) - Requires ID
+      // Application
       {
         path: 'application',
-        element: <Application/>
+        element: <Application />
       },
-      
       {
         path: 'application/:txnTypeId',
         element: <BasicTabs />
       },
 
-      // B. Underwriting - Handles BOTH List and Details
+      // Underwriting
       {
-        path: 'underwriting', // No ID -> Component should show List
+        path: 'underwriting',
         element: <Underwriting />
       },
       {
-        path: 'underwriting/:txnTypeId', // Has ID -> Component should show Details
+        path: 'underwriting/:txnTypeId',
         element: <Underwriting />
       },
-      {
-        path: 'underwriting/:txnTypeId/details', // UnderwritingDetails (Screens 3-5)
-        element: <UnderwritingDetails />
-      },
-      // {
-      //   path: 'underwriting/:txnTypeId/v2', // New Design Version
-      //   element: <UnderwritingDetailsTailwind />
-      // },
 
-      // C. Proofing - Handles BOTH List and Details
+      // ✅ SCREEN 3 – Tailwind Underwriting Details (IMPORTANT)
       {
-        path: 'proofing', 
+        path: 'underwriting/:txnTypeId/details',
+        element: <UnderwritingDetailsTailwind />
+      },
+
+      // Proofing
+      {
+        path: 'proofing',
         element: <Proofing />
       },
       {
@@ -104,7 +100,7 @@ const router = createBrowserRouter([
         element: <Proofing />
       },
 
-      // D. Other Modules
+      // Other Modules
       {
         path: 'payment',
         element: <Payment />
@@ -136,5 +132,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <RouterProvider router={router} />
     </React.StrictMode>
-  </Suspense>,
+  </Suspense>
 );
