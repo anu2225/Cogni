@@ -1,3 +1,465 @@
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [loading, setLoading] = useState(true);
+
+  /* ===== DATA FROM SCREEN 1 ===== */
+  const policyData: any = location.state?.policyData;
+
+  /* ===== FORM DATA STATE ===== */
+  const [formData, setFormData] = useState<any>({});
+
+  /* ===== UW STATUS (backend later) ===== */
+  const uwStatus: UWStatus = "UW In Progress";
+
+  /* ===== SCREEN 2 RULE ===== */
+  const editable = uwStatus !== "UW Complete";
+
+  useEffect(() => {
+    if (policyData) {
+      setFormData(policyData);
+    }
+    setLoading(false);
+  }, [policyData, txnTypeId]);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+
+      {/* ================= Application Basic Info ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Client Name"
+              fullWidth
+              value={formData.clientName || ""}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Client No."
+              fullWidth
+              value={formData.clientNo || ""}
+              disabled={!editable}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Quotation Number"
+              fullWidth
+              value={formData.quotationNumber || ""}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Quotation Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.quotationDate || ""}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Application Number"
+              fullWidth
+              value={formData.applicationNumber || ""}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Product Name"
+              fullWidth
+              value={formData.productName || ""}
+              disabled
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Sum Assured"
+              fullWidth
+              value={formData.sumAssured || ""}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Annual Premium"
+              fullWidth
+              value={formData.annualPremium || ""}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Issue Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.issueDate || ""}
+              disabled={!editable}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – Base ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Base)</Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Tobacco" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Perm Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= ACTION BUTTONS ================= */}
+      <Paper sx={{ p: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
+            Back
+          </Button>
+          <Button variant="contained" disabled={!editable}>
+            Save
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!editable}
+            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
+          >
+            Next
+          </Button>
+        </Stack>
+      </Paper>
+
+    </Box>
+  );
+};
+
+export default ApplicationBasicInfo;
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, TextField, Box, TablePagination, Link as MuiLink, CircularProgress,
+  Stack,
+  Typography,
+  Switch
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import axios from '../../api/axiosInterceptor';
+ 
+export interface Policy {
+  caseNumber: string;
+  clientNo: string;
+  clientName: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
+  productName: string;
+  sumAssured: string;
+  annualPremium: string;
+  uwStatus: number;
+}
+ 
+interface ApiResponse {
+  policyId: string;
+  creation_TIME: string;
+  json_DATA: string;
+  version_NO: number;
+  screen_No: number;
+  stateId: number;
+  uwid: number;
+  sa: number;
+  periodPrem: number;
+}
+ 
+const PolicyList: React.FC = () => {
+  const navigate = useNavigate();
+ 
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState(0);
+  const [useNewDesign, setUseNewDesign] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+        const data: ApiResponse[] = response.data;
+        
+        const uniqueApplications = data.reduce((acc: any, record: ApiResponse) => {
+          if (!acc[record.policyId]) {
+            acc[record.policyId] = {
+              caseNumber: record.uwid.toString(),
+              clientNo: '',
+              clientName: 'Unknown',
+              quotationNumber: record.policyId,
+              quotationDate: new Date(Date.now()).toISOString().split('T')[0],
+              applicationNumber: record.policyId,
+              productName: 'General Life Plan',
+              sumAssured: record.sa?.toString() || '',
+              annualPremium: record.periodPrem?.toString() || '',
+              uwStatus: record.stateId || 0,
+            };
+          }
+
+          let parsedData: any = {};
+          try {
+            parsedData = typeof record.json_DATA === 'string'
+              ? JSON.parse(record.json_DATA)
+              : record.json_DATA;
+          } catch (e) {
+            console.error('JSON parse error', e);
+          }
+
+          if (record.screen_No === 1) {
+            acc[record.policyId].clientName =
+              `${parsedData?.insuredFirstName || ''} ${parsedData?.insuredSurName || ''}`.trim() || 'Unknown';
+            acc[record.policyId].clientNo = parsedData?.customerIdEbao || '';
+          }
+
+          if (record.screen_No === 2) {
+            acc[record.policyId].productName = parsedData?.basicPlan || 'General Life Plan';
+            acc[record.policyId].sumAssured = parsedData?.basicSumInsured || acc[record.policyId].sumAssured;
+          }
+
+          if (record.screen_No === 3) {
+            acc[record.policyId].annualPremium =
+              parsedData?.AmountOfPaymentWithThisApplication || acc[record.policyId].annualPremium;
+          }
+
+          return acc;
+        }, {});
+        
+        setPolicies(Object.values(uniqueApplications));
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching policies:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchPolicies();
+  }, []);
+ 
+  /* ===================== ONLY IMPORTANT CHANGE ===================== */
+  const handleOpenDetails = (policy: Policy) => {
+    if (useNewDesign) {
+      navigate(`/underwriting/${policy.applicationNumber}/v2`, {
+        state: { policyData: policy }
+      });
+    } else {
+      navigate(`/underwriting/${policy.caseNumber}`, {
+        state: { policyData: policy }
+      });
+    }
+  };
+  /* ================================================================ */
+ 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setPage(0);
+  };
+  
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
+    setPage(0);
+  };
+  
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+ 
+  const filteredPolicies = policies.filter((policy) => {
+    if (!searchQuery) return true;
+    return (
+      policy.caseNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      policy.clientName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+ 
+  const visiblePolicies = filteredPolicies.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+ 
+  return (
+    <div>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mt: 2 }}>
+        <TextField
+          label="Search ID or Name"
+          variant="outlined"
+          size="small"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          sx={{ width: '300px' }}
+        />
+      </Box>
+
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Typography variant="body2">Classic View</Typography>
+        <Switch
+          checked={useNewDesign}
+          onChange={(e) => setUseNewDesign(e.target.checked)}
+        />
+        <Typography variant="body2">V2</Typography>
+      </Stack>
+ 
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Case Number</TableCell>
+              <TableCell>Client No</TableCell>
+              <TableCell>Client Name</TableCell>
+              <TableCell>Quotation Number</TableCell>
+              <TableCell>Quotation Date</TableCell>
+              <TableCell>Application Number</TableCell>
+              <TableCell>Product Name</TableCell>
+              <TableCell>Sum Assured</TableCell>
+              <TableCell>Annual Premium</TableCell>
+              <TableCell>UW Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={10} align="center">
+                  <CircularProgress size={24} />
+                </TableCell>
+              </TableRow>
+            ) : (
+              visiblePolicies.map((policy, index) => (
+                <TableRow key={index} hover>
+                  <TableCell>
+                    <MuiLink component="button" onClick={() => handleOpenDetails(policy)}>
+                      CASE-{policy.caseNumber}
+                    </MuiLink>
+                  </TableCell>
+                  <TableCell>{policy.clientNo}</TableCell>
+                  <TableCell>{policy.clientName}</TableCell>
+                  <TableCell>{policy.quotationNumber}</TableCell>
+                  <TableCell>{policy.quotationDate}</TableCell>
+                  <TableCell>{policy.applicationNumber}</TableCell>
+                  <TableCell>{policy.productName}</TableCell>
+                  <TableCell>{policy.sumAssured}</TableCell>
+                  <TableCell>{policy.annualPremium}</TableCell>
+                  <TableCell>{policy.uwStatus === 2 ? 'Not Started' : 'In Progress'}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={filteredPolicies.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </div>
+  );
+};
+ 
+export default PolicyList;
+
+
+
 screen 1 code 
 
 import React, { useState, useEffect } from 'react';
