@@ -1,488 +1,83 @@
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Paper,
-  Typography,
-  Grid,
-  TextField,
-  Button,
-  Stack,
-  IconButton,
-  CircularProgress
-} from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "../../api/axiosInterceptor";
+// Create an axios instance with default config
+const axiosInstance = axios.create();
 
-/* ================= TYPES ================= */
-type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+// Add request interceptor to attach bearer token to all requests
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get the user object from localStorage
+    // const userStr = localStorage.getItem('user');
+    
+    const token = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjU2NDc1OTgsImlhdCI6MTc2NTY0MDQwOCwiYXV0aF90aW1lIjoxNzY1NjExNTk4LCJqdGkiOiJvbnJ0YWM6NjE4ZDc0MGMtM2FlZS00YjQ3LTk2NDItZmE5Y2YyNWFjMTQ4IiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImZmNTFjMjBjLTQ1NmItNDUxZi04MWJlLTdjYjQyYzIzOTZiZSIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6ImJkN2JhMmUyLTY2NjQtNGRhMy05MzFiLWUyMjdlZTE0OWI4NSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNhbmphbiBNdWtoZXJqZWUiLCJncm91cHMiOlsidXNlcjpwZiJdLCJyZWFsbSI6ImNvZ25pemFudCIsInByZWZlcnJlZF91c2VybmFtZSI6InNhbmphbmEubXVraGVyamVlQGNvZ25pemFudC5jb20iLCJnaXZlbl9uYW1lIjoiU2FuamFuIiwiZmFtaWx5X25hbWUiOiJNdWtoZXJqZWUiLCJ1c2VyX2NyZWF0ZWRfdGltZXN0YW1wIjoxNjY5NzAxMjI0MzI0LCJyZWxhdGlvbiI6InBhcnRuZXIifQ.IXZBG8lRpreim9M1y7pxHAdXkIeeIPS6LmhmpujUXczogMgCh3Srs3j7PvKMGJqNmZqn_iimSOAfXsJ4UxhPJoU4WMBt9ar6PTohs8UzXMmIwNkJHa0HlSW8MCe1d0FWtxpF3R_eX49viI5M-UvoI5BPMdxMuZ-ATRpmGtewD_oKhEQP4hJFwossOEkaK0E8XFXn0cT8ycRUResFdlCs_bc4ktKa14qBBrJTrwJCZV030McOq2VWpC4tzlHJaJHChZwfPKtkH3QPdTyANDamiTLCOe5Snmjp8vaPF7qhOZu7SzbkL7hLqGI2sZNIVuOQurBYwLzJgeGo_JdbDMUatA';
+      config.headers.Authorization = `Bearer ${token}`;
+    // if (userStr) {
+    //   try {
+    //     const user = JSON.parse(userStr);
 
-interface FormData {
-  clientName: string;
-  clientNo: string;
-  quotationNumber: string;
-  quotationDate: string;
-  applicationNumber: string;
-  productName: string;
-  sumAssured: string;
-  annualPremium: string;
-  issueDate: string;
+    //     // If user has a token, attach it to the Authorization header
+    //     if (user.token) {
+    //       config.headers.Authorization = `Bearer ${user.token}`;
+    //     }
+    //   } catch (error) {
+    //     console.error('Error parsing user from localStorage:', error);
+    //   }
+    // } else {
+    //   // Use the provided Bearer token if no user in localStorage
+    //   const token = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3b2ZGYnJPNWQyWWpaSnVrSHR5Q3Z4cU1QeHBHMXB1emhPYm9qUjVkb3NnIn0.eyJleHAiOjE3NjU2Mjc3ODUsImlhdCI6MTc2NTYyMDU4NSwiYXV0aF90aW1lIjoxNzY1NjExNTk4LCJqdGkiOiJvbnJ0cnQ6NGM4MWFlODQtYjlmMi00YmI2LWEzZWYtNzI1N2RkYTgyMGQwIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay51YXQudXMuY29oZXJlbnQuZ2xvYmFsL2F1dGgvcmVhbG1zL2NvZ25pemFudCIsImF1ZCI6WyJwcm9kdWN0LWZhY3RvcnkiLCJyZWFsbS1tYW5hZ2VtZW50Il0sInN1YiI6ImZmNTFjMjBjLTQ1NmItNDUxZi04MWJlLTdjYjQyYzIzOTZiZSIsInR5cCI6IkJlYXJlciIsImF6cCI6InByb2R1Y3QtZmFjdG9yeSIsInNpZCI6ImJkN2JhMmUyLTY2NjQtNGRhMy05MzFiLWUyMjdlZTE0OWI4NSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL21vZGVsaW5nLWNlbnRlci5kZXYuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zYS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9tb2RlbGluZy1jZW50ZXIudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9hc3Npc3RhbnQuc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL3NwYXJrLnVhdC51cy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL2Fzc2lzdGFudC5leHQuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9wcm9kdWN0ZmFjdG9yeS51YXQudXMuY29oZXJlbnQuZ2xvYmFsIiwiaHR0cHM6Ly9zcGFyay11c2VyLW1hbmFnZXIudWF0LnVzLmNvaGVyZW50Lmdsb2JhbCIsImh0dHBzOi8vc2Euc3RhZ2luZy5jb2hlcmVudC5nbG9iYWwiLCJodHRwczovL21vZGVsaW5nLWNlbnRlci5zdGFnaW5nLmNvaGVyZW50Lmdsb2JhbCJdLCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXVzZXJzIiwicXVlcnktZ3JvdXBzIiwicXVlcnktdXNlcnMiXX19LCJzY29wZSI6Im9wZW5pZCBzcGFyayBwcm9maWxlIiwibmFtZSI6IlNhbmphbiBNdWtoZXJqZWUiLCJncm91cHMiOlsidXNlcjpwZiJdLCJyZWFsbSI6ImNvZ25pemFudCIsInByZWZlcnJlZF91c2VybmFtZSI6InNhbmphbmEubXVraGVyamVlQGNvZ25pemFudC5jb20iLCJnaXZlbl9uYW1lIjoiU2FuamFuIiwiZmFtaWx5X25hbWUiOiJNdWtoZXJqZWUiLCJ1c2VyX2NyZWF0ZWRfdGltZXN0YW1wIjoxNjY5NzAxMjI0MzI0LCJyZWxhdGlvbiI6InBhcnRuZXIifQ.j4fHc5Px71v4NLxb3IO0xmDYHcKHWkkRZ0xTPLSxin53GoRkZPmBBr5sq_dVc7syaim2Y_CRUEqNDgqN0rBUDQSF_g1Qv-Ps6D_5_Gx4XNqpus-dJscPl80zc1ahdHwl1BIqtLKkG1fXjmgHx4WtRwP4EnERtat4jX_whK7wYi8i1vJDJ5l65EP1TuYuR6NUIHgSJnjc3iElZvJgbpfWfIERvBAAxRUrlE5WEVsZ0icqpfwtIamWD2v86WRUSHCeLYrhNrCLkJ6zOKdMgmIdybopEkaFbLownuGJnAlA7zQ0mkAUMB6xd27aKncD6Rw_EfgM9eiOr4SOuBNFKHuhOg';
+    //   config.headers.Authorization = `Bearer ${token}`;
+    // }
+    
 
-  // Base Rider
-  baseCoverageAmount: string;
-  baseStartDate: string;
-  baseEndDate: string;
-  issueAge: string;
-  tobacco: string;
-  uwClass: string;
-  tableRating: string;
-  permFlatExtra: string;
-  tempFlatExtra: string;
-  tempFlatExtraDuration: string;
-
-  // ADB
-  adbCoverageAmount: string;
-  adbStartDate: string;
-  adbEndDate: string;
-  adbUwClass: string;
-  adbTableRating: string;
-
-  // WOP
-  wopCoverageAmount: string;
-  wopStartDate: string;
-  wopEndDate: string;
-  wopUwClass: string;
-  wopTableRating: string;
-
-  uwStatus: UWStatus;
-}
-
-/* ================= COMPONENT ================= */
-const ApplicationBasicInfo: React.FC = () => {
-  const { txnTypeId } = useParams();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState<FormData | null>(null);
-
-  /* ================= FETCH DATA ================= */
-  useEffect(() => {
-    if (!txnTypeId) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // EXISTING BACKEND API
-        const res = await axios.get("http://localhost:8001/eapp/getAll");
-
-        const records = res.data.filter(
-          (item: any) => item.quotation_id === txnTypeId
-        );
-
-        if (records.length === 0) {
-          setFormData(null);
-          return;
-        }
-
-        const screens: any = {};
-        records.forEach((rec: any) => {
-          screens[rec.screen_No] =
-            typeof rec.json_DATA === "string"
-              ? JSON.parse(rec.json_DATA)
-              : rec.json_DATA;
-        });
-
-        const s1 = screens[1] || {};
-        const s2 = screens[2] || {};
-        const s10 = screens[10] || {};
-
-        setFormData({
-          clientName: `${s1.insuredFirstName || ""} ${s1.insuredSurName || ""}`,
-          clientNo: s1.clientNo || "",
-          quotationNumber: txnTypeId,
-          quotationDate: s1.quotationDate || "",
-          applicationNumber: txnTypeId,
-          productName: s2.basicPlan || "",
-          sumAssured: s2.basicSumInsured || "",
-          annualPremium: s10.annualPremium || "",
-          issueDate: s2.issueDate || "",
-
-          baseCoverageAmount: s2.basicSumInsured || "",
-          baseStartDate: s2.startDate || "",
-          baseEndDate: s2.endDate || "",
-          issueAge: s1.issueAge || "",
-          tobacco: s1.tobacco || "",
-          uwClass: "",
-          tableRating: "",
-          permFlatExtra: "",
-          tempFlatExtra: "",
-          tempFlatExtraDuration: "",
-
-          adbCoverageAmount: "",
-          adbStartDate: "",
-          adbEndDate: "",
-          adbUwClass: "",
-          adbTableRating: "",
-
-          wopCoverageAmount: "",
-          wopStartDate: "",
-          wopEndDate: "",
-          wopUwClass: "",
-          wopTableRating: "",
-
-          uwStatus: "UW In Progress"
-        });
-      } catch (err) {
-        console.error("Failed to fetch Application Basic Info", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [txnTypeId]);
-
-  const editable = formData?.uwStatus !== "UW Complete";
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 5, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  if (!formData) {
-    return (
-      <Box sx={{ p: 5, textAlign: "center" }}>
-        <Typography>No Application Data Found</Typography>
-      </Box>
-    );
-  }
+// // Add response interceptor to handle 401 errors
+// axiosInstance.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   (error) => {
+//     // Handle 401 Unauthorized - redirect to login
+//     if (error.response && error.response.status === 401) {
+//       localStorage.removeItem('user');
+//       window.location.href = '/signin';
+//     }
+    
+//     return Promise.reject(error);
+//   }
+// );
 
-  return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
-      {/* ================= HEADER ================= */}
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-        <IconButton onClick={() => navigate("/underwriting")}>
-          <ArrowBack />
-        </IconButton>
-        <Box>
-          <Typography variant="h5" fontWeight="bold">
-            Underwriting Details
-          </Typography>
-          <Typography variant="body2">
-            Application : {txnTypeId}
-          </Typography>
-        </Box>
-      </Stack>
+// Helper methods for common HTTP operations
+export const apiClient = {
+  // GET request
+  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    return axiosInstance.get<T>(url, config);
+  },
 
-      {/* ================= Application Basic Info ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold">Application Basic Info</Typography>
+  // POST request
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    return axiosInstance.post<T>(url, data, config);
+  },
 
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField label="Client Name" fullWidth disabled={!editable} value={formData.clientName} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Client No." fullWidth disabled={!editable} value={formData.clientNo} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Quotation Number" fullWidth disabled value={formData.quotationNumber} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled value={formData.quotationDate} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Application Number" fullWidth disabled value={formData.applicationNumber} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Product Name" fullWidth disabled value={formData.productName} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Sum Assured" fullWidth disabled={!editable} value={formData.sumAssured} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Annual Premium" fullWidth disabled value={formData.annualPremium} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} value={formData.issueDate} />
-          </Grid>
-        </Grid>
-      </Paper>
+  // PUT request
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    return axiosInstance.put<T>(url, data, config);
+  },
 
-      {/* ================= ACTION BUTTONS ================= */}
-      <Paper sx={{ p: 2 }}>
-        <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
-            Back
-          </Button>
-          <Button variant="contained" disabled={!editable}>
-            Save
-          </Button>
-          <Button
-            variant="contained"
-            disabled={!editable}
-            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
-          >
-            Next
-          </Button>
-        </Stack>
-      </Paper>
-    </Box>
-  );
+  // DELETE request
+  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    return axiosInstance.delete<T>(url, config);
+  },
+
+  // PATCH request
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
+    return axiosInstance.patch<T>(url, data, config);
+  },
 };
 
-export default ApplicationBasicInfo;
-
-
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import { 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, TextField, Box, TablePagination, Link as MuiLink, CircularProgress,
-  Button,
-  Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  Alert
-} from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from '../../api/axiosInterceptor';
-
-export interface PolicyDisplay {
-  quoteId: string;
-  policyholderName: string;
-  productName: string;
-  status: number;
-  date: string;
-}
-
-interface ApiPolicy {
-  policyId: string;
-  holderName: string;
-  productName: string;
-  stateId: number;
-  insertTime: string; 
-}
-
-interface ProofingData {
-  id: string;
-  name: string;
-  status: string;
-  workType: string;
-  [key: string]: any;
-}
-
-const ProofingPolicyList: React.FC = () => {
-  const navigate = useNavigate();
-  const { txnTypeId } = useParams();
-  
-  const userEmail = localStorage.getItem('email') || ''; 
-
-  const [workType, setWorkType] = useState<string>('GenerateQuote');
-  const [policies, setPolicies] = useState<PolicyDisplay[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [proofingData, setProofingData] = useState<ProofingData[]>([]);
-  const [hasApplied, setHasApplied] = useState<boolean>(false);
-
-  // ✅ FIXED STATES
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const workTypeMap: { [key: string]: string } = {
-    GenerateQuote: 'W021225-1',
-    QuoteUWR: 'W021225-3',
-  };
-
-  /* ================= FETCH POLICIES ================= */
-  useEffect(() => {
-    if (!userEmail) return;
-
-    const fetchPolicies = async () => {
-      try {
-        setLoading(true);
-
-        const response = await axios.get<ApiPolicy[]>(
-          'http://localhost:8001/role/proofing',
-          { params: { email: userEmail } }
-        );
-
-        const mappedData: PolicyDisplay[] = response.data.map(item => ({
-          quoteId: item.policyId,
-          policyholderName: item.holderName || "N/A",
-          productName: item.productName || "N/A",
-          status: item.stateId,
-          date: item.insertTime ? item.insertTime.split('T')[0] : '',
-        }));
-
-        setPolicies(mappedData);
-      } catch (err) {
-        console.error("Error fetching policies:", err);
-        setError("Failed to load policy list");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPolicies();
-  }, [userEmail]);
-
-  /* ================= APPLY CHANGES ================= */
-  const handleApplyChanges = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccessMessage(null);
-
-    try {
-      const codeToUse = workTypeMap[workType];
-      const quoteId = policies[0]?.quoteId || txnTypeId;
-
-      console.log(`Selected workCode: ${codeToUse}, quoteId: ${quoteId}`);
-
-      await axios.post(`http://localhost:8001/eapp/setRuleDef`, {
-        workCode: codeToUse,
-        quoteId
-      });
-
-      const getResponse = await axios.get(
-        `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`
-      );
-
-      setProofingData(getResponse.data || []);
-      setSuccessMessage("Successfully applied changes");
-      setHasApplied(true);
-    } catch (err: any) {
-      console.error(err);
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to apply changes"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* ================= NAVIGATION ================= */
-  const handleOpenDetails = (quoteId: string) => {
-    navigate(`/application/${quoteId}`);
-  };
-
-  /* ================= SEARCH & PAGINATION ================= */
-  const filteredPolicies = policies.filter(policy => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      policy.quoteId.toLowerCase().includes(q) ||
-      policy.policyholderName.toLowerCase().includes(q)
-    );
-  });
-
-  const visiblePolicies = filteredPolicies.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  return (
-    <div>
-      {/* ================= ALERTS ================= */}
-      {successMessage && <Alert severity="success">{successMessage}</Alert>}
-      {error && <Alert severity="error">{error}</Alert>}
-
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mt: 2 }}>
-        <TextField
-          label="Search ID or Name"
-          size="small"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ width: 300 }}
-        />
-      </Box>
-
-      <Stack direction="row" spacing={2} alignItems="flex-end">
-        <FormControl sx={{ minWidth: 250 }}>
-          <InputLabel>Work Type</InputLabel>
-          <Select value={workType} label="Work Type">
-            <MenuItem value="GenerateQuote">Generate Quote</MenuItem>
-            <MenuItem value="QuoteUWR">Quote UWR</MenuItem>
-          </Select>
-
-          <Button
-            variant="contained"
-            sx={{ mt: 2 }}
-            onClick={handleApplyChanges}
-            disabled={loading}
-          >
-            Approve
-          </Button>
-        </FormControl>
-
-        {loading && <CircularProgress size={24} />}
-      </Stack>
-
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell><b>Application ID</b></TableCell>
-              <TableCell><b>Holder Name</b></TableCell>
-              <TableCell><b>Product Name</b></TableCell>
-              <TableCell><b>State ID</b></TableCell>
-              <TableCell><b>Date</b></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {visiblePolicies.map(policy => (
-              <TableRow key={policy.quoteId} hover>
-                <TableCell>
-                  <MuiLink
-                    component="button"
-                    onClick={() => handleOpenDetails(policy.quoteId)}
-                    sx={{ fontWeight: 'bold' }}
-                  >
-                    {policy.quoteId}
-                  </MuiLink>
-                </TableCell>
-                <TableCell>{policy.policyholderName}</TableCell>
-                <TableCell>{policy.productName}</TableCell>
-                <TableCell>{policy.status}</TableCell>
-                <TableCell>{policy.date}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
-        <TablePagination
-          component="div"
-          count={filteredPolicies.length}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(_, p) => setPage(p)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-        />
-      </TableContainer>
-    </div>
-  );
-};
-
-export default ProofingPolicyList;
-
-
+export default axiosInstance;
