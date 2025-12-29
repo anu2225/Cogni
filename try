@@ -26,3 +26,23 @@ const Underwriting: React.FC = () => {
 };
 
 export default Underwriting;
+
+
+import React from 'react';
+import { Paper, Typography } from '@mui/material';
+import PolicyList from './PolicyList';
+
+const Underwriting: React.FC = () => {
+  return (
+    <Paper sx={{ p: 3, height: '100%' }}>
+      <Typography variant="h5" gutterBottom>
+        Underwriting Sharing Pool
+      </Typography>
+      <PolicyList />
+    </Paper>
+  );
+};
+
+export default Underwriting;
+
+
