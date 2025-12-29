@@ -236,3 +236,253 @@ const ApplicationBasicInfo: React.FC = () => {
 };
 
 export default ApplicationBasicInfo;
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  Paper, TextField, Box, TablePagination, Link as MuiLink, CircularProgress,
+  Button,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Alert
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from '../../api/axiosInterceptor';
+
+export interface PolicyDisplay {
+  quoteId: string;
+  policyholderName: string;
+  productName: string;
+  status: number;
+  date: string;
+}
+
+interface ApiPolicy {
+  policyId: string;
+  holderName: string;
+  productName: string;
+  stateId: number;
+  insertTime: string; 
+}
+
+interface ProofingData {
+  id: string;
+  name: string;
+  status: string;
+  workType: string;
+  [key: string]: any;
+}
+
+const ProofingPolicyList: React.FC = () => {
+  const navigate = useNavigate();
+  const { txnTypeId } = useParams();
+  
+  const userEmail = localStorage.getItem('email') || ''; 
+
+  const [workType, setWorkType] = useState<string>('GenerateQuote');
+  const [policies, setPolicies] = useState<PolicyDisplay[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [proofingData, setProofingData] = useState<ProofingData[]>([]);
+  const [hasApplied, setHasApplied] = useState<boolean>(false);
+
+  // ✅ FIXED STATES
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const workTypeMap: { [key: string]: string } = {
+    GenerateQuote: 'W021225-1',
+    QuoteUWR: 'W021225-3',
+  };
+
+  /* ================= FETCH POLICIES ================= */
+  useEffect(() => {
+    if (!userEmail) return;
+
+    const fetchPolicies = async () => {
+      try {
+        setLoading(true);
+
+        const response = await axios.get<ApiPolicy[]>(
+          'http://localhost:8001/role/proofing',
+          { params: { email: userEmail } }
+        );
+
+        const mappedData: PolicyDisplay[] = response.data.map(item => ({
+          quoteId: item.policyId,
+          policyholderName: item.holderName || "N/A",
+          productName: item.productName || "N/A",
+          status: item.stateId,
+          date: item.insertTime ? item.insertTime.split('T')[0] : '',
+        }));
+
+        setPolicies(mappedData);
+      } catch (err) {
+        console.error("Error fetching policies:", err);
+        setError("Failed to load policy list");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPolicies();
+  }, [userEmail]);
+
+  /* ================= APPLY CHANGES ================= */
+  const handleApplyChanges = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const codeToUse = workTypeMap[workType];
+      const quoteId = policies[0]?.quoteId || txnTypeId;
+
+      console.log(`Selected workCode: ${codeToUse}, quoteId: ${quoteId}`);
+
+      await axios.post(`http://localhost:8001/eapp/setRuleDef`, {
+        workCode: codeToUse,
+        quoteId
+      });
+
+      const getResponse = await axios.get(
+        `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`
+      );
+
+      setProofingData(getResponse.data || []);
+      setSuccessMessage("Successfully applied changes");
+      setHasApplied(true);
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to apply changes"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= NAVIGATION ================= */
+  const handleOpenDetails = (quoteId: string) => {
+    navigate(`/application/${quoteId}`);
+  };
+
+  /* ================= SEARCH & PAGINATION ================= */
+  const filteredPolicies = policies.filter(policy => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      policy.quoteId.toLowerCase().includes(q) ||
+      policy.policyholderName.toLowerCase().includes(q)
+    );
+  });
+
+  const visiblePolicies = filteredPolicies.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  return (
+    <div>
+      {/* ================= ALERTS ================= */}
+      {successMessage && <Alert severity="success">{successMessage}</Alert>}
+      {error && <Alert severity="error">{error}</Alert>}
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, mt: 2 }}>
+        <TextField
+          label="Search ID or Name"
+          size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ width: 300 }}
+        />
+      </Box>
+
+      <Stack direction="row" spacing={2} alignItems="flex-end">
+        <FormControl sx={{ minWidth: 250 }}>
+          <InputLabel>Work Type</InputLabel>
+          <Select value={workType} label="Work Type">
+            <MenuItem value="GenerateQuote">Generate Quote</MenuItem>
+            <MenuItem value="QuoteUWR">Quote UWR</MenuItem>
+          </Select>
+
+          <Button
+            variant="contained"
+            sx={{ mt: 2 }}
+            onClick={handleApplyChanges}
+            disabled={loading}
+          >
+            Approve
+          </Button>
+        </FormControl>
+
+        {loading && <CircularProgress size={24} />}
+      </Stack>
+
+      <TableContainer component={Paper} sx={{ mt: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><b>Application ID</b></TableCell>
+              <TableCell><b>Holder Name</b></TableCell>
+              <TableCell><b>Product Name</b></TableCell>
+              <TableCell><b>State ID</b></TableCell>
+              <TableCell><b>Date</b></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {visiblePolicies.map(policy => (
+              <TableRow key={policy.quoteId} hover>
+                <TableCell>
+                  <MuiLink
+                    component="button"
+                    onClick={() => handleOpenDetails(policy.quoteId)}
+                    sx={{ fontWeight: 'bold' }}
+                  >
+                    {policy.quoteId}
+                  </MuiLink>
+                </TableCell>
+                <TableCell>{policy.policyholderName}</TableCell>
+                <TableCell>{policy.productName}</TableCell>
+                <TableCell>{policy.status}</TableCell>
+                <TableCell>{policy.date}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <TablePagination
+          component="div"
+          count={filteredPolicies.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={(_, p) => setPage(p)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+        />
+      </TableContainer>
+    </div>
+  );
+};
+
+export default ProofingPolicyList;
+
+
