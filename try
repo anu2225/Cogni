@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -12,9 +13,50 @@ import {
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "../../api/axiosInterceptor";
 
 /* ================= TYPES ================= */
 type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+
+interface FormData {
+  clientName: string;
+  clientNo: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
+  productName: string;
+  sumAssured: string;
+  annualPremium: string;
+  issueDate: string;
+
+  // Base Rider
+  baseCoverageAmount: string;
+  baseStartDate: string;
+  baseEndDate: string;
+  issueAge: string;
+  tobacco: string;
+  uwClass: string;
+  tableRating: string;
+  permFlatExtra: string;
+  tempFlatExtra: string;
+  tempFlatExtraDuration: string;
+
+  // ADB
+  adbCoverageAmount: string;
+  adbStartDate: string;
+  adbEndDate: string;
+  adbUwClass: string;
+  adbTableRating: string;
+
+  // WOP
+  wopCoverageAmount: string;
+  wopStartDate: string;
+  wopEndDate: string;
+  wopUwClass: string;
+  wopTableRating: string;
+
+  uwStatus: UWStatus;
+}
 
 /* ================= COMPONENT ================= */
 const ApplicationBasicInfo: React.FC = () => {
@@ -22,16 +64,86 @@ const ApplicationBasicInfo: React.FC = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData | null>(null);
 
-  /* ===== UW STATUS (backend later) ===== */
-  const uwStatus: UWStatus = "UW In Progress";
-
-  /* ===== SCREEN 2 RULE ===== */
-  const editable = uwStatus !== "UW Complete";
-
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
-    setLoading(false);
+    if (!txnTypeId) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // EXISTING BACKEND API
+        const res = await axios.get("http://localhost:8001/eapp/getAll");
+
+        const records = res.data.filter(
+          (item: any) => item.quotation_id === txnTypeId
+        );
+
+        if (records.length === 0) {
+          setFormData(null);
+          return;
+        }
+
+        const screens: any = {};
+        records.forEach((rec: any) => {
+          screens[rec.screen_No] =
+            typeof rec.json_DATA === "string"
+              ? JSON.parse(rec.json_DATA)
+              : rec.json_DATA;
+        });
+
+        const s1 = screens[1] || {};
+        const s2 = screens[2] || {};
+        const s10 = screens[10] || {};
+
+        setFormData({
+          clientName: `${s1.insuredFirstName || ""} ${s1.insuredSurName || ""}`,
+          clientNo: s1.clientNo || "",
+          quotationNumber: txnTypeId,
+          quotationDate: s1.quotationDate || "",
+          applicationNumber: txnTypeId,
+          productName: s2.basicPlan || "",
+          sumAssured: s2.basicSumInsured || "",
+          annualPremium: s10.annualPremium || "",
+          issueDate: s2.issueDate || "",
+
+          baseCoverageAmount: s2.basicSumInsured || "",
+          baseStartDate: s2.startDate || "",
+          baseEndDate: s2.endDate || "",
+          issueAge: s1.issueAge || "",
+          tobacco: s1.tobacco || "",
+          uwClass: "",
+          tableRating: "",
+          permFlatExtra: "",
+          tempFlatExtra: "",
+          tempFlatExtraDuration: "",
+
+          adbCoverageAmount: "",
+          adbStartDate: "",
+          adbEndDate: "",
+          adbUwClass: "",
+          adbTableRating: "",
+
+          wopCoverageAmount: "",
+          wopStartDate: "",
+          wopEndDate: "",
+          wopUwClass: "",
+          wopTableRating: "",
+
+          uwStatus: "UW In Progress"
+        });
+      } catch (err) {
+        console.error("Failed to fetch Application Basic Info", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [txnTypeId]);
+
+  const editable = formData?.uwStatus !== "UW Complete";
 
   if (loading) {
     return (
@@ -41,9 +153,16 @@ const ApplicationBasicInfo: React.FC = () => {
     );
   }
 
+  if (!formData) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <Typography>No Application Data Found</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
-
       {/* ================= HEADER ================= */}
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
         <IconButton onClick={() => navigate("/underwriting")}>
@@ -61,144 +180,35 @@ const ApplicationBasicInfo: React.FC = () => {
 
       {/* ================= Application Basic Info ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold" gutterBottom>
-          Application Basic Info
-        </Typography>
+        <Typography variant="h6" fontWeight="bold">Application Basic Info</Typography>
 
         <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
-            <TextField label="Client Name" fullWidth disabled={!editable} />
+            <TextField label="Client Name" fullWidth disabled={!editable} value={formData.clientName} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="Client No." fullWidth disabled={!editable} />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField label="Quotation Number" fullWidth disabled />
+            <TextField label="Client No." fullWidth disabled={!editable} value={formData.clientNo} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField
-              label="Quotation Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              disabled
-            />
+            <TextField label="Quotation Number" fullWidth disabled value={formData.quotationNumber} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="Application Number" fullWidth disabled />
+            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled value={formData.quotationDate} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="Product Name" fullWidth disabled />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField label="Sum Assured" fullWidth disabled={!editable} />
+            <TextField label="Application Number" fullWidth disabled value={formData.applicationNumber} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="Annual Premium" fullWidth disabled />
+            <TextField label="Product Name" fullWidth disabled value={formData.productName} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField
-              label="Issue Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              disabled={!editable}
-            />
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Rider Type – Base ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (Base)</Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
+            <TextField label="Sum Assured" fullWidth disabled={!editable} value={formData.sumAssured} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+            <TextField label="Annual Premium" fullWidth disabled value={formData.annualPremium} />
           </Grid>
           <Grid item xs={12} md={4}>
-            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField label="Issue Age" fullWidth disabled />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Tobacco" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Perm Flat Extra" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Temp Flat Extra" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} />
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Rider Type – ADB ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (ADB)</Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField label="Issue Age" fullWidth disabled />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!editable} />
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Rider Type – Waiver of Premium ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <TextField label="Issue Age" fullWidth disabled />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="UW Class" fullWidth disabled={!editable} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField label="Table Rating" fullWidth disabled={!editable} />
+            <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} value={formData.issueDate} />
           </Grid>
         </Grid>
       </Paper>
@@ -221,7 +231,6 @@ const ApplicationBasicInfo: React.FC = () => {
           </Button>
         </Stack>
       </Paper>
-
     </Box>
   );
 };
