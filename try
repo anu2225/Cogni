@@ -1,139 +1,174 @@
-import React, { Suspense } from 'react';
-import ReactDOM from 'react-dom/client';
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import HttpApi from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import 'bootstrap/dist/js/bootstrap.js';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "./index.css";
-import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-// --- COMPONENT IMPORTS ---
-import App from './App.jsx';
-import SignIn from './Components/Auth/SignIn.js';
-import SignUp from './Components/Auth/SignUp.js';
-import BasicTabs from './Components/BasicTabs'; 
-import Underwriting from './Components/underwriting/Underwriting';
-import Application from './Components/application/Application.js';
-import UnderwritingDetails from './Components/underwriting/UnderwritingDetails';
-import Proofing from './Components/proofing/Proofing.js';
-import UnderwritingDetailsTailwind from './Components/underwriting/UnderwritingDetailsTailwind.js';
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
 
-// --- PLACEHOLDER COMPONENTS ---
-// TODO:  (Replace these with real imports when files are created)
-const ProofingTxn = () => <div className="p-4"><h2>Proofing Details</h2></div>;
-const Payment = () => <div className="p-4"><h2>Payment Gateway</h2></div>;
-const Claims = () => <div className="p-4"><h2>Claims Processing</h2></div>;
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-// --- I18N CONFIGURATION ---
-i18next
-  .use(HttpApi)
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    supportedLngs: ['en', 'th'],
-    fallbackLng: 'en',
-    debug: false,
-    detection: {
-      order: ['path', 'cookie', 'htmlTag'],
-      caches: ['cookie'],
-    },
-    backend: {
-      loadPath: '/assets/locales/{{lng}}/translation.json',
-    },
-  });
+  const [loading, setLoading] = useState(true);
 
-// --- ROUTER CONFIGURATION ---
-const router = createBrowserRouter([
-  // 1. PUBLIC ROUTES
-  {
-    path: '/',
-    element: <SignIn />
-  },
-  {
-    path: '/signin',
-    element: <SignIn />
-  },
-  {
-    path: '/signup',
-    element: <SignUp />
-  },
+  /* ===== DATA FROM SCREEN 1 ===== */
+  const policyData: any = location.state?.policyData;
 
-  // 2. PROTECTED APP ROUTES (Wrapped in App Layout)
-  {
-    element: <App />, // This is your Sidebar/Header Layout
-    children: [
-      // A. Application (Form) - Requires ID
-      {
-        path: 'application',
-        element: <Application/>
-      },
-      
-      {
-        path: 'application/:txnTypeId',
-        element: <BasicTabs />
-      },
+  /* ===== FORM DATA ===== */
+  const [formData, setFormData] = useState<any>({});
 
-      // B. Underwriting - Handles BOTH List and Details
-      {
-        path: 'underwriting', // No ID -> Component should show List
-        element: <Underwriting />
-      },
-      {
-        path: 'underwriting/:txnTypeId', // Has ID -> Component should show Details
-        element: <Underwriting />
-      },
-      {
-        path: 'underwriting/:txnTypeId/details', // UnderwritingDetails (Screens 3-5)
-        element: <UnderwritingDetails />
-      },
-      {
-        path: 'underwriting/:txnTypeId/v2', // New Design Version
-        element: <UnderwritingDetailsTailwind />
-      },
+  /* ===== UW STATUS (backend later) ===== */
+  const uwStatus: UWStatus = "UW In Progress";
 
-      // C. Proofing - Handles BOTH List and Details
-      {
-        path: 'proofing', 
-        element: <Proofing />
-      },
-      {
-        path: 'proofing/:txnTypeId',
-        element: <Proofing />
-      },
+  /* ===== EDIT RULE ===== */
+  const editable = uwStatus !== "UW Complete";
 
-      // D. Other Modules
-      {
-        path: 'payment',
-        element: <Payment />
-      },
-      {
-        path: 'payment/:txnTypeId',
-        element: <Payment />
-      },
-      {
-        path: 'claims',
-        element: <Claims />
-      },
-      {
-        path: 'claims/:txnTypeId',
-        element: <Claims />
-      }
-    ]
+  useEffect(() => {
+    if (policyData) {
+      setFormData(policyData);
+    }
+    setLoading(false);
+  }, [policyData]);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
   }
-]);
 
-const loadingMarkup = (
-  <div className="py-4 text-center">
-    <h3>Loading..</h3>
-  </div>
-);
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <Suspense fallback={loadingMarkup}>
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode>
-  </Suspense>,
-);
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+
+      {/* ================= Application Basic Info ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client Name" fullWidth value={formData.clientName || ""} disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client No." fullWidth value={formData.clientNo || ""} disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Number" fullWidth value={formData.quotationNumber || ""} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth value={formData.quotationDate || ""} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Application Number" fullWidth value={formData.applicationNumber || ""} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Product Name" fullWidth value={formData.productName || ""} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Sum Assured" fullWidth value={formData.sumAssured || ""} disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Annual Premium" fullWidth value={formData.annualPremium || ""} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Date" type="date" InputLabelProps={{ shrink: true }} fullWidth value={formData.issueDate || ""} disabled={!editable} />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – Base ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Base)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Tobacco" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Perm Flat Extra" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – ADB ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (ADB)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
+          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – Waiver of Premium ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
+          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= ACTION BUTTONS ================= */}
+      <Paper sx={{ p: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
+            Back
+          </Button>
+          <Button variant="contained" disabled={!editable}>
+            Save
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
+          >
+            Next
+          </Button>
+        </Stack>
+      </Paper>
+
+    </Box>
+  );
+};
+
+export default ApplicationBasicInfo;
