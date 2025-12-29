@@ -1,53 +1,243 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import React, { useState, useEffect } from 'react';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, TextField, Box, TablePagination, Link as MuiLink, CircularProgress,
+  Stack,
+  Typography,
+  Switch
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import axios from '../../api/axiosInterceptor';
+ 
+export interface Policy {
+  caseNumber: string;
+  clientNo: string;
+  clientName: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
+  productName: string;
+  sumAssured: string;
+  annualPremium: string;
+  uwStatus: number;
+}
 
-// ================= AXIOS INSTANCE =================
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:8001",
-});
+interface UWPolicy {
+  uwid: number;
+  policyId: string;
+  underwriterId: string;
+  uwDetailId: string | null;
+  assignRole: string | null;
+  sa: number;
+  periodPrem: number;
+  normalPrem: number;
+  stateId: number | null;
+}
+ 
+interface ApiResponse {
+  policyId: string;
+  creation_TIME: string;
+  json_DATA: string;
+  version_NO: number;
+  screen_No: number;
+  stateId: number;
+  uwid: number; // Added Underwriting ID to Interface
+  sa: number;
+  periodPrem: number;
+}
+ 
+const PolicyList: React.FC = () => {
+  const navigate = useNavigate();
+ 
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState(0);// --- NEW TOGGLE STATE ---
+  const [useNewDesign, setUseNewDesign] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-// ================= REQUEST INTERCEPTOR =================
-axiosInstance.interceptors.request.use(
-  (config) => {
-    // 🔐 Prefer token from localStorage
-    const token =
-      localStorage.getItem("token") ||
-      "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIi..."; // fallback (dev only)
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+ 
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+        const data: ApiResponse[] = response.data;
+        
+        console.log('API Response:', data);
+        console.log('Data length:', data.length);
+        
+        // Group by policy_id to get unique applications
+        const uniqueApplications = data.reduce((acc: any, record: ApiResponse) => {
+          if (!acc[record.policyId]) {
+            acc[record.policyId] = {
+              caseNumber: record.uwid.toString(),
+              clientNo: Math.floor(Math.random() * 1000000).toString(), // Placeholder client number'',
+              clientName: 'Unknown',
+              quotationNumber: record.policyId,
+              quotationDate: new Date(Date.now()).toISOString().split('T')[0],
+              applicationNumber: record.policyId,
+              productName: 'General Life Plan',
+              sumAssured: record.sa.toString(),
+              annualPremium: record.periodPrem.toString(),
+              uwStatus: record.stateId || 0,
+            };
+          }
+          
+          // Parse screen data to extract application details
+          let parsedData = {};
+          try {
+            parsedData = typeof record.json_DATA === 'string' ? JSON.parse(record.json_DATA) : record.json_DATA;
+          } catch (e) {
+            console.error('Error parsing JSON:', e);
+          }
+          
+          console.log('Parsed data for', record.policyId, 'screen', record.screen_No, ':', parsedData);
+          
+          // Update with screen-specific data
+          if (record.screen_No === 1) {
+            // Screen 1 has personal details
+            acc[record.policyId].clientName = `${(parsedData as any)?.insuredFirstName || ''} ${(parsedData as any)?.insuredSurName || ''}`.trim() || 'Unknown';
+            acc[record.policyId].clientNo = (parsedData as any)?.customerIdEbao || '';
+          } else if (record.screen_No === 2) {
+            // Screen 2 has plan details
+            acc[record.policyId].productName = (parsedData as any)?.basicPlan || 'General Life Plan';
+            acc[record.policyId].sumAssured = (parsedData as any)?.basicSumInsured || '0';
+          } else if (record.screen_No === 3) {
+            // Screen 3 has payment details
+            acc[record.policyId].annualPremium = (parsedData as any)?.AmountOfPaymentWithThisApplication || '0';
+          }
+          
+          return acc;
+        }, {});
+        
+        const mappedPolicies: Policy[] = Object.values(uniqueApplications);
+        console.log('Final mapped policies:', mappedPolicies);
+        setPolicies(mappedPolicies);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching policies:', error);
+        console.error('Full error details:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchPolicies();
+  }, []);
+ 
+  const handleOpenDetails = (policy: Policy) => {
+  if (useNewDesign) {
+        // Navigates to V2 (Tailwind)
+        navigate(`/underwriting/${policy.applicationNumber}/v2`);
+    } else {
+        // Navigates to V1 (MUI)
+        navigate(`/underwriting/${policy.caseNumber}`);
     }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// ================= RESPONSE INTERCEPTOR (OPTIONAL) =================
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.warn("Unauthorized - redirecting to login");
-      // localStorage.clear();
-      // window.location.href = "/signin";
-    }
-    return Promise.reject(error);
-  }
-);
-
-// ================= API CLIENT (OPTIONAL) =================
-export const apiClient = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.get<T>(url, config),
-
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-    axiosInstance.post<T>(url, data, config),
-
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) =>
-    axiosInstance.put<T>(url, data, config),
-
-  delete: <T = any>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.delete<T>(url, config),
+  };
+ 
+  // Pagination Handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+    setSearchQuery(e.target.value); 
+    setPage(0); 
+  };
+  
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { 
+    setRowsPerPage(parseInt(e.target.value, 10)); 
+    setPage(0); 
+  };
+  
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+ 
+  const filteredPolicies = policies.filter((policy) => {
+    if (!searchQuery) return true;
+    return (
+      policy.caseNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      policy.clientName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+ 
+  const visiblePolicies = filteredPolicies.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+ 
+  return (
+    <div>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, mt: 2 }}>
+        <TextField label="Search ID or Name" variant="outlined" size="small" value={searchQuery} onChange={handleSearchChange} sx={{ width: '300px' }} />
+      </Box>
+      {/* --- TOGGLE SWITCH UI --- */}
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ bgcolor: '#e3f2fd', px: 2, py: 1, borderRadius: 2, border: '1px solid #90caf9' }}>
+            <Typography variant="body2" sx={{ color: useNewDesign ? 'text.secondary' : 'primary.main', fontWeight: useNewDesign ? 400 : 700 }}>
+                Classic View
+            </Typography>
+            <Switch 
+                checked={useNewDesign}
+                onChange={(e) => setUseNewDesign(e.target.checked)}
+                color="primary"
+            />
+            <Typography variant="body2" sx={{ color: useNewDesign ? 'primary.main' : 'text.secondary', fontWeight: useNewDesign ? 700 : 400 }}>
+                V2
+            </Typography>
+        </Stack>
+ 
+      <TableContainer component={Paper} >
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableCell><strong>Case Number</strong></TableCell>
+              <TableCell><strong>Client No.</strong></TableCell>
+              <TableCell><strong>Client Name</strong></TableCell>
+              <TableCell><strong>Quotation Number</strong></TableCell>
+              <TableCell><strong>Quotation Date</strong></TableCell>
+              <TableCell><strong>Application Number</strong></TableCell>
+              <TableCell><strong>Product Name</strong></TableCell>
+              <TableCell><strong>Sum Assured</strong></TableCell>
+              <TableCell><strong>Annual Premium</strong></TableCell>
+              <TableCell><strong>UW Status</strong></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+               <TableRow>
+                <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
+                  <CircularProgress size={24} /> <span style={{ marginLeft: 10 }}>Loading...</span>
+                </TableCell>
+              </TableRow>
+            ) : visiblePolicies.length > 0 ? (
+              visiblePolicies.map((policy, index) => (
+                <TableRow key={index} hover>
+                  <TableCell>
+                    <MuiLink component="button" variant="body2" onClick={() => handleOpenDetails(policy)}>
+                        CASE-{policy.caseNumber}
+                    </MuiLink>
+                  </TableCell>
+                  <TableCell>{policy.clientNo}</TableCell>
+                  <TableCell>{policy.clientName}</TableCell>
+                  <TableCell>{policy.quotationNumber}</TableCell>
+                  <TableCell>{policy.quotationDate}</TableCell>
+                  <TableCell>{policy.applicationNumber}</TableCell>
+                  <TableCell>{policy.productName}</TableCell>
+                  <TableCell>{policy.sumAssured}</TableCell>
+                  <TableCell>{policy.annualPremium}</TableCell>
+                  <TableCell>{policy.uwStatus == 2 ? 'Not Started' : 'In Progress'}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow><TableCell colSpan={10} align="center">No applications found.</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={filteredPolicies.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </div>
+  );
 };
-
-export default axiosInstance;
+ 
+export default PolicyList;
