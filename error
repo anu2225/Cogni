@@ -1,137 +1,295 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  Paper, TextField, Box, TablePagination, Link as MuiLink, CircularProgress,
+  Button,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from '../../api/axiosInterceptor'; // Adjust path if needed
 
-import React, { Suspense } from 'react';
-import ReactDOM from 'react-dom/client';
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import HttpApi from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import 'bootstrap/dist/js/bootstrap.js';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "./index.css";
-import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
 
-// --- COMPONENT IMPORTS ---
-import App from './App.jsx';
-import SignIn from './Components/Auth/SignIn.js';
-import SignUp from './Components/Auth/SignUp.js';
-import BasicTabs from './Components/BasicTabs'; 
-import Underwriting from './Components/underwriting/Underwriting';
-import Application from './Components/application/Application.js';
-import Proofing from './Components/proofing/Proofing.js';
+export interface PolicyDisplay {
+  quoteId: string;
+  policyholderName: string;
+  productName: string;
+  status: number; // Displaying State ID directly
+  date: string;
+}
 
-// ✅ NEW IMPORT (ONLY ADDITION)
-import ApplicationBasicInfo from './Components/underwriting/ApplicationBasicInfo';
 
-// --- PLACEHOLDER COMPONENTS ---
-const ProofingTxn = () => <div className="p-4"><h2>Proofing Details</h2></div>;
-const Payment = () => <div className="p-4"><h2>Payment Gateway</h2></div>;
-const Claims = () => <div className="p-4"><h2>Claims Processing</h2></div>;
+interface ApiPolicy {
+  policyId: string;
+  holderName: string;
+  productName: string;
+  stateId: number;
+  insertTime: string; 
 
-// --- I18N CONFIGURATION ---
-i18next
-  .use(HttpApi)
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    supportedLngs: ['en', 'th'],
-    fallbackLng: 'en',
-    debug: false,
-    detection: {
-      order: ['path', 'cookie', 'htmlTag'],
-      caches: ['cookie'],
-    },
-    backend: {
-      loadPath: '/assets/locales/{{lng}}/translation.json',
-    },
+  sa?: number;
+  periodPrem?: number;
+  normalPrem?: number;
+  updateTime?: string;
+  assignRole?: string;
+}
+
+interface ProofingData {
+  id: string;
+  name: string;
+  status: string;
+  workType: string;
+  [key: string]: any;
+}
+
+const ProofingPolicyList: React.FC = () => {
+  const navigate = useNavigate();
+  const { txnTypeId } = useParams();
+  
+  const userEmail = localStorage.getItem('email') || ''; 
+
+  const [workType, setWorkType] = useState<string>('GenerateQuote');
+  const [policies, setPolicies] = useState<PolicyDisplay[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [proofingData, setProofingData] = useState<ProofingData[]>([]);
+  const [hasApplied, setHasApplied] = useState<boolean>(false);
+
+
+  const workTypeMap: { [key: string]: string } = {
+    GenerateQuote: 'W021225-1',
+    QuoteUWR: 'W021225-3',
+  };
+
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      // Guard clause: Don't fetch if email isn't available
+      if (!userEmail) return;
+
+      try {
+        setLoading(true);
+        
+   
+        const response = await axios.get<ApiPolicy[]>('http://localhost:8001/role/proofing', {
+            params: { email: userEmail } 
+        });
+        
+        const rawData = response.data;
+
+        // --- MAPPING ---
+        // Convert API response to Table Row format
+        const mappedData: PolicyDisplay[] = rawData.map((item) => ({
+            quoteId: item.policyId,
+            policyholderName: item.holderName || "N/A", // Default if null
+            productName: item.productName || "N/A",     // Default if null
+            status: item.stateId, 
+            date: item.insertTime ? item.insertTime.split('T')[0] : '', // Extract YYYY-MM-DD
+        }));
+
+        setPolicies(mappedData);
+      } catch (error) {
+        console.error("Error fetching policies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPolicies();
+  }, [userEmail]);
+
+  const handleApplyChanges = async (selectedWorkCode?: string) => {
+  setLoading(true);
+
+  try {
+    const codeToUse = selectedWorkCode || workTypeMap[workType];
+    console.log(`Selected workCode: ${codeToUse}, quoteId: ${txnTypeId}`);
+
+    // First call: POST to setRuleDef
+    const postUrl = `http://localhost:8001/eapp/setRuleDef`;
+    const postResponse = await axios.post(postUrl, {
+      workCode: codeToUse,
+      quoteId: policies[0]?.quoteId || txnTypeId, // Use first policy's quoteId or from params
+    });
+
+    console.log('Post Response:', postResponse.data);
+
+    // Second call: GET proofing data
+    const getUrl = `http://localhost:8001/eapp/getByWorkType?workCode=${codeToUse}`;
+    const getResponse = await axios.get(getUrl);
+
+    console.log('Get Response Status:', getResponse.status);
+    console.log('Get Response Data:', getResponse.data);
+
+    setProofingData(getResponse.data || []);
+    setSuccessMessage(`Successfully applied changes and loaded data`);
+    setHasApplied(true);
+  } catch (err: any) {
+    console.error('Error:', err);
+    const errorMessage =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      err.message ||
+      'Failed to apply changes';
+    setError(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleOpenDetails = (quoteId: string) => {
+    navigate(`/application/${quoteId}`);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+      setSearchQuery(e.target.value); 
+      setPage(0); 
+  };
+  
+  const handleChangePage = (_: unknown, newPage: number) => {
+      setPage(newPage);
+  };
+  
+  const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => { 
+      setRowsPerPage(parseInt(e.target.value, 10)); 
+      setPage(0); 
+  };
+
+  
+  const filteredPolicies = policies.filter((policy) => {
+    if (!searchQuery) return true;
+    const lowerQuery = searchQuery.toLowerCase();
+    return (
+      policy.quoteId.toLowerCase().includes(lowerQuery) || 
+      policy.policyholderName.toLowerCase().includes(lowerQuery)
+    );
   });
 
-// --- ROUTER CONFIGURATION ---
-const router = createBrowserRouter([
-  // 1. PUBLIC ROUTES
-  {
-    path: '/',
-    element: <SignIn />
-  },
-  {
-    path: '/signin',
-    element: <SignIn />
-  },
-  {
-    path: '/signup',
-    element: <SignUp />
-  },
+  const handleNewPolicyClick = () => {
+    axios
+      .post("http://localhost:8001/eapp/generateQuoteId")
+      .then(function (res) {
+        const QuoteId = res.data;
+        navigate(`/application/${QuoteId}`);
+      })
+      .catch(function (error) {
+        console.log("Quote ID generation Error", error);
+      });
+  };
 
-  // 2. PROTECTED APP ROUTES (Wrapped in App Layout)
-  {
-    element: <App />,
-    children: [
-      // A. Application
-      {
-        path: 'application',
-        element: <Application/>
-      },
-      {
-        path: 'application/:txnTypeId',
-        element: <BasicTabs />
-      },
+  // Slice data for pagination
+  const visiblePolicies = filteredPolicies.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-      // B. Underwriting
-      {
-        path: 'underwriting',
-        element: <Underwriting />
-      },
-      {
-        path: 'underwriting/:txnTypeId',
-        element: <Underwriting />
-      },
+  return (
+    <div>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, mt: 2 }}>
+        <TextField 
+            label="Search ID or Name" 
+            variant="outlined" 
+            size="small" 
+            value={searchQuery} 
+            onChange={handleSearchChange} 
+            sx={{ width: '300px' }} 
+        />
+    
+      </Box>
 
-      // ✅ NEW SCREEN 2 ROUTE (ONLY ADDITION)
-      {
-        path: 'underwriting/:txnTypeId/application-basic-info',
-        element: <ApplicationBasicInfo />
-      },
+      <Stack direction="row" spacing={2} alignItems="flex-end" sx={{ flexWrap: 'wrap' }}>
+          <FormControl sx={{ minWidth: 250 }}>
+            <InputLabel id="work-type-label">Work Type</InputLabel>
+            <Select
+              labelId="work-type-label"
+              id="work-type-select"
+              value={workType}
+              label="Work Type"
+              disabled={loading}
+            >
+              <MenuItem value="GenerateQuote">Generate Quote</MenuItem>
+              <MenuItem value="QuoteUWR">Quote UWR</MenuItem>
+            </Select>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2 }}
+              onClick={() => handleApplyChanges()}
+              disabled={loading}
+            >
+              Approve
+            </Button>
+          </FormControl>
 
-      // C. Proofing
-      {
-        path: 'proofing',
-        element: <Proofing />
-      },
-      {
-        path: 'proofing/:txnTypeId',
-        element: <ProofingTxn />
-      },
+          {loading && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={24} />
+              <Typography variant="body2" color="text.secondary">
+                Loading...
+              </Typography>
+            </Box>
+          )}
+        </Stack>
 
-      // D. Other Modules
-      {
-        path: 'payment',
-        element: <Payment />
-      },
-      {
-        path: 'payment/:txnTypeId',
-        element: <Payment />
-      },
-      {
-        path: 'claims',
-        element: <Claims />
-      },
-      {
-        path: 'claims/:txnTypeId',
-        element: <Claims />
-      }
-    ]
-  }
-]);
+      <TableContainer component={Paper} >
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableCell><strong>Application ID</strong></TableCell>
+              <TableCell><strong>Holder Name</strong></TableCell>
+              <TableCell><strong>Product Name</strong></TableCell>
+              <TableCell><strong>State ID</strong></TableCell>
+              <TableCell><strong>Date</strong></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+               <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  <CircularProgress size={24} /> <span style={{ marginLeft: 10 }}>Loading...</span>
+                </TableCell>
+              </TableRow>
+            ) : visiblePolicies.length > 0 ? (
+              visiblePolicies.map((policy) => (
+                <TableRow key={policy.quoteId} hover>
+                  <TableCell>
+                    <MuiLink 
+                        component="button" 
+                        variant="body2" 
+                        // onClick={() => handleOpenDetails(policy.quoteId)}
+                        sx={{ fontWeight: 'bold', textDecoration: 'none' }}
+                    >
+                        {policy.quoteId}
+                    </MuiLink>
+                  </TableCell>
+                  <TableCell>{policy.policyholderName}</TableCell>
+                  <TableCell>{policy.productName}</TableCell>
+                  <TableCell>{policy.status}</TableCell>
+                  <TableCell>{policy.date}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                  <TableCell colSpan={5} align="center">
+                      No applications found.
+                  </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <TablePagination 
+            rowsPerPageOptions={[5, 10, 25]} 
+            component="div" 
+            count={filteredPolicies.length} 
+            rowsPerPage={rowsPerPage} 
+            page={page} 
+            onPageChange={handleChangePage} 
+            onRowsPerPageChange={handleChangeRowsPerPage} 
+        />
+      </TableContainer>
+    </div>
+  );
+};
 
-const loadingMarkup = (
-  <div className="py-4 text-center">
-    <h3>Loading..</h3>
-  </div>
-);
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <Suspense fallback={loadingMarkup}>
-    <React.StrictMode>
-      <RouterProvider router={router} />
-    </React.StrictMode>
-  </Suspense>,
-);
+export default ProofingPolicyList;
