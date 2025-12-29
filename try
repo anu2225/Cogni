@@ -1,35 +1,229 @@
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams } from "react-router-dom";
 
-BasicTabs.tsx:579 9
-BasicTabs.tsx:586 Quote Data ==>  Object
-BasicTabs.tsx:588 Case Details ==> Object
-BasicTabs.tsx:592 response from backend: [object Object]
-ProofingPolicyList.tsx:110 Selected workCode: W021225-1, quoteId: Q000000001
-ProofingPolicyList.tsx:119 Post Response: R001
-ProofingPolicyList.tsx:125 Get Response Status: 200
-ProofingPolicyList.tsx:126 Get Response Data: Array(1)
-ProofingPolicyList.tsx:132 Error: ReferenceError: setSuccessMessage is not defined
-    at handleApplyChanges (ProofingPolicyList.tsx:129:5)
-handleApplyChanges @ ProofingPolicyList.tsx:132Understand this error
-ProofingPolicyList.tsx:138 Uncaught (in promise) ReferenceError: setError is not defined
-    at handleApplyChanges (ProofingPolicyList.tsx:138:5)Understand this error
-:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
-ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
-fetchData @ ApplicationBasicInfo.tsx:86Understand this error
-:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
-ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
-fetchData @ ApplicationBasicInfo.tsx:86Understand this error
-ProofingPolicyList.tsx:110 Selected workCode: W021225-1, quoteId: Q000000001
-ProofingPolicyList.tsx:119 Post Response: R001
-ProofingPolicyList.tsx:125 Get Response Status: 200
-ProofingPolicyList.tsx:126 Get Response Data: Array(1)
-ProofingPolicyList.tsx:132 Error: ReferenceError: setSuccessMessage is not defined
-    at handleApplyChanges (ProofingPolicyList.tsx:129:5)
-handleApplyChanges @ ProofingPolicyList.tsx:132Understand this error
-ProofingPolicyList.tsx:138 Uncaught (in promise) ReferenceError: setError is not defined
-    at handleApplyChanges (ProofingPolicyList.tsx:138:5)Understand this error
-:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
-ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
-fetchData @ ApplicationBasicInfo.tsx:86Understand this error
-:8001/eapp/application/basic-info/Q000000001:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
-ApplicationBasicInfo.tsx:86 Failed to fetch application basic info AxiosError
-fetchData @ ApplicationBasicInfo.tsx:86Understand this error
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+
+  /* ===== UW STATUS (backend later) ===== */
+  const uwStatus: UWStatus = "UW In Progress";
+
+  /* ===== SCREEN 2 RULE ===== */
+  const editable = uwStatus !== "UW Complete";
+
+  useEffect(() => {
+    setLoading(false);
+  }, [txnTypeId]);
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+
+      {/* ================= Application Basic Info ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client Name" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client No." fullWidth disabled={!editable} />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Number" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Quotation Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Application Number" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Product Name" fullWidth disabled />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Sum Assured" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Annual Premium" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Issue Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              disabled={!editable}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – Base ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Base)</Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Tobacco" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Perm Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Temp Flat Extra Duration" fullWidth disabled={!editable} />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – ADB ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (ADB)</Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Rider Type – Waiver of Premium ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Coverage Amount" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField label="Issue Age" fullWidth disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="UW Class" fullWidth disabled={!editable} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Table Rating" fullWidth disabled={!editable} />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= ACTION BUTTONS ================= */}
+      <Paper sx={{ p: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
+            Back
+          </Button>
+          <Button variant="contained" disabled={!editable}>
+            Save
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!editable}
+            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
+          >
+            Next
+          </Button>
+        </Stack>
+      </Paper>
+
+    </Box>
+  );
+};
+
+export default ApplicationBasicInfo;
