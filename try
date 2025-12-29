@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -37,6 +36,12 @@ const ApplicationBasicInfo: React.FC = () => {
   /* ===== EDIT RULE ===== */
   const editable = uwStatus !== "UW Complete";
 
+  /* ===== FINAL SAFE TXN ID ===== */
+  const actualTxnId =
+    txnTypeId ||
+    policyData?.caseNumber ||
+    policyData?.applicationNumber;
+
   useEffect(() => {
     if (policyData) {
       setFormData(policyData);
@@ -65,7 +70,7 @@ const ApplicationBasicInfo: React.FC = () => {
             Underwriting Details
           </Typography>
           <Typography variant="body2">
-            Application : {txnTypeId}
+            Application : {actualTxnId}
           </Typography>
         </Box>
       </Stack>
@@ -124,32 +129,6 @@ const ApplicationBasicInfo: React.FC = () => {
         </Grid>
       </Paper>
 
-      {/* ================= Rider Type – ADB ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (ADB)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} /></Grid>
-        </Grid>
-      </Paper>
-
-      {/* ================= Rider Type – Waiver of Premium ================= */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="UW Class" fullWidth disabled={!editable} /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Table Rating" fullWidth disabled={!editable} /></Grid>
-        </Grid>
-      </Paper>
-
       {/* ================= ACTION BUTTONS ================= */}
       <Paper sx={{ p: 2 }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -161,7 +140,7 @@ const ApplicationBasicInfo: React.FC = () => {
           </Button>
           <Button
             variant="contained"
-            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
+            onClick={() => navigate(`/underwriting/${actualTxnId}/details`)}
           >
             Next
           </Button>
