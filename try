@@ -1,3 +1,232 @@
+[plugin:vite:react-babel] C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\src\Components\underwriting\UnderwritingDetails.tsx: Expected corresponding JSX closing tag for <Box>. (2258:8)
+  2261 |           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+C:/Users/2440835/OneDrive - Cognizant/Documents/COGNIZANT/eapp-frontend-v8.3/src/Components/underwriting/UnderwritingDetails.tsx:2258:8C:/Users/2440835/OneDrive - Cognizant/Documents/COGNIZANT/eapp-frontend-v8.3/src/Components/underwriting/UnderwritingDetails.tsx:2258:8C:/Users/2440835/OneDrive - Cognizant/Documents/COGNIZANT/eapp-frontend-v8.3/src/Components/underwriting/UnderwritingDetails.tsx:2258:8C:/Users/2440835/OneDrive - Cognizant/Documents/COGNIZANT/eapp-frontend-v8.3/src/Components/underwriting/UnderwritingDetails.tsx:2258:8
+2301|                          <MenuItem value="Class 1">Class 1</MenuItem>
+2302|                          <MenuItem value="Class 2">Class 2</MenuItem>
+2303|                          <MenuItem value="Class 3">Class 3</MenuItem>
+   |                                                  ^
+2304|                          <MenuItem value="Class 4">Class 4</MenuItem>
+2305|                          <MenuItem value="Standard">Standard</MenuItem>
+    at constructor (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:353:19)
+    at TypeScriptParserMixin.raise (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3277:19)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6782:16)
+    at TypeScriptParserMixin.jsxParseElement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6804:17)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6816:19)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:39
+    at TypeScriptParserMixin.tryParse (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3608:20)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:18)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11936:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11199:28)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9415:20)
+    at TypeScriptParserMixin.parseExpressionBase (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10302:23)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11931:16)
+    at TypeScriptParserMixin.parseExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:17)
+    at TypeScriptParserMixin.parseReturnStatement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12619:28)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12270:21)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9142:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12239:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12219:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12796:61)
+    at TypeScriptParserMixin.parseBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12789:10)
+    at TypeScriptParserMixin.parseBlock (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12777:10)
+    at TypeScriptParserMixin.parseFunctionBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11616:24)
+    at TypeScriptParserMixin.parseArrowExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11591:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11211:12)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21    at constructor (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:353:19)
+    at TypeScriptParserMixin.raise (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3277:19)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6782:16)
+    at TypeScriptParserMixin.jsxParseElement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6804:17)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6816:19)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:39
+    at TypeScriptParserMixin.tryParse (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3608:20)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:18)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11936:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11199:28)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9415:20)
+    at TypeScriptParserMixin.parseExpressionBase (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10302:23)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11931:16)
+    at TypeScriptParserMixin.parseExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:17)
+    at TypeScriptParserMixin.parseReturnStatement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12619:28)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12270:21)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9142:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12239:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12219:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12796:61)
+    at TypeScriptParserMixin.parseBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12789:10)
+    at TypeScriptParserMixin.parseBlock (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12777:10)
+    at TypeScriptParserMixin.parseFunctionBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11616:24)
+    at TypeScriptParserMixin.parseArrowExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11591:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11211:12)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21    at constructor (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:353:19)
+    at TypeScriptParserMixin.raise (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3277:19)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6782:16)
+    at TypeScriptParserMixin.jsxParseElement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6804:17)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6816:19)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:39
+    at TypeScriptParserMixin.tryParse (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3608:20)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:18)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11936:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11199:28)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9415:20)
+    at TypeScriptParserMixin.parseExpressionBase (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10302:23)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11931:16)
+    at TypeScriptParserMixin.parseExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:17)
+    at TypeScriptParserMixin.parseReturnStatement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12619:28)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12270:21)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9142:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12239:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12219:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12796:61)
+    at TypeScriptParserMixin.parseBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12789:10)
+    at TypeScriptParserMixin.parseBlock (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12777:10)
+    at TypeScriptParserMixin.parseFunctionBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11616:24)
+    at TypeScriptParserMixin.parseArrowExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11591:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11211:12)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21    at constructor (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:353:19)
+    at TypeScriptParserMixin.raise (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3277:19)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6782:16)
+    at TypeScriptParserMixin.jsxParseElement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6804:17)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6816:19)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:39
+    at TypeScriptParserMixin.tryParse (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:3608:20)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9404:18)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11936:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10318:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11199:28)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10551:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9466:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10405:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10410:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10387:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10348:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9415:20)
+    at TypeScriptParserMixin.parseExpressionBase (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10302:23)
+    at C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:39
+    at TypeScriptParserMixin.allowInAnd (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11931:16)
+    at TypeScriptParserMixin.parseExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10298:17)
+    at TypeScriptParserMixin.parseReturnStatement (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12619:28)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12270:21)
+    at TypeScriptParserMixin.parseStatementContent (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:9142:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12239:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12219:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12796:61)
+    at TypeScriptParserMixin.parseBlockBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12789:10)
+    at TypeScriptParserMixin.parseBlock (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:12777:10)
+    at TypeScriptParserMixin.parseFunctionBody (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11616:24)
+    at TypeScriptParserMixin.parseArrowExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11591:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:11211:12)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10857:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:6821:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10590:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Users\2440835\OneDrive - Cognizant\Documents\COGNIZANT\eapp-frontend-v8.3\node_modules\@babel\parser\lib\index.js:10573:21
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Paper, Typography, Grid, TextField, 
