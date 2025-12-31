@@ -8,6 +8,344 @@ import {
   Button,
   Stack,
   IconButton,
+  CircularProgress,
+  MenuItem
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import axios from '../../api/axiosInterceptor';
+ 
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+ 
+interface ApplicationData {
+  clientName: string;
+  clientNo: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
+  productName: string;
+  sumAssured: string;
+  annualPremium: string;
+  issueDate: string;
+  age: string;
+  tobacco: string;
+  uwClass: string;
+}
+ 
+interface RiderData {
+  coverageAmount: string;
+  startDate: string;
+  endDate: string;
+  issueAge: string;
+  tobacco?: string;
+  uwClass: string;
+  tableRating: string;
+  permFlatExtra?: string;
+  tempFlatExtra?: string;
+  tempFlatExtraDuration?: string;
+}
+ 
+interface FormData {
+  application: ApplicationData;
+  baseRider: RiderData;
+  adbRider: RiderData;
+  waiverRider: RiderData;
+}
+ 
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+ 
+  const [loading, setLoading] = useState(true);
+ 
+  const policyData: any = location.state?.policyData;
+ 
+  const [formData, setFormData] = useState<FormData>({
+    application: {
+      clientName: '',
+      clientNo: '',
+      quotationNumber: '',
+      quotationDate: '',
+      applicationNumber: '',
+      productName: 'TERM LIFE INSURANCE',
+      sumAssured: '',
+      annualPremium: '',
+      issueDate: '',
+      age: '',
+      tobacco: '',
+      uwClass: ''
+    },
+    baseRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      tobacco: '',
+      uwClass: '',
+      tableRating: '',
+      permFlatExtra: '',
+      tempFlatExtra: '',
+      tempFlatExtraDuration: ''
+    },
+    adbRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    },
+    waiverRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    }
+  });
+ 
+  const uwStatus: UWStatus = "UW In Progress";
+  const editable = uwStatus !== "UW Complete";
+ 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (policyData) {
+          setFormData(prev => ({
+            ...prev,
+            application: {
+              ...prev.application,
+              clientName: policyData.clientName || '',
+              clientNo: policyData.clientNo || '',
+              quotationNumber: policyData.quotationNumber || '',
+              quotationDate: policyData.quotationDate || '',
+              applicationNumber: policyData.applicationNumber || '',
+              productName: 'TERM LIFE INSURANCE',
+              sumAssured: policyData.sumAssured || '',
+              annualPremium: policyData.annualPremium || '',
+              issueDate: policyData.issueDate || '',
+              age: policyData.age || '',
+              tobacco: policyData.smokingStatus === 'Y' ? 'Y' : 'N'
+            },
+            baseRider: {
+              ...prev.baseRider,
+              coverageAmount: policyData.sumAssured || '',
+              startDate: policyData.uwCoverage?.startDate || '',
+              endDate: policyData.uwCoverage?.endDate || ''
+            }
+          }));
+        } else if (txnTypeId) {
+          const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+          const allUwPolicies = response.data;
+          const matchingPolicy = allUwPolicies.find((p: any) => p.policyId === txnTypeId);
+ 
+          if (matchingPolicy) {
+            setFormData(prev => ({
+              ...prev,
+              application: {
+                ...prev.application,
+                productName: 'TERM LIFE INSURANCE',
+                sumAssured: matchingPolicy.sa?.toString() || '',
+                annualPremium: matchingPolicy.periodPrem?.toString() || ''
+              }
+            }));
+          }
+        }
+      } catch (e) {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [policyData, txnTypeId]);
+ 
+  const handleInputChange = (section: keyof FormData, field: string, value: string) => {
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      };
+ 
+      if (section === 'application' && field === 'sumAssured') {
+        updated.baseRider.coverageAmount = value;
+      }
+      return updated;
+    });
+  };
+ 
+  const handleSave = async () => {
+    try {
+      const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+      const allUwPolicies = response.data;
+      const existingPolicy = allUwPolicies.find((p: any) => p.policyId === txnTypeId);
+ 
+      if (!existingPolicy) {
+        alert('Policy not found');
+        return;
+      }
+ 
+      const payload = {
+        uwid: existingPolicy.uwid,
+        policyId: existingPolicy.policyId,
+        underwriterId: existingPolicy.underwriterId,
+        uwDetailId: existingPolicy.uwDetailId,
+        assignRole: existingPolicy.assignRole,
+        sa: parseFloat(formData.application.sumAssured) || existingPolicy.sa,
+        periodPrem: parseFloat(formData.application.annualPremium) || existingPolicy.periodPrem,
+        normalPrem: parseFloat(formData.application.annualPremium) || existingPolicy.normalPrem,
+        stateId: existingPolicy.stateId,
+        product: 'TERM LIFE INSURANCE'
+      };
+ 
+      await axios.post('http://localhost:8001/eapp/update', payload);
+      alert('Saved successfully');
+    } catch (err: any) {
+      alert('Save failed');
+    }
+  };
+ 
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+ 
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+ 
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+ 
+      {/* ================= Application Basic Info ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={3}>
+            <TextField label="Age" fullWidth value={formData.application.age} disabled />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <TextField label="Tobacco (Y/N)" fullWidth value={formData.application.tobacco} disabled />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <TextField
+              select
+              label="UW Class"
+              fullWidth
+              value={formData.application.uwClass}
+              onChange={(e) => handleInputChange('application', 'uwClass', e.target.value)}
+              disabled={!editable}
+            >
+              <MenuItem value="Standard">Standard</MenuItem>
+              <MenuItem value="Preferred">Preferred</MenuItem>
+              <MenuItem value="Substandard">Substandard</MenuItem>
+            </TextField>
+          </Grid>
+        </Grid>
+      </Paper>
+ 
+      {/* ================= RIDER SECTION ================= */}
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
+        RIDER SECTION
+      </Typography>
+      <Typography variant="subtitle1" sx={{ mb: 3 }}>
+        Riders – Accidental Death Benefit & Waiver of Premium
+      </Typography>
+ 
+      {/* ================= Base Rider ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Base Rider</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Coverage Amount" fullWidth value={formData.baseRider.coverageAmount} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth value={formData.baseRider.startDate} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth value={formData.baseRider.endDate} disabled />
+          </Grid>
+        </Grid>
+      </Paper>
+ 
+      {/* ================= ACTION BUTTONS ================= */}
+      <Paper sx={{ p: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
+            Back
+          </Button>
+          <Button variant="contained" disabled={!editable} onClick={handleSave}>
+            Save
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
+          >
+            Next
+          </Button>
+        </Stack>
+      </Paper>
+ 
+    </Box>
+  );
+};
+ 
+export default ApplicationBasicInfo;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
   CircularProgress
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
