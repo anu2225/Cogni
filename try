@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -53,10 +54,12 @@ const ApplicationBasicInfo: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  /* ===== DATA FROM SCREEN 1 ===== */
   const policyData: any = location.state?.policyData;
 
+  /* ===== FORM DATA ===== */
   const [formData, setFormData] = useState<FormData>({
     application: {
       clientName: "",
@@ -88,40 +91,45 @@ const ApplicationBasicInfo: React.FC = () => {
     }
   });
 
+  /* ===== UW STATUS ===== */
   const uwStatus: UWStatus = "UW In Progress";
   const editable = uwStatus !== "UW Complete";
 
-  const mapBackendToState = (backendData: any): FormData => ({
-    application: {
-      clientName: "",
-      clientNo: "",
-      quotationNumber: backendData.policyId || "",
-      quotationDate: "",
-      applicationNumber: backendData.policyId || "",
-      productName: "TERM LIFE INSURANCE",
-      sumAssured: backendData.sa?.toString() || "",
-      annualPremium: backendData.periodPrem?.toString() || "",
-      issueDate: "",
-      tobacco: backendData.smokingStatus || "",
-      age: backendData.age?.toString() || "",
-      uwClass: backendData.uwClass || ""
-    },
-    adbRider: {
-      coverageAmount: backendData.adbCoverageAmount || "",
-      startDate: backendData.adbStartDate || "",
-      endDate: backendData.adbEndDate || "",
-      issueAge: backendData.age?.toString() || "",
-      uwClass: backendData.uwClass || ""
-    },
-    waiverRider: {
-      coverageAmount: backendData.wopCoverageAmount || "",
-      startDate: backendData.wopStartDate || "",
-      endDate: backendData.wopEndDate || "",
-      issueAge: backendData.age?.toString() || "",
-      uwClass: backendData.uwClass || ""
-    }
-  });
+  /* ===== BACKEND MAPPER ===== */
+  const mapBackendToState = (backendData: any): FormData => {
+    return {
+      application: {
+        clientName: backendData.clientName || "",
+        clientNo: backendData.clientNo || "",
+        quotationNumber: backendData.policyId || "",
+        quotationDate: backendData.quotationDate || "",
+        applicationNumber: backendData.policyId || "",
+        productName: "TERM LIFE INSURANCE",
+        sumAssured: backendData.sa?.toString() || "",
+        annualPremium: backendData.periodPrem?.toString() || "",
+        issueDate: backendData.issueDate || "",
+        tobacco: backendData.smokingStatus || "",
+        age: backendData.age?.toString() || "",
+        uwClass: backendData.uwClass || ""
+      },
+      adbRider: {
+        coverageAmount: backendData.adbCoverageAmount || "",
+        startDate: backendData.adbStartDate || "",
+        endDate: backendData.adbEndDate || "",
+        issueAge: backendData.age?.toString() || "",
+        uwClass: backendData.uwClass || ""
+      },
+      waiverRider: {
+        coverageAmount: backendData.wopCoverageAmount || "",
+        startDate: backendData.wopStartDate || "",
+        endDate: backendData.wopEndDate || "",
+        issueAge: backendData.age?.toString() || "",
+        uwClass: backendData.uwClass || ""
+      }
+    };
+  };
 
+  /* ===== FETCH DATA ===== */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -152,13 +160,17 @@ const ApplicationBasicInfo: React.FC = () => {
             setFormData(mapBackendToState(matchingPolicy));
           }
         }
+      } catch (error) {
+        // silent fail as earlier
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [policyData, txnTypeId]);
 
+  /* ===== INPUT HANDLER ===== */
   const handleInputChange = (
     section: keyof FormData,
     field: string,
@@ -173,6 +185,7 @@ const ApplicationBasicInfo: React.FC = () => {
     }));
   };
 
+  /* ===== SAVE ===== */
   const handleSave = async () => {
     try {
       const response = await axios.get("http://localhost:8001/eapp/getAllUw");
@@ -210,6 +223,7 @@ const ApplicationBasicInfo: React.FC = () => {
     }
   };
 
+  /* ===== LOADER ===== */
   if (loading) {
     return (
       <Box sx={{ p: 5, textAlign: "center" }}>
@@ -218,8 +232,10 @@ const ApplicationBasicInfo: React.FC = () => {
     );
   }
 
+  /* ================= UI ================= */
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto" }}>
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+      {/* ===== HEADER ===== */}
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
         <IconButton onClick={() => navigate("/underwriting")}>
           <ArrowBack />
@@ -232,9 +248,9 @@ const ApplicationBasicInfo: React.FC = () => {
         </Box>
       </Stack>
 
-      {/* ================= Application Basic Info ================= */}
+      {/* ===== APPLICATION BASIC INFO ===== */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
           Application Basic Info
         </Typography>
 
@@ -274,7 +290,7 @@ const ApplicationBasicInfo: React.FC = () => {
         </Grid>
       </Paper>
 
-      {/* ================= Riders ================= */}
+      {/* ===== RIDERS ===== */}
       <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
         Riders – Accidental Death Benefit & Waiver of Premium
       </Typography>
@@ -298,6 +314,7 @@ const ApplicationBasicInfo: React.FC = () => {
         )
       )}
 
+      {/* ===== ACTIONS ===== */}
       <Paper sx={{ p: 2 }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button variant="outlined" onClick={() => navigate("/underwriting")}>
@@ -319,22 +336,3 @@ const ApplicationBasicInfo: React.FC = () => {
 };
 
 export default ApplicationBasicInfo;
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rider section- big header 
-Riders - Accidental Death Benefit & Waiver of Premium
-Main product name should be - TERM LIFE INSURANCE
-Tobacco position -( Y/N should come from eApp smoking status),  age, UW class (dropdown) -> should be in top section , i.e Application basic info
-Remove table rating (Ratings in screen 5)
-Coverage/Rider fields  - start & end date, amount - from UW_Coverage table
