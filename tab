@@ -1,3 +1,12 @@
+Rider section- big header 
+Riders - Accidental Death Benefit & Waiver of Premium
+Main product name should be - TERM LIFE INSURANCE
+Tobacco position -( Y/N should come from eApp smoking status),  age, UW class (dropdown) -> should be in top section , i.e Application basic info
+Remove table rating (Ratings in screen 5)
+Coverage/Rider fields  - start & end date, amount - from UW_Coverage table
+
+
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
