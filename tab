@@ -1,139 +1,269 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, Paper, Typography, Grid, TextField, 
-  Button, Stack, IconButton, CircularProgress, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  MenuItem, Select, FormControl, InputLabel, Chip, Divider,
-  Checkbox
-} from '@mui/material';
-import { ArrowBack, Person, Assignment, LocalHospital, Assessment, Gavel } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from '../../api/axiosInterceptor';
-import dayjs from 'dayjs';
-import DecisionModal, { PolicyProduct } from './DecisionModal';
-
-/* ================= INTERFACES ================= */
-interface ApiRecord {
-  quotation_id: string;
-  screen_No: number;
-  json_DATA: string;
-  creation_TIME: string;
-  version_NO: number;
-}
-
-interface UnderwritingCase {
-  uwCode: string;
-  creationDate: string;
-  applicantName: string;
-  serviceType: string;
-  appNumber: string;
-  policyNumber: string;
-  agentCode: string;
-  branch: string;
-  productName: string;
-  email: string;
-  mobile: string;
-  dob: string;
-  gender: string;
-  heightWeight: string;
-  occupation: string;
-  income: string;
-  sumAssured: string;
-  premium: string;
-  address: string;
-  occLevelLife: string;
-  occLevelAccident: string;
-  occLevelHealth: string;
-  tpdExposure: string;
-  medicalReport: string;
-}
-
-interface PolicyRow {
-  id: string;
+ 
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+ 
+interface ApplicationData {
+  clientName: string;
+  clientNo: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
   productName: string;
   sumAssured: string;
-  premium: string;
-  status: string;
+  annualPremium: string;
+  issueDate: string;
 }
-
-/* ================= MAIN COMPONENT ================= */
-const UnderwritingDetails: React.FC = () => {
+ 
+interface RiderData {
+  coverageAmount: string;
+  startDate: string;
+  endDate: string;
+  issueAge: string;
+  tobacco?: string;
+  uwClass: string;
+  tableRating: string;
+  permFlatExtra?: string;
+  tempFlatExtra?: string;
+  tempFlatExtraDuration?: string;
+}
+ 
+interface FormData {
+  application: ApplicationData;
+  baseRider: RiderData;
+  adbRider: RiderData;
+  waiverRider: RiderData;
+}
+ 
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
   const { txnTypeId } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
+ 
   const [loading, setLoading] = useState(true);
-  const [caseData, setCaseData] = useState<UnderwritingCase | null>(null);
-
-  const [openModal, setOpenModal] = useState(false);
-  const [comments, setComments] = useState('');
-
-  const [riskValues, setRiskValues] = useState({
-    life: '',
-    accident: '',
-    health: ''
+ 
+  /* ===== DATA FROM SCREEN 1 ===== */
+  const policyData: any = location.state?.policyData;
+ 
+  /* ===== FORM DATA ===== */
+  const [formData, setFormData] = useState<FormData>({
+    application: {
+      clientName: '',
+      clientNo: '',
+      quotationNumber: '',
+      quotationDate: '',
+      applicationNumber: '',
+      productName: '',
+      sumAssured: '',
+      annualPremium: '',
+      issueDate: ''
+    },
+    baseRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      tobacco: '',
+      uwClass: '',
+      tableRating: '',
+      permFlatExtra: '',
+      tempFlatExtra: '',
+      tempFlatExtraDuration: ''
+    },
+    adbRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    },
+    waiverRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    }
   });
-
-  const [policyList, setPolicyList] = useState<PolicyRow[]>([]);
-  const [selectedPolicyIds, setSelectedPolicyIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    setLoading(false);
-    setCaseData({
-      uwCode: `UW-${txnTypeId}`,
-      creationDate: dayjs().format('DD MMM YYYY'),
-      applicantName: 'Test User',
-      serviceType: 'New Business',
-      appNumber: txnTypeId || '',
-      policyNumber: 'PENDING',
-      agentCode: 'AG-1029',
-      branch: 'Head Office',
-      productName: 'Life Plan',
-      email: 'test@mail.com',
-      mobile: '9999999999',
-      dob: '01/01/1995',
-      gender: 'Male',
-      heightWeight: 'N/A',
-      occupation: 'Salaried',
-      income: 'INR 5,00,000',
-      sumAssured: '10,00,000',
-      premium: '12,000',
-      address: 'Pune',
-      occLevelLife: 'Class 1',
-      occLevelAccident: 'Class 1',
-      occLevelHealth: 'Standard',
-      tpdExposure: 'Low',
-      medicalReport: 'Pending'
-    });
-
-    setPolicyList([
-      {
-        id: 'POL-001',
-        productName: 'Life Plan',
-        sumAssured: '10,00,000',
-        premium: '12,000',
-        status: 'Pending'
+ 
+ 
+  /* ===== UW STATUS (backend later) ===== */
+  const uwStatus: UWStatus = "UW In Progress";
+ 
+  /* ===== EDIT RULE ===== */
+  const editable = uwStatus !== "UW Complete";
+ 
+  const mapBackendToState = (backendData: any): FormData => {
+    return {
+      application: {
+        clientName: '',
+        clientNo: '',
+        quotationNumber: backendData.policyId || '',
+        quotationDate: '',
+        applicationNumber: backendData.policyId || '',
+        productName: backendData.product || 'Life Insurance',
+        sumAssured: backendData.sa?.toString() || '',
+        annualPremium: backendData.periodPrem?.toString() || '',
+        issueDate: ''
+      },
+      baseRider: {
+        coverageAmount: backendData.sa?.toString() || '',
+        startDate: '',
+        endDate: '',
+        issueAge: '',
+        tobacco: '',
+        uwClass: '',
+        tableRating: '',
+        permFlatExtra: '',
+        tempFlatExtra: '',
+        tempFlatExtraDuration: ''
+      },
+      adbRider: {
+        coverageAmount: '',
+        startDate: '',
+        endDate: '',
+        issueAge: '',
+        uwClass: '',
+        tableRating: ''
+      },
+      waiverRider: {
+        coverageAmount: '',
+        startDate: '',
+        endDate: '',
+        issueAge: '',
+        uwClass: '',
+        tableRating: ''
       }
-    ]);
-  }, [txnTypeId]);
-
+    };
+  };
+ 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (policyData) {
+          setFormData(prev => ({
+            ...prev,
+            application: {
+              clientName: policyData.clientName || '',
+              clientNo: policyData.clientNo || '',
+              quotationNumber: policyData.quotationNumber || '',
+              quotationDate: policyData.quotationDate || '',
+              applicationNumber: policyData.applicationNumber || '',
+              productName: policyData.productName || '',
+              sumAssured: policyData.sumAssured || '',
+              annualPremium: policyData.annualPremium || '',
+              issueDate: policyData.issueDate || ''
+            },
+            baseRider: {
+              ...prev.baseRider,
+              coverageAmount: policyData.sumAssured || ''
+            }
+          }));
+        } else if (txnTypeId) {
+          const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+          const allUwPolicies = response.data;
+          const matchingPolicy = allUwPolicies.find((policy: any) => policy.policyId === txnTypeId);
+         
+          if (matchingPolicy) {
+            const mappedData = mapBackendToState(matchingPolicy);
+            setFormData(mappedData);
+          }
+        }
+      } catch (error) {
+        // Error handled silently
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [policyData, txnTypeId]);
+ 
+  const handleInputChange = (section: keyof FormData, field: string, value: string) => {
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value
+        }
+      };
+     
+      // Sync Sum Assured with Coverage Amount
+      if (section === 'application' && field === 'sumAssured') {
+        updated.baseRider.coverageAmount = value;
+      }
+     
+      return updated;
+    });
+  };
+ 
+  const handleSave = async () => {
+    try {
+      // Find the existing UwPolicy record first
+      const response = await axios.get('http://localhost:8001/eapp/getAllUw');
+      const allUwPolicies = response.data;
+      const existingPolicy = allUwPolicies.find((policy: any) => policy.policyId === txnTypeId);
+     
+      if (!existingPolicy) {
+        alert('Policy not found for update');
+        return;
+      }
+     
+      // Update only the changed fields, keep existing values for others
+      const payload = {
+        uwid: existingPolicy.uwid,
+        policyId: existingPolicy.policyId,
+        underwriterId: existingPolicy.underwriterId,
+        uwDetailId: existingPolicy.uwDetailId,
+        assignRole: existingPolicy.assignRole,
+        sa: parseFloat(formData.application.sumAssured) || existingPolicy.sa,
+        periodPrem: parseFloat(formData.application.annualPremium) || existingPolicy.periodPrem,
+        normalPrem: parseFloat(formData.application.annualPremium) || existingPolicy.normalPrem,
+        stateId: existingPolicy.stateId,
+        product: formData.application.productName || existingPolicy.product
+      };
+     
+     
+      // Use existing /eapp/update endpoint
+      const updateResponse = await axios.post('http://localhost:8001/eapp/update', payload);
+     
+      alert('Data saved successfully!');
+    } catch (error: any) {
+      alert('Error saving data: ' + (error.response?.data?.message || error.message));
+    }
+  };
+ 
   if (loading) {
     return (
-      <Box sx={{ p: 5, textAlign: 'center' }}>
+      <Box sx={{ p: 5, textAlign: "center" }}>
         <CircularProgress />
       </Box>
     );
   }
-
-  if (!caseData) {
-    return null;
-  }
-
+ 
   return (
-    <Box sx={{ p: 3, maxWidth: 1400, margin: 'auto', backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
-
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+ 
       {/* ================= HEADER ================= */}
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <IconButton onClick={() => navigate('/underwriting')}>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
           <ArrowBack />
         </IconButton>
         <Box>
@@ -145,917 +275,297 @@ const UnderwritingDetails: React.FC = () => {
           </Typography>
         </Box>
       </Stack>
-
-      {/* ================= BASIC INFO ================= */}
+ 
+      {/* ================= Application Basic Info ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
           Application Basic Info
         </Typography>
-        <Grid container spacing={2} mt={1}>
-          <Grid item xs={12} md={4}><TextField label="Applicant Name" value={caseData.applicantName} fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Product Name" value={caseData.productName} fullWidth disabled /></Grid>
-          <Grid item xs={12} md={4}><TextField label="Sum Assured" value={caseData.sumAssured} fullWidth disabled /></Grid>
+ 
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Client Name"
+              fullWidth
+              value={formData.application.clientName}
+              onChange={(e) => handleInputChange('application', 'clientName', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Client No."
+              fullWidth
+              value={formData.application.clientNo}
+              onChange={(e) => handleInputChange('application', 'clientNo', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Number" fullWidth value={formData.application.quotationNumber} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Quotation Date" type="date" InputLabelProps={{ shrink: true }} fullWidth value={formData.application.quotationDate} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Application Number" fullWidth value={formData.application.applicationNumber} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Product Name" fullWidth value={formData.application.productName} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Sum Assured"
+              fullWidth
+              value={formData.application.sumAssured}
+              onChange={(e) => handleInputChange('application', 'sumAssured', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Annual Premium" fullWidth value={formData.application.annualPremium} disabled />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Issue Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.application.issueDate}
+              onChange={(e) => handleInputChange('application', 'issueDate', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
         </Grid>
       </Paper>
-
-      {/* ================= UNDERWRITING ACTION ================= */}
+ 
+      {/* ================= Rider Type – Base ================= */}
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6">Underwriting Action</Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={2}
-          label="Comments"
-          value={comments}
-          onChange={(e) => setComments(e.target.value)}
-          sx={{ mt: 2 }}
-        />
+        <Typography variant="h6">Rider Type (Base)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Coverage Amount"
+              fullWidth
+              value={formData.baseRider.coverageAmount}
+              onChange={(e) => handleInputChange('baseRider', 'coverageAmount', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.baseRider.startDate}
+              onChange={(e) => handleInputChange('baseRider', 'startDate', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.baseRider.endDate}
+              onChange={(e) => handleInputChange('baseRider', 'endDate', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth value={formData.baseRider.issueAge} disabled /></Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Tobacco"
+              fullWidth
+              value={formData.baseRider.tobacco}
+              onChange={(e) => handleInputChange('baseRider', 'tobacco', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="UW Class"
+              fullWidth
+              value={formData.baseRider.uwClass}
+              onChange={(e) => handleInputChange('baseRider', 'uwClass', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Table Rating"
+              fullWidth
+              value={formData.baseRider.tableRating}
+              onChange={(e) => handleInputChange('baseRider', 'tableRating', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Perm Flat Extra"
+              fullWidth
+              value={formData.baseRider.permFlatExtra}
+              onChange={(e) => handleInputChange('baseRider', 'permFlatExtra', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Temp Flat Extra"
+              fullWidth
+              value={formData.baseRider.tempFlatExtra}
+              onChange={(e) => handleInputChange('baseRider', 'tempFlatExtra', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Temp Flat Extra Duration"
+              fullWidth
+              value={formData.baseRider.tempFlatExtraDuration}
+              onChange={(e) => handleInputChange('baseRider', 'tempFlatExtraDuration', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+        </Grid>
       </Paper>
-
-      {/* ================= BACK / NEXT ================= */}
-      <Paper
-        sx={{
-          p: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          borderTop: '1px solid #e0e0e0'
-        }}
-      >
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/underwriting')}
-        >
-          Back
-        </Button>
-
-        <Button
-          variant="contained"
-          onClick={() => navigate(`/underwriting/coverage/${txnTypeId}`)}
-        >
-          Next
-        </Button>
+ 
+      {/* ================= Rider Type – ADB ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (ADB)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Coverage Amount"
+              fullWidth
+              value={formData.adbRider.coverageAmount}
+              onChange={(e) => handleInputChange('adbRider', 'coverageAmount', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.adbRider.startDate}
+              onChange={(e) => handleInputChange('adbRider', 'startDate', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.adbRider.endDate}
+              onChange={(e) => handleInputChange('adbRider', 'endDate', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth value={formData.adbRider.issueAge} disabled /></Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="UW Class"
+              fullWidth
+              value={formData.adbRider.uwClass}
+              onChange={(e) => handleInputChange('adbRider', 'uwClass', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Table Rating"
+              fullWidth
+              value={formData.adbRider.tableRating}
+              onChange={(e) => handleInputChange('adbRider', 'tableRating', e.target.value)}
+              disabled={!editable}
+            />
+          </Grid>
+        </Grid>
       </Paper>
-
-    </Box>
-  );
-};
-
-export default UnderwritingDetails;
-
-
-
-
-
-
-
-
-
-
-
-
-import * as React from "react";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import LifeAssuredDetails from "./LifeAssuredDetails";
-import PlanAndCoverage from "./PlanAndCoverage";
-import Signatures from "./Signatures";
-import Beneficiary from "./Beneficiary";
-import {
-  Button,
-  Stack,
-  Step,
-  StepButton,
-  Stepper,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import {
-  ArrowBack,
-  ArrowForward,
-  ArrowUpward,
-  Save,
-} from "@mui/icons-material";
-import { useState, useEffect } from "react";
-import axios from "../api/axiosInterceptor";
-import { useParams } from "react-router-dom";
-import Consent from "./Consent";
-import dayjs from "dayjs";
-import PaymentCollection from "./PaymentCollection";
-import Health from "./Health";
-import PaymentInformation from "./PaymentInformation";
-import FatcaCrs from "./FatcaCrs";
-import SupportingDocuments from "./SupportingDocuments";
-import "../styles.css";
-
-const steps = [
-  "Life Assured Details",
-  "Plan & Coverage",
-  "Payment Information",
-  "Beneficiary",
-  "Health",
-  "FATCA & CRS",
-  "Supporting Documents",
-  "Consent",
-  "Signatures",
-  "Payment Collection",
-];
-
-const BasicTabs: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect mobile screens
-
-  const [activeStep, setActiveStep] = useState<number>(0);
-  const [caseDetails, setCaseDetails] = React.useState<any>(null);
-
-  const [pdfArray, setPdfArray] = useState<
-    Uint8Array | ArrayBuffer | undefined
-  >();
-
-  const [lifeAssuredFields, setLifeAssuredFields] = React.useState<{
-    insuredNationality: string;
-    insuredEvidenceOfProof: string;
-    insuredIdNumber: string;
-    customerIdEbao: number;
-    insuredIdExpiryDate: dayjs.Dayjs;
-    insuredTitle: string;
-    insuredFirstName: string;
-    insuredSurName: string;
-    insuredDateOfBirth: dayjs.Dayjs;
-    insuredGender: string;
-    insuredAge: string;
-
-    insuredProvince: string;
-    insuredDistrict: string;
-    imgURL: string;
-    workplaceAddressOptn: string;
-    currentAddressOptn: string;
-    insContactAddressIndicator: string;
-    motorcycleOptn: string;
-    regAddrNum: string;
-    regAddrVilla: string;
-    regAddrMooNum: string;
-    regAddrAlley: string;
-    regAddrStrNum: string;
-    regAddrSubDist: string;
-    regAddrZipCode: string;
-    regFullAddr: string;
-    familyMemberType: string;
-    insuredMritalStatus: string;
-
-    workCompanyName: string;
-    workAddrNum: string;
-    workAddrVilla: string;
-    workAddrMooNum: string;
-    workAddrAlley: string;
-    workAddrStrNum: string;
-    insuredWorkProvince: string;
-    insuredWorkDistrict: string;
-    workAddrSubDist: string;
-    workAddrZipCode: string;
-    workFullAddress: string;
-
-    cRegAddNum: string;
-    cRegAddVilla: string;
-    cRegAddMoo: string;
-    cRegAddAlley: string;
-    cRegAddStrNum: string;
-    cRegAddProvince: string;
-    cRegAddDist: string;
-    cRegAddSubDis: string;
-    cRegAddZipCode: string;
-    contactFullAddr: string;
-
-    primaryNumber: string;
-    homeNumber: string;
-    workPhoneNumber: string;
-
-    occupationCode: string;
-    emailAddress: string;
-    positionHeld: string;
-    occupationDetail: string;
-    businessDetail: string;
-    annualIncome: string;
-    otherOccupation: string;
-  }>({
-    insuredNationality: "",
-    insuredEvidenceOfProof: "",
-    insuredIdNumber: "",
-    customerIdEbao: 0,
-    insuredIdExpiryDate: dayjs(),
-    insuredTitle: "Mr",
-    insuredFirstName: "",
-    insuredSurName: "",
-    insuredDateOfBirth: dayjs().subtract(18, "year"),
-    insuredGender: "",
-    insuredAge: "",
-
-    insuredProvince: "",
-    insuredDistrict: "",
-    imgURL: "",
-    workplaceAddressOptn: "Yes",
-    currentAddressOptn: "Registered Address",
-    insContactAddressIndicator: "Registered Address",
-    motorcycleOptn: "No",
-    regAddrNum: "",
-    regAddrVilla: "",
-    regAddrMooNum: "",
-    regAddrAlley: "",
-    regAddrStrNum: "",
-    regAddrSubDist: "",
-    regAddrZipCode: "",
-    regFullAddr: "",
-    familyMemberType: "",
-    insuredMritalStatus: "",
-
-    workCompanyName: "",
-    workAddrNum: "",
-    workAddrVilla: "",
-    workAddrMooNum: "",
-    workAddrAlley: "",
-    workAddrStrNum: "",
-    insuredWorkProvince: "",
-    insuredWorkDistrict: "",
-    workAddrSubDist: "",
-    workAddrZipCode: "",
-    workFullAddress: "",
-
-    cRegAddNum: "",
-    cRegAddVilla: "",
-    cRegAddMoo: "",
-    cRegAddAlley: "",
-    cRegAddStrNum: "",
-    cRegAddProvince: "",
-    cRegAddDist: "",
-    cRegAddSubDis: "",
-    cRegAddZipCode: "",
-    contactFullAddr: "",
-
-    primaryNumber: "",
-    homeNumber: "",
-    workPhoneNumber: "",
-
-    occupationCode: "",
-    emailAddress: "",
-    positionHeld: "",
-    occupationDetail: "",
-    businessDetail: "",
-    annualIncome: "",
-    otherOccupation: "",
-  });
-
-  const [planAndCoverageFields, setPlanAndCoverageFields] = React.useState<{
-    basicPlan: string;
-    basicSumInsured: string;
-    basicPlanPremium: string;
-    typeOfDivident: string;
-    insuranceTerm: string;
-    ppt: string;
-    Product: string;
-    Policy_Inception_Date: string;
-    Smoker: string;
-    Pre_Existing_Disease: string;
-    Extra_mortality: string;
-    Policy_Term: string;
-    Mandatory_Premium_Period: string;
-    PAV: string;
-    per_mille_rating_death: string;
-    per_mille_rating_TPD: string;
-    per_mille_rating_SCI: string;
-    Death_Benefit: string;
-    Total_and_Permanent_Disability_TPD: string;
-    Accidental_Death_and_Dismemberment_ADD: string;
-    Staged_Critical_Illness_SCI: string;
-    _2e_Hospital_Cash_Benefit_HCB: string;
-    Partial_Withdrawl: string;
-    Partial_Withdrawl_Amount: string;
-  }>({
-    basicPlan: "",
-    basicSumInsured: "",
-    basicPlanPremium: "",
-    typeOfDivident: "",
-    insuranceTerm: "",
-    ppt: "",
-    Product: "",
-    Policy_Inception_Date: "",
-    Smoker: "",
-    Pre_Existing_Disease: "",
-    Extra_mortality: "",
-    Policy_Term: "",
-    Mandatory_Premium_Period: "",
-    PAV: "",
-    per_mille_rating_death: "",
-    per_mille_rating_TPD: "",
-    per_mille_rating_SCI: "",
-    Death_Benefit: "",
-    Total_and_Permanent_Disability_TPD: "",
-    Accidental_Death_and_Dismemberment_ADD: "",
-    Staged_Critical_Illness_SCI: "",
-    _2e_Hospital_Cash_Benefit_HCB: "",
-    Partial_Withdrawl: "",
-    Partial_Withdrawl_Amount: "",
-  });
-
-  const [paymentInformationFields, setPaymentInformationFields] =
-    React.useState<{
-      PayerIsDifferentPerson: string;
-      ModeofPayment: string;
-      totalPremium: string;
-      AmountOfPaymentWithThisApplication: string;
-      AccountHolderFullName: string;
-      AccountNumber: string;
-      TypeOfAccount: string;
-      BankNames: string;
-      BankBranchNames: string;
-      renewalPremPayMethod: string;
-      renewalPaymentFrequency: string;
-      paymentMethod: string;
-      bookBank: any;
-      checkBox: boolean;
-      firstPremium: string;
-
-      basicPlan: string;
-    }>({
-      PayerIsDifferentPerson:
-        "Payer is different person owner to insured person",
-      ModeofPayment: "Yearly",
-      totalPremium: "",
-      AmountOfPaymentWithThisApplication: "",
-      AccountHolderFullName: "",
-      AccountNumber: "",
-      TypeOfAccount: "",
-      BankNames: "",
-      BankBranchNames: "",
-      renewalPremPayMethod: "Cash",
-      renewalPaymentFrequency: "Yearly",
-      paymentMethod: "Cash",
-      bookBank: "",
-      checkBox: true,
-      firstPremium: "",
-      basicPlan: "",
-    });
-
-  const [beneficiaryFields, setBeneficiaryFields] = React.useState<
-    {
-      beneficiaryFirstName: string;
-      beneficiaryLastName: string;
-      beneficiaryAge: number;
-      relationshipWithInsured: string;
-      address: string;
-      percentageOfBenefit: number;
-    }[]
-  >([
-    {
-      beneficiaryFirstName: "",
-      beneficiaryLastName: "",
-      beneficiaryAge: 18,
-      relationshipWithInsured: "",
-      address: "",
-      percentageOfBenefit: 0,
-    },
-  ]);
-
-  const [signatureFields, setSignatureFields] = React.useState<{
-    signURL: string;
-  }>({ signURL: "" });
-
-  const [healthFields, setHealthFields] = React.useState<{
-    Questionnaire11: string;
-    Questionnaire10: string;
-    Questionnaire9: string;
-    Questionnaire8: string;
-    Questionnaire7: string;
-    Questionnaire6: string;
-    Questionnaire5: string;
-    Questionnaire4: string;
-    Questionnaire3: string;
-    Questionnaire2: string;
-    Questionnaire1: string;
-  }>({
-    Questionnaire11: "",
-    Questionnaire10: "",
-    Questionnaire9: "",
-    Questionnaire8: "Yes",
-    Questionnaire7: "No",
-    Questionnaire6: "No",
-    Questionnaire5: "No",
-    Questionnaire4: "No",
-    Questionnaire3: "No",
-    Questionnaire2: "No",
-    Questionnaire1: "No",
-  });
-
-  const [paymentCollectionFields, setPaymentCollectionFields] = React.useState<{
-    paymentMethod: string;
-    paymentReceived: string;
-    annualPremium: number;
-    paymentDueDate: dayjs.Dayjs;
-    extraPremium: string;
-    other: string;
-    totalPaidAmount: string;
-    amountPaidInWords: string;
-    tempReceiptDate: dayjs.Dayjs;
-
-    //
-    check: string;
-  }>({
-    paymentMethod: "Cash",
-    paymentReceived: "No",
-    annualPremium: 0,
-    paymentDueDate: dayjs().add(15, "day"),
-    extraPremium: "",
-    other: "",
-    totalPaidAmount: "",
-    amountPaidInWords: "",
-    tempReceiptDate: dayjs(),
-
-    //
-    check: "",
-  });
-
-  const [fatcaCrsFields, setFatcaCrsFields] = React.useState<{
-    usaRelatedBirth: string;
-    greenCardStatus: string;
-    usaTaxStatus: string;
-    minimumResidencyCondition: string;
-  }>({
-    usaRelatedBirth: "No",
-    greenCardStatus: "No",
-    usaTaxStatus: "No",
-    minimumResidencyCondition: "No",
-  });
-
-  const [supportingDocumentsFields, setSupportingDocumentsFields] =
-    React.useState<{
-      evidenceDocument: any;
-      medicalExamDocument: any;
-    }>({
-      evidenceDocument: "",
-      medicalExamDocument: "",
-    });
-
-  const [consentFields, setConsentFields] = React.useState<{
-    checkBoxConsent: boolean;
-    parentSignURL: string;
-    laSignURL: string;
-    custLangPrefOptn: string;
-    infoDisclosureConsent: string;
-  }>({
-    checkBoxConsent: false,
-    parentSignURL: "",
-    laSignURL: "",
-    custLangPrefOptn: "English",
-    infoDisclosureConsent: "Yes",
-  });
-
-  const [savedTransaction, setSavedTransaction] = useState([]);
-  const [savedQuotation, setSavedQuotation] = useState([]);
-  const params = useParams();
-  useEffect(() => {
-    async function func() {
-      if (typeof params.txnTypeId !== "undefined") {
-        await axios
-          .get(
-            `http://localhost:8001/api/transaction-detail/getDistinctTransaction?id=${params.txnTypeId}`
-          )
-          .then((res) => {
-            const responseData = res.data;
-            setSavedTransaction(
-              responseData.map(
-                (row: { txn_input_json: string; txn_output_json: string }) => {
-                  row.txn_input_json = JSON.parse(row.txn_input_json);
-                  row.txn_output_json = JSON.parse(row.txn_output_json);
-                  return row;
-                }
-              )
-            );
-            console.log(responseData);
-            // const txn_input = JSON.parse(responseData.txn_input_json)
-            // setSavedTransaction([...txn_input])
-            console.log(savedTransaction);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-        await axios
-          .get(
-            `http://localhost:8001/api/transaction-detail/getTxn?id=${params.txnTypeId}`
-          )
-          .then((res) => {
-            const responseData = res.data;
-            setSavedQuotation(responseData);
-            console.log(responseData);
-            console.log(savedQuotation);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
-    }
-    func();
-  }, []);
-
-  useEffect(() => {
-    if (typeof params.txnTypeId !== "undefined") {
-      const val = activeStep + 1;
-      console.log(val);
-      console.log("Printing txnTypeId: ", params.txnTypeId);
-      
-      axios
-        .get(
-          `http://localhost:8001/eapp/getCaseDetailsByQuotoIdAndScreenNo?quoationId=${params.txnTypeId}&screenNo=${val}`
-        )
-        .then((res) => {
-          console.log(res.data);
-          const responseData = res.data;
-          if (responseData !== "") {
-            responseData.json_DATA = JSON.parse(responseData.json_DATA);
-            setCaseDetails(responseData);
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    }
-  }, [activeStep]);
-
-  useEffect(() => {
-    if (caseDetails && caseDetails.json_DATA) {
-      handleMapData();
-    }
-  }, [caseDetails]);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) =>
-      Math.min(prevActiveStep + 1, steps.length - 1)
-    );
-    scrollToTop();
-  };
-
-  const handleBack = (): void => {
-    setActiveStep((prevActiveStep) => Math.max(prevActiveStep - 1, 0));
-    scrollToTop();
-  };
-
-  const handleStep = (step: number) => () => {
-    setActiveStep(step);
-    scrollToTop();
-  };
-
-  const handleSaveData = () => {
-    let jsonData;
-    switch (activeStep) {
-      case 0:
-        jsonData = {
-          screen_No: 1,
-          json_DATA: JSON.stringify(lifeAssuredFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 1:
-        jsonData = {
-          screen_No: 2,
-          json_DATA: JSON.stringify(planAndCoverageFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 2:
-        jsonData = {
-          screen_No: 3,
-          json_DATA: JSON.stringify(paymentInformationFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 3:
-        jsonData = {
-          screen_No: 4,
-          json_DATA: JSON.stringify(beneficiaryFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 4:
-        jsonData = {
-          screen_No: 5,
-          json_DATA: JSON.stringify(healthFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 5:
-        jsonData = {
-          screen_No: 6,
-          json_DATA: JSON.stringify(fatcaCrsFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 6:
-        jsonData = {
-          screen_No: 7,
-          json_DATA: JSON.stringify(supportingDocumentsFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 7:
-        jsonData = {
-          screen_No: 8,
-          json_DATA: JSON.stringify(consentFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 8:
-        jsonData = {
-          screen_No: 9,
-          json_DATA: JSON.stringify(signatureFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      case 9:
-        jsonData = {
-          screen_No: 10,
-          json_DATA: JSON.stringify(paymentCollectionFields),
-          quotation_id: params.txnTypeId,
-        };
-        break;
-      default:
-        jsonData = {
-          screen_No: 11,
-          json_DATA: {},
-          quotation_id: params.txnTypeId,
-        };
-    }
-
-    console.log(jsonData);
-    console.log(activeStep);
-    // setJsonDataSet(jsonData);
-    return jsonData;
-  };
-  async function onClickSaveDraft(event: { preventDefault: () => void }) {
-    event.preventDefault();
-    const quoteData = handleSaveData();
-    console.log("Quote Data ==> ", quoteData);
-    // setCaseDetails(quoteData);
-    console.log("Case Details ==>", caseDetails);
-    await axios
-      .post("http://localhost:8001/eapp/add", quoteData)
-      .then(function (responseFromBackend) {
-        console.log(responseFromBackend.data);
-        const responseData = responseFromBackend.data;
-        if (responseData !== "") {
-          responseData.json_DATA = JSON.parse(responseData.json_DATA);
-          setCaseDetails(responseData);
-        }
-        // window.location.reload();
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  const handleMapData = () => {
-    switch (activeStep) {
-      case 0:
-        console.log("Line 248 ==>", caseDetails.json_DATA);
-        // const newJdata = caseDetails.json_DATA;
-        // console.log('newJdata parsed ==>',JSON.parse(newJdata));
-        setLifeAssuredFields(() => ({
-          ...caseDetails?.json_DATA,
-        }));
-        break;
-      case 1:
-        setPlanAndCoverageFields(() => caseDetails.json_DATA);
-        break;
-      case 2:
-        setPaymentInformationFields(() => caseDetails.json_DATA);
-        break;
-      case 3:
-        setBeneficiaryFields(() => {
-          console.log(caseDetails.json_DATA);
-          let details = caseDetails.json_DATA;
-          const updatedDetails = details?.map((row: any) => {
-            row = JSON.parse(JSON.stringify(row));
-            return row;
-          });
-          return updatedDetails;
-        });
-        break;
-      case 4:
-        setHealthFields(() => caseDetails.json_DATA);
-        break;
-      case 5:
-        setFatcaCrsFields(() => caseDetails.json_DATA);
-        break;
-      case 6:
-        setSupportingDocumentsFields(() => caseDetails.json_DATA);
-        break;
-      case 7:
-        setConsentFields(() => caseDetails.json_DATA);
-        break;
-      case 8:
-        setSignatureFields(() => caseDetails.json_DATA);
-        break;
-      case 9:
-        setPaymentCollectionFields(() => caseDetails.json_DATA);
-        break;
-      default:
-        break;
-    }
-  };
-  const generatePdf = () => {
-    //if (typeof params.txnTypeId !== "undefined") {
-
-    const dataToBeSent = params.txnTypeId;
-    console.log(dataToBeSent);
-
-    axios
-      .post(
-        "http://localhost:8001/api/generate-pdf-service/generateEappPdf",
-        dataToBeSent,
-        { responseType: "arraybuffer" }
-      )
-      .then(function (res) {
-        const file = new Blob([res.data], { type: "application/pdf" });
-        //Build a URL from the file
-        const fileURL = URL.createObjectURL(file);
-        //Open the URL on new Window
-        window.open(fileURL);
-        console.log(res);
-      })
-      .catch(function (error) {
-        console.log("PDF Error");
-        console.log(error);
-      });
-  };
-
-  return (
-    <Box
-      sx={{
-        width: "100%",
-
-        bgcolor: "#C9E9EA",
-        border: "1px solid black",
-
-        p: isMobile ? 1 : 3,
-
-        overflowX: "hidden", // Prevent horizontal scrolling
-      }}
-    >
-      {/* Stepper (Scrollable on small screens) */}
-      <Box
-        sx={{
-          overflowX: isMobile ? "auto" : "visible",
-
-          whiteSpace: isMobile ? "nowrap" : "normal",
-
-          maxWidth: "100vw",
-        }}
-      >
-        <Stepper activeStep={activeStep} alternativeLabel nonLinear>
-          {steps.map((label, index) => (
-            <Step key={label}>
-              <StepButton
-                className="custom-step-button"
-                onClick={handleStep(index)}
-              >
-                {label}
-              </StepButton>
-            </Step>
-          ))}
-        </Stepper>
-      </Box>
-
-      {/* Forms */}
-      <Box sx={{ mt: 2, mb: 1 }}>
-        <Typography component="div">
-          {activeStep === 0 && (
-            <LifeAssuredDetails
-              fields={lifeAssuredFields}
-              setFields={setLifeAssuredFields}
-              savedTransaction={savedTransaction}
+ 
+      {/* ================= Rider Type – Waiver of Premium ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Waiver of Premium)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Coverage Amount"
+              fullWidth
+              value={formData.waiverRider.coverageAmount}
+              onChange={(e) => handleInputChange('waiverRider', 'coverageAmount', e.target.value)}
+              disabled={!editable}
             />
-          )}
-
-          {activeStep === 1 && (
-            <PlanAndCoverage
-              fields={planAndCoverageFields}
-              setFields={setPlanAndCoverageFields}
-              savedTransaction={savedTransaction}
-              savedQuotation={savedQuotation}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.waiverRider.startDate}
+              onChange={(e) => handleInputChange('waiverRider', 'startDate', e.target.value)}
+              disabled={!editable}
             />
-          )}
-
-          {activeStep === 2 && (
-            <PaymentInformation
-              fields={paymentInformationFields}
-              setFields={setPaymentInformationFields}
-              savedTransaction={savedTransaction}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              value={formData.waiverRider.endDate}
+              onChange={(e) => handleInputChange('waiverRider', 'endDate', e.target.value)}
+              disabled={!editable}
             />
-          )}
-
-          {activeStep === 3 && (
-            <Beneficiary
-              fields={beneficiaryFields}
-              setFields={setBeneficiaryFields}
+          </Grid>
+          <Grid item xs={12} md={4}><TextField label="Issue Age" fullWidth value={formData.waiverRider.issueAge} disabled /></Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="UW Class"
+              fullWidth
+              value={formData.waiverRider.uwClass}
+              onChange={(e) => handleInputChange('waiverRider', 'uwClass', e.target.value)}
+              disabled={!editable}
             />
-          )}
-
-          {activeStep === 4 && (
-            <Health fields={healthFields} setFields={setHealthFields} />
-          )}
-
-          {activeStep === 5 && (
-            <FatcaCrs fields={fatcaCrsFields} setFields={setFatcaCrsFields} />
-          )}
-
-          {activeStep === 6 && (
-            <SupportingDocuments
-              fields={supportingDocumentsFields}
-              setFields={setSupportingDocumentsFields}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Table Rating"
+              fullWidth
+              value={formData.waiverRider.tableRating}
+              onChange={(e) => handleInputChange('waiverRider', 'tableRating', e.target.value)}
+              disabled={!editable}
             />
-          )}
-
-          {activeStep === 7 && (
-            <Consent fields={consentFields} setFields={setConsentFields} />
-          )}
-
-          {activeStep === 8 && (
-            <Signatures
-              fields={signatureFields}
-              setFields={setSignatureFields}
-            />
-          )}
-
-          {activeStep === 9 && (
-            <PaymentCollection
-              fields={paymentCollectionFields}
-              setFields={setPaymentCollectionFields}
-              savedTransaction={savedTransaction}
-            />
-          )}
-        </Typography>
-
-        {/* Responsive Buttons */}
-        <Stack
-          spacing={2}
-          direction={isMobile ? "column" : "row"} // Stack vertically on small screens
-          justifyContent={"flex-end"}
-          px={isMobile ? 2 : 5}
-          pb={3}
-        >
-          <Button
-            className="styled-button-secondary"
-            onClick={onClickSaveDraft}
-            variant="outlined"
-            startIcon={<Save />}
-          >
+          </Grid>
+        </Grid>
+      </Paper>
+ 
+      {/* ================= ACTION BUTTONS ================= */}
+      <Paper sx={{ p: 2 }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => navigate("/underwriting")}>
+            Back
+          </Button>
+          <Button variant="contained" disabled={!editable} onClick={handleSave}>
             Save
           </Button>
           <Button
-            className="styled-button-secondary"
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            variant="outlined"
-            startIcon={<ArrowBack />}
+            variant="contained"
+            onClick={() => navigate(`/underwriting/${txnTypeId}/details`)}
           >
-            Back
+            Next
           </Button>
-
-          {activeStep !== steps.length - 1 ? (
-            <Button
-              className="styled-button-secondary"
-              variant="outlined"
-              onClick={handleNext}
-              endIcon={<ArrowForward />}
-            >
-              Next
-            </Button>
-          ) : (
-            <>
-              <Button
-                className="styled-button-secondary"
-                variant="outlined"
-                startIcon={<ArrowUpward />}
-              >
-                Submit
-              </Button>
-              <Button
-                className="styled-button-secondary"
-                variant="outlined"
-                onClick={generatePdf}
-              >
-                Generate PDF
-              </Button>
-            </>
-          )}
         </Stack>
-      </Box>
+      </Paper>
+ 
     </Box>
   );
 };
-export default BasicTabs;
+ 
+export default ApplicationBasicInfo;
