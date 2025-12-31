@@ -1268,6 +1268,39 @@ const ApplicationBasicInfo: React.FC = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <TextField
+              label="Tobacco (Y/N)"
+              fullWidth
+              value={formData.application.tobacco}
+              disabled
+              placeholder="Y/N"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Age"
+              fullWidth
+              value={formData.application.issueAge}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <FormControl fullWidth disabled={!editable}>
+              <InputLabel>UW Class</InputLabel>
+              <Select
+                value={formData.application.uwClass}
+                label="UW Class"
+                onChange={(e) => handleInputChange('application', 'uwClass', e.target.value)}
+              >
+                {uwClassOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
               label="Sum Assured"
               fullWidth
               value={formData.application.sumAssured}
@@ -1289,47 +1322,12 @@ const ApplicationBasicInfo: React.FC = () => {
               disabled={!editable}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              label="Tobacco (Y/N)"
-              fullWidth
-              value={formData.application.tobacco}
-              onChange={(e) => handleInputChange('application', 'tobacco', e.target.value)}
-              disabled={!editable}
-              placeholder="Y/N"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              label="Issue Age"
-              fullWidth
-              value={formData.application.issueAge}
-              onChange={(e) => handleInputChange('application', 'issueAge', e.target.value)}
-              disabled={!editable}
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth disabled={!editable}>
-              <InputLabel>UW Class</InputLabel>
-              <Select
-                value={formData.application.uwClass}
-                label="UW Class"
-                onChange={(e) => handleInputChange('application', 'uwClass', e.target.value)}
-              >
-                {uwClassOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
         </Grid>
       </Paper>
  
       {/* ================= RIDERS SECTION HEADER ================= */}
-      <Typography variant="h5" fontWeight="bold" sx={{ mb: 3, mt: 4 }}>
-        Riders
+      <Typography variant="h4" fontWeight="bold" sx={{ mb: 3, mt: 4, fontSize: '1.75rem' }}>
+        Riders - Accidental Death Benefit & Waiver of Premium
       </Typography>
  
       {/* ================= Rider Type – Accidental Death Benefit ================= */}
