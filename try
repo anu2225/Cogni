@@ -1,3 +1,279 @@
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Stack,
+  IconButton,
+  CircularProgress,
+  MenuItem
+} from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import axios from '../../api/axiosInterceptor';
+
+/* ================= TYPES ================= */
+type UWStatus = "UW Ready" | "UW In Progress" | "UW Complete";
+
+interface ApplicationData {
+  clientName: string;
+  clientNo: string;
+  quotationNumber: string;
+  quotationDate: string;
+  applicationNumber: string;
+  productName: string;
+  sumAssured: string;
+  annualPremium: string;
+  issueDate: string;
+  tobacco: string;     // ADDED
+  age: string;         // ADDED
+  uwClass: string;     // ADDED
+}
+
+interface RiderData {
+  coverageAmount: string;
+  startDate: string;
+  endDate: string;
+  issueAge: string;
+  tobacco?: string;
+  uwClass: string;
+  tableRating: string;               // NOT REMOVED
+  permFlatExtra?: string;
+  tempFlatExtra?: string;
+  tempFlatExtraDuration?: string;
+}
+
+interface FormData {
+  application: ApplicationData;
+  baseRider: RiderData;
+  adbRider: RiderData;
+  waiverRider: RiderData;
+}
+
+/* ================= COMPONENT ================= */
+const ApplicationBasicInfo: React.FC = () => {
+  const { txnTypeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [loading, setLoading] = useState(true);
+  const policyData: any = location.state?.policyData;
+
+  const [formData, setFormData] = useState<FormData>({
+    application: {
+      clientName: '',
+      clientNo: '',
+      quotationNumber: '',
+      quotationDate: '',
+      applicationNumber: '',
+      productName: 'TERM LIFE INSURANCE',
+      sumAssured: '',
+      annualPremium: '',
+      issueDate: '',
+      tobacco: '',
+      age: '',
+      uwClass: ''
+    },
+    baseRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      tobacco: '',
+      uwClass: '',
+      tableRating: '',
+      permFlatExtra: '',
+      tempFlatExtra: '',
+      tempFlatExtraDuration: ''
+    },
+    adbRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    },
+    waiverRider: {
+      coverageAmount: '',
+      startDate: '',
+      endDate: '',
+      issueAge: '',
+      uwClass: '',
+      tableRating: ''
+    }
+  });
+
+  const uwStatus: UWStatus = "UW In Progress";
+  const editable = uwStatus !== "UW Complete";
+
+  useEffect(() => {
+    if (policyData) {
+      setFormData(prev => ({
+        ...prev,
+        application: {
+          ...prev.application,
+          clientName: policyData.clientName || '',
+          clientNo: policyData.clientNo || '',
+          quotationNumber: policyData.quotationNumber || '',
+          quotationDate: policyData.quotationDate || '',
+          applicationNumber: policyData.applicationNumber || '',
+          sumAssured: policyData.sumAssured || '',
+          annualPremium: policyData.annualPremium || ''
+        },
+        baseRider: {
+          ...prev.baseRider,
+          coverageAmount: policyData.sumAssured || ''
+        }
+      }));
+    }
+    setLoading(false);
+  }, [policyData]);
+
+  const handleInputChange = (section: keyof FormData, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 5, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, margin: "auto", backgroundColor: "#f4f6f8" }}>
+
+      {/* ================= HEADER ================= */}
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <IconButton onClick={() => navigate("/underwriting")}>
+          <ArrowBack />
+        </IconButton>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">
+            Underwriting Details
+          </Typography>
+          <Typography variant="body2">
+            Application : {txnTypeId}
+          </Typography>
+        </Box>
+      </Stack>
+
+      {/* ================= Application Basic Info ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Application Basic Info
+        </Typography>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client Name" fullWidth value={formData.application.clientName} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Client No." fullWidth value={formData.application.clientNo} />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField label="Product Name" fullWidth value="TERM LIFE INSURANCE" disabled />
+          </Grid>
+
+          {/* TOP FIELDS */}
+          <Grid item xs={12} md={4}>
+            <TextField
+              select
+              label="Tobacco (Y/N)"
+              fullWidth
+              value={formData.application.tobacco}
+              onChange={(e) => handleInputChange('application', 'tobacco', e.target.value)}
+            >
+              <MenuItem value="Y">Yes</MenuItem>
+              <MenuItem value="N">No</MenuItem>
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Age"
+              fullWidth
+              value={formData.application.age}
+              onChange={(e) => handleInputChange('application', 'age', e.target.value)}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <TextField
+              select
+              label="UW Class"
+              fullWidth
+              value={formData.application.uwClass}
+              onChange={(e) => handleInputChange('application', 'uwClass', e.target.value)}
+            >
+              <MenuItem value="Standard">Standard</MenuItem>
+              <MenuItem value="Substandard">Substandard</MenuItem>
+            </TextField>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= RIDER HEADER ================= */}
+      <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+        Riders – Accidental Death Benefit & Waiver of Premium
+      </Typography>
+
+      {/* ================= Base Rider ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Rider Type (Base)</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth value={formData.baseRider.coverageAmount} /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= ADB Rider ================= */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6">Accidental Death Benefit</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+        </Grid>
+      </Paper>
+
+      {/* ================= Waiver Rider ================= */}
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h6">Waiver of Premium</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}><TextField label="Coverage Amount" fullWidth /></Grid>
+          <Grid item xs={12} md={4}><TextField label="Start Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+          <Grid item xs={12} md={4}><TextField label="End Date" type="date" InputLabelProps={{ shrink: true }} fullWidth /></Grid>
+        </Grid>
+      </Paper>
+
+    </Box>
+  );
+};
+
+export default ApplicationBasicInfo;
+
+
+
+
+
+
+
+
+
+
 Rider section- big header 
 Riders - Accidental Death Benefit & Waiver of Premium
 
